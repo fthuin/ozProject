@@ -109,16 +109,21 @@ end
 fun {HPDamage T1 T2}
    if T1==grass andthen T2==grass then 2
    elseif T1==grass andthen T2==fire then 1
-   elseif T1==grass andthen T2==water then 3
-   elseif T1==fire andthen T2==grass then 3
-   elseif T1==fire andthen T2==fire then 2
-   elseif T1==fire andthen T2==water then 1
-   elseif T1==water andthen T2==grass then 1
-   elseif T1==water andthen T2==fire then 3
-   elseif T1==water andthen T2==water then 2
+
    end
 end
 
+fun {HPDamage T1 T2}
+   case T1#T2 of grass#grass then 2
+   [] grass#fire then 1
+   [] grass#water then 3
+   [] fire#grass then 3
+   [] fire#fire then 2
+   [] fire#water then 1
+   [] water#grass then 1
+   [] water#T2==fire then 3
+   [] water#T2==water then 2
+end 
 %{Browse {HPDamage fire fire}}
 
 % LA is the attacker level
