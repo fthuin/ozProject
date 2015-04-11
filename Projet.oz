@@ -105,7 +105,7 @@ end
 
 % T1 is the attacker
 % T2 is the defencer
-
+% TODO : Remplacer par un tuple T1#T2 et faire les conditions + jolies
 fun {HPDamage T1 T2}
    if T1==grass andthen T2==grass then 2
    elseif T1==grass andthen T2==fire then 1
