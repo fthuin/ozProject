@@ -16,7 +16,9 @@ Map=map(r(1 1 1 0 0 0 0)
 	r(0 0 0 1 1 1 1)
 	r(0 0 0 1 1 0 0)
 	r(0 0 0 0 0 0 0))
-
+PLAYER_MAXSTEP=8 % Nombre maximum de case par tour
+Command
+CommandPort = {NewPort Command}
 Desc
 Window
 
@@ -59,7 +61,34 @@ proc {InitLayout Map}
    end
    proc{DrawBox Color X Y}
        {Canvas create(rect X*WidthBox Y*HeightBox X*WidthBox+WidthBox Y*HeightBox+HeightBox fill:Color outline:black)}
+   end
+   proc{Game OldX OldY Command}
+      NewX NewY
+      NextCommand
+      fun{UserCommand Command Count X Y LX LY}
+	 IX IY in
+	 case Command of c(DX DY)|T then
+	    if Count == PLAYER_MAXSTEP then
+	       {UserCommand T Count X Y  LX LY}
+	    else
+	       IX = X+DX
+	       IY = Y+DY
+	       {Browse X}
+	       {Browse Y}
+	       {DrawBox white X Y}
+	       {DrawBox blue IX IY}
+	       {UserCommand T Count+1 IX IY LX LY}
+	    end
+	 [] finish|T then
+	    LX = X
+	    LY = Y
+	    T
+	 end
       end
+   in
+      NextCommand = {UserCommand Command 0 OldX OldY NewX NewY}
+      {Game NewX NewY NextCommand}
+   end
 in
    NH = {Length {Arity Map}}
    if NH > 0 then
@@ -72,18 +101,23 @@ in
 	       height:H
 	       handle:Canvas))
    Window={QTk.build Desc}
-   
+   {Browse ok2}
    {DrawHline 0 0 0 H}
    {DrawVline 0 0 W 0}
    {DrawElements Map}
+   {DrawBox blue NW-1 NH-1}
+   thread {Game NW-1 NH-1 Command} end
+   {Browse ok1}
 end
 
 {InitLayout Map}
 
-PLAYER_MAXSTEP=1 % Nombre maximum de case par tour
-Command
-CommandPort = {NewPort Command}
-
+{Window bind(event:"<Up>" action:proc{$} {Send CommandPort c(0 ~1)} end)}
+{Window bind(event:"<Left>" action:proc{$} {Send CommandPort c(~1 0)} end)}
+{Window bind(event:"<Down>" action:proc{$} {Send CommandPort c(0 1)}  end)}
+{Window bind(event:"<Right>" action:proc{$} {Send CommandPort c(1 0)} end)}
+{Window bind(event:"<space>" action:proc{$} {Send CommandPort finish} end)}
+{Browse ok3}
 SpeedDelay = 200
 AutoFight = true
 %AutoFight=false
@@ -105,14 +139,6 @@ end
 
 % T1 is the attacker
 % T2 is the defencer
-% TODO : Remplacer par un tuple T1#T2 et faire les conditions + jolies
-fun {HPDamage T1 T2}
-   if T1==grass andthen T2==grass then 2
-   elseif T1==grass andthen T2==fire then 1
-
-   end
-end
-
 fun {HPDamage T1 T2}
    case T1#T2 of grass#grass then 2
    [] grass#fire then 1
@@ -121,8 +147,9 @@ fun {HPDamage T1 T2}
    [] fire#fire then 2
    [] fire#water then 1
    [] water#grass then 1
-   [] water#T2==fire then 3
-   [] water#T2==water then 2
+   [] water#fire then 3
+   [] water#water then 2
+   end
 end 
 %{Browse {HPDamage fire fire}}
 
