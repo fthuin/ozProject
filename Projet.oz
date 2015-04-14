@@ -2,13 +2,17 @@ declare
 
 [QTk]={Module.link ["x-oz://system/wp/QTk.ozf"]}
 
-Canvas
-WidthBox=40 % Largeur de case
-HeightBox=40 % Hauteur de case
+
+
+WidthBox  = 40     % Largeur de case
+HeightBox = 40     % Hauteur de case
+PLAYER_MAXSTEP = 8 % Nombre maximum de case par tour
+
 NW % Nombre de cases par ligne
 NH % Nombre de cases par colonne
-W % Largeur totale
-H % Hauteur totale
+W  % Largeur totale
+H  % Hauteur totale
+
 Map=map(r(1 1 1 0 0 0 0)
 	r(1 1 1 0 0 1 1)
 	r(1 1 1 0 0 1 1)
@@ -16,30 +20,14 @@ Map=map(r(1 1 1 0 0 0 0)
 	r(0 0 0 1 1 1 1)
 	r(0 0 0 1 1 0 0)
 	r(0 0 0 0 0 0 0))
-PLAYER_MAXSTEP=8 % Nombre maximum de case par tour
+
+Canvas
 Command
 CommandPort = {NewPort Command}
 Desc
 Window
 
-
 proc {InitLayout Map}
-   proc{DrawHline X1 Y1 X2 Y2}
-      if X1>W orelse X1<0 orelse Y1>H orelse Y1<0 then
-	 skip
-      else
-	 {Canvas create(line X1 Y1 X2 Y2 fill:black)}
-	 {DrawHline X1+HeightBox Y1 X2+HeightBox Y2}
-      end
-   end
-   proc{DrawVline X1 Y1 X2 Y2}
-      if X1>W orelse X1<0 orelse Y1>H orelse Y1<0 then
-	 skip
-      else
-	 {Canvas create(line X1 Y1 X2 Y2 fill:black)}
-	 {DrawVline X1 Y1+WidthBox X2 Y2+WidthBox}
-      end
-   end
    proc{DrawUnits L}
       case L of r(Color X Y)|T then
 	 {DrawBox Color X Y}
@@ -55,6 +43,8 @@ proc {InitLayout Map}
 	 for I2 in 1..L2 do
 	    if Map.I.I2==1 then
 	       {DrawBox green I2-1 I-1}
+	    else
+	       {DrawBox white I2-1 I-1}
 	    end
 	 end
       end
@@ -102,9 +92,7 @@ in
 	       handle:Canvas))
    Window={QTk.build Desc}
    {Browse ok2}
-   {DrawHline 0 0 0 H}
-   {DrawVline 0 0 W 0}
-   {DrawElements Map}
+    {DrawElements Map}
    {DrawBox blue NW-1 NH-1}
    thread {Game NW-1 NH-1 Command} end
    {Browse ok1}
