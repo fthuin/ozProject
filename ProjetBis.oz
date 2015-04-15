@@ -1,4 +1,5 @@
 declare
+DEBUG = true
 [QTk]={Module.link ["x-oz://system/wp/QTk.ozf"]}
 BASE_PATH = "/Users/Greg/Desktop/ozProject/"
 
@@ -53,6 +54,11 @@ Drawings = drawings(player:PlayerImage
 		    map:mapRefs(window:MapWindow canvas_handle:MapCanvasHandle)
 		   )
 
+% Debug helper
+proc {Debug String}
+   if DEBUG then {Browse String} else skip end
+end
+
 % Images helper
 ImageLibrary = {QTk.loadImageLibrary BASE_PATH#"ImagesLibrary.ozf"}
 
@@ -70,7 +76,6 @@ fun {TurnDuration}
 end
 
 % Animations
-
 
 fun {GetCoords Handle}
    {Handle getCoords(1:$)}
@@ -115,14 +120,15 @@ proc {AnimPlayer Direction}
       end
    end
 
-   fun {ImageName Step}
-       {VirtualString.toAtom "sacha_"#Direction#"_"#(Step mod IMAGE_STEPS)} 
+   proc {SetImageForStep Step} ImageName in
+      ImageName = {VirtualString.toAtom "sacha_"#Direction#"_"#(Step mod IMAGE_STEPS)}
+      {Drawings.player set(image:{GetImage ImageName})}
    end
    
    proc {Anim Step}
       if Step==STEPS_BY_MOVE then skip
-      else 
-	 {Drawings.player set(image:{GetImage {ImageName Step}})}
+      else
+	 {SetImageForStep Step}
 	 {MoveImageOneStep}
 	 {Delay STEP_DURATION}
 	 {Anim Step+1} 
@@ -133,8 +139,6 @@ in
 end
 
  
-
-
 % Return a widget that represents a pokemoz' state.
 fun {PokemozArea Pokemoz}
    fun {Label Text}
@@ -181,7 +185,7 @@ proc {DrawMap Game}
       proc {RecDrawRow TilesList X}
 	 case TilesList
 	 of nil then skip
-	 [] H|T then Temp in
+	 [] H|T then
 	    {MapCanvasHandle {AddTileAt H X RowNumber}}
 	    {RecDrawRow T X+1} 
 	 end
@@ -206,56 +210,55 @@ in
    {CreateMapCanvas}
    {DrawMap Game.map_info.map}
    {MapWindow show}
+   {Debug map_drawn}
 end
 
 
 % DRAW GAME
-proc {DrawGame Game}
-   {DrawMap Game}
-   
-   Interface = lr(
-		  {PokemozArea Game.player.pokemoz.1} % TODO: Handle multiple Pokemoz.
-		  )
-   
+InstructionsStream
+InstructionsPort = {NewPort InstructionsStream}
+
+proc {DrawAuxiliaryInterface}
+   Interface = lr({PokemozArea Game.player.pokemoz.1})
    Window = {QTk.build Interface}
 in
    {Window show}
+   {Debug auxialiary_interface_drawn}
+end
+
+proc {GameLoop InstructionsStream}
+   case InstructionsStream
+   of H|T then
+      {Debug instruction_received}
+      {Browse H}
+      {AnimPlayer H}
+      {GameLoop T}
+   end
+end
+
+proc {InitGame}
+   proc {BindKeyboardActions}
+      {Drawings.map.window bind(event:"<Up>"    action:proc{$} {Send InstructionsPort up}     end)}
+      {Drawings.map.window bind(event:"<Left>"  action:proc{$} {Send InstructionsPort left}   end)}
+      {Drawings.map.window bind(event:"<Down>"  action:proc{$} {Send InstructionsPort down}   end)}
+      {Drawings.map.window bind(event:"<Right>" action:proc{$} {Send InstructionsPort right}  end)}
+      {Drawings.map.window bind(event:"<space>" action:proc{$} {Send InstructionsPort finish} end)}
+   end
+   
+   proc {PositionPlayer}
+      {Drawings.map.canvas_handle create(image PLAYER_START_POS.x*TILE_SIZE PLAYER_START_POS.y*TILE_SIZE image:{GetImage sacha_down_3} anchor:nw handle:Drawings.player)} 
+   end
+in
+   {BindKeyboardActions}
+   {Debug keyboard_action_bound}
+   {PositionPlayer}
+   {Debug player_positionned}
+   {Debug game_initialized}
 end
 
 
-{DrawGame Game}
-{MapCanvasHandle create(image 0 0 anchor:nw handle:PlayerImage image:{GetImage sacha_down_1})}
-{Browse before_delay}
-{Delay 2000}
-{AnimPlayer right}
-{AnimPlayer right}
-{AnimPlayer down}
-{AnimPlayer left}
-{AnimPlayer up}
-% {MapCanvasHandle create(image 40 40 anchor:nw image:{QTk.newImage photo(file:"/Users/Greg/Desktop/ozProject/grass3.gif")})}
-
-% GAME LOOP
-% proc {GameLoop GameState Instruction}
-   % Modify game state.
-   % - Check for enemy trainer(s) and resolve fight.
-   % - Call DrawGame
-   % - Check for wild pokemoz and resolve fight.
-   % - Call DrawGame
-   % - Check for win condition.
-   % - Call draw game.
-   % Recursively call itself with next instruction.
-% end
-
-% FIGHT
-% Compute the resulting Pokemoz after a fight.
-% Params: StartPokemozA = attacking pockemoz.
-%         StartPokemozB = defending pockemoz.
-%         EndPokemozA   = unbound variable.
-%         EndPokemozB   = unbound variable.
-% Effect: Bind EndPokemozA and EndPokemozB to new pokemoz after fight is resolved.
-% proc {PokemozFight PokemozA PokemozD EndPokemozA EndPokemozD}
-   % Loop until either one Pokemoz is dead.
-     % Attacker attacks
-     % Defender attacks
-   % Apply experience gain.
-% end
+% Startup
+{DrawMap Game}
+{DrawAuxiliaryInterface}
+{InitGame}
+{GameLoop InstructionsStream}
