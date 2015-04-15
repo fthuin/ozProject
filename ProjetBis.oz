@@ -1,6 +1,8 @@
 declare
 [QTk]={Module.link ["x-oz://system/wp/QTk.ozf"]}
 
+BASE_PATH = "/Users/Greg/Desktop/ozProject/"
+
 % Constants
 ATTACK_DAMAGE
 LEVELS_HP_AND_HP_NEEDED
@@ -10,7 +12,7 @@ GRASS               = 0
 ROAD                = 1
 
 DELAY            = 200
-TILE_SIZE        = 40
+TILE_SIZE        = 80
 PLAYER_START_POS = 0#0
 
 BULBASOZ   = pokemoz(name:bulbasoz   type:grass level:POKEMOZ_BASE_LEVEL health:20 xp:POKEMOZ_BASE_XP)
@@ -53,6 +55,13 @@ Game         = game(map_info:MapInfo player:Player enemy_trainers:[Brock James R
 MapInfo2      = map_info(map:Map2 height:{Width Map2} width:{Width Map.1})
 Game2         = game(map_info:MapInfo player:Player enemy_trainers:[Brock James Ritchie])
 
+% Images helper
+ImageLibary = {QTk.loadImageLibrary BASE_PATH#"ImagesLibrary.ozf"}
+
+fun {GetImage Name}
+   {ImageLibary get(name:Name image:$)}
+end
+
 % Initialize game
 
 % 1. Build map from raw map.
@@ -90,7 +99,6 @@ in
    td(TitleLabel lr(Labels Values))
 end
 
-
 MapWindow
 MapCanvas
 MapCanvasHandle
@@ -98,14 +106,13 @@ MapCanvasHandle
 proc {CreateMapCanvas Game}
    MapCanvas = canvas(bg:green width:Game.map_info.width*TILE_SIZE height:Game.map_info.height*TILE_SIZE handle:MapCanvasHandle)
    MapWindow = {QTk.build lr(MapCanvas)}
-   {MapWindow show}
 end
 
 proc {Draw Game}
 
-   fun {AddTileAt Type X Y} BG in
-      if Type==GRASS then BG = green else BG = white end
-      create(rect X*TILE_SIZE Y*TILE_SIZE (X+1)*TILE_SIZE (Y+1)*TILE_SIZE outline:black fill:BG)
+   fun {AddTileAt Type X Y} ImageName in
+      ImageName = if Type==GRASS then texture_grass else texture_road end
+      create(image X*TILE_SIZE Y*TILE_SIZE anchor:nw image:{GetImage ImageName})
    end
    
    proc {DrawRow RowRecord RowNumber}
@@ -140,9 +147,10 @@ end
 
 % DRAW GAME
 proc {DrawGame Game}
+   {CreateMapCanvas Game}
    {Draw Game}
-   {Delay 1}
-   {Draw Game2}
+   {MapWindow show}
+
    
    Interface = lr(
 		  {PokemozArea Game.player.pokemoz.1} % TODO: Handle multiple Pokemoz.
@@ -152,9 +160,12 @@ proc {DrawGame Game}
 in
    {Window show}
 end
-{Browse before_draw}
-{CreateMapCanvas Game}
+
+
 {DrawGame Game}
+{MapCanvasHandle create(image 0 0 anchor:nw image:{GetImage sacha_down_1})}
+
+% {MapCanvasHandle create(image 40 40 anchor:nw image:{QTk.newImage photo(file:"/Users/Greg/Desktop/ozProject/grass3.gif")})}
 
 % GAME LOOP
 % proc {GameLoop GameState Instruction}
