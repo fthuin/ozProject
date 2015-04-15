@@ -92,7 +92,7 @@ in
 	       handle:Canvas))
    Window={QTk.build Desc}
    {Browse ok2}
-    {DrawElements Map}
+   {DrawElements Map}
    {DrawBox blue NW-1 NH-1}
    thread {Game NW-1 NH-1 Command} end
    {Browse ok1}
