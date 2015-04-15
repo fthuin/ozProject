@@ -54,10 +54,10 @@ Drawings = drawings(player:PlayerImage
 		   )
 
 % Images helper
-ImageLibary = {QTk.loadImageLibrary BASE_PATH#"ImagesLibrary.ozf"}
+ImageLibrary = {QTk.loadImageLibrary BASE_PATH#"ImagesLibrary.ozf"}
 
 fun {GetImage Name}
-   {ImageLibary get(name:Name image:$)}
+   {ImageLibrary get(name:Name image:$)}
 end
 
 fun {PlayerImagePosition}
@@ -70,9 +70,7 @@ fun {TurnDuration}
 end
 
 % Animations
-STEPS_BY_MOVE = 8
-STEP_DURATION = {TurnDuration} div STEPS_BY_MOVE
-STEP_INCREMENT = TILE_SIZE div STEPS_BY_MOVE
+
 
 fun {GetCoords Handle}
    {Handle getCoords(1:$)}
@@ -98,49 +96,43 @@ proc {IncrementXPos Handle Inc}
    {SetXPos Handle {GetXPos Handle}+Inc}
 end
 
-proc {IncrementYpos Handle Inc}
+proc {IncrementYPos Handle Inc}
    {SetYPos Handle {GetYPos Handle}+Inc}
 end
 
-proc {MovePlayerRight}
+proc {AnimPlayer Direction}
+   IMAGE_STEPS    = 4
+   STEPS_BY_MOVE  = 8
+   STEP_DURATION  = {TurnDuration} div STEPS_BY_MOVE
+   STEP_INCREMENT = TILE_SIZE div STEPS_BY_MOVE
+   
    proc {MoveImageOneStep}
-      {IncrementXPos Drawings.player STEP_INCREMENT}
+      case Direction
+      of up    then {IncrementYPos Drawings.player ~STEP_INCREMENT}
+      [] right then {IncrementXPos Drawings.player STEP_INCREMENT}
+      [] down  then {IncrementYPos Drawings.player STEP_INCREMENT}
+      [] left  then {IncrementXPos Drawings.player ~STEP_INCREMENT}
+      end
+   end
+
+   fun {ImageName Step}
+       {VirtualString.toAtom "sacha_"#Direction#"_"#(Step mod IMAGE_STEPS)} 
+   end
+   
+   proc {Anim Step}
+      if Step==STEPS_BY_MOVE then skip
+      else 
+	 {Drawings.player set(image:{GetImage {ImageName Step}})}
+	 {MoveImageOneStep}
+	 {Delay STEP_DURATION}
+	 {Anim Step+1} 
+      end
    end
 in
-   {Drawings.player set(image:{GetImage sacha_right_1})}
-   
-   {Delay STEP_DURATION}
-   {MoveImageOneStep}
-   {Drawings.player set(image:{GetImage sacha_right_2})}
-   
-   {Delay STEP_DURATION}
-   {MoveImageOneStep}
-   {Drawings.player set(image:{GetImage sacha_right_3})}
-   {Delay STEP_DURATION}
-   
-   {MoveImageOneStep}
-   {Drawings.player set(image:{GetImage sacha_right_4})}
-   {Delay STEP_DURATION}
-   
-   {MoveImageOneStep}
-   {Drawings.player set(image:{GetImage sacha_right_1})}
-   {Delay STEP_DURATION}
-
-   {MoveImageOneStep}
-   {Drawings.player set(image:{GetImage sacha_right_2})}
-   {Delay STEP_DURATION}
-   
-   {MoveImageOneStep}
-   {Drawings.player set(image:{GetImage sacha_right_3})}
-   {Delay STEP_DURATION}
-   
-   {MoveImageOneStep}
-   {Drawings.player set(image:{GetImage sacha_right_4})}
-   {Delay STEP_DURATION}
-   
-   {MoveImageOneStep}
-   {Drawings.player set(image:{GetImage sacha_right_1})}
+   {Anim 0}
 end
+
+ 
 
 
 % Return a widget that represents a pokemoz' state.
@@ -235,11 +227,11 @@ end
 {MapCanvasHandle create(image 0 0 anchor:nw handle:PlayerImage image:{GetImage sacha_down_1})}
 {Browse before_delay}
 {Delay 2000}
-{Browse done}
-{MovePlayerRight}
-{MovePlayerRight}
-{MovePlayerRight}
-
+{AnimPlayer right}
+{AnimPlayer right}
+{AnimPlayer down}
+{AnimPlayer left}
+{AnimPlayer up}
 % {MapCanvasHandle create(image 40 40 anchor:nw image:{QTk.newImage photo(file:"/Users/Greg/Desktop/ozProject/grass3.gif")})}
 
 % GAME LOOP
