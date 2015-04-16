@@ -43,7 +43,7 @@ Brock        = player(name:brock   position:pos(x:2 y:2) pokemoz:[BULBASOZ]) % T
 James        = player(name:james   position:pos(x:4 y:4) pokemoz:[OZTIRTLE])
 Ritchie      = player(name:ritchie position:pos(x:5 y:5) pokemoz:[CHARMANDOZ])
 
-Player       = player(name:PlayerName position:PLAYER_START_POS pokemoz:[StartingPokemoz])
+Player       = player(name:PlayerName pokemoz:[StartingPokemoz])
 MapInfo      = map_info(map:Map height:{Width Map} width:{Width Map.1})
 Game         = game(map_info:MapInfo player:Player enemy_trainers:[Brock James Ritchie])
 
@@ -64,14 +64,13 @@ proc {Debug String}
 end
 
 % Coordinates helper
-fun {XCoord X}
-   (X*TILE_SIZE)+CANVAS_OFFSET_BUG
+fun {XCoord XPosition}
+   (XPosition*TILE_SIZE)+CANVAS_OFFSET_BUG
 end
 
-fun {YCoord Y}
-   (Y*TILE_SIZE)+CANVAS_OFFSET_BUG
+fun {YCoord YPosition}
+   (YPosition*TILE_SIZE)+CANVAS_OFFSET_BUG
 end
-
 
 % Images helper
 ImageLibrary = {QTk.loadImageLibrary BASE_PATH#"ImagesLibrary.ozf"}
@@ -117,6 +116,19 @@ end
 
 proc {IncrementYPos Handle Inc}
    {SetYPos Handle {GetYPos Handle}+Inc}
+end
+
+% Player position
+fun {CoordToPosition Coord}
+   fun {SingleCoordToPos Coord}
+      ({FloatToInt Coord}-CANVAS_OFFSET_BUG) div TILE_SIZE
+   end
+in
+   pos(x:{SingleCoordToPos Coord.1} y:{SingleCoordToPos Coord.2.1})
+end
+
+fun {PlayerPosition}
+   {CoordToPosition {GetCoords Drawings.player}}
 end
 
 proc {AnimPlayer Direction}
@@ -240,13 +252,21 @@ in
    {Debug auxialiary_interface_drawn}
 end
 
+fun {CheckVictoryCondition}
+   {PlayerPosition} == WINNING_POS
+end
+
 proc {GameLoop InstructionsStream}
    case InstructionsStream
    of H|T then
       {Debug instruction_received}
       {Browse H}
       {AnimPlayer H}
-      {GameLoop T}
+      if {CheckVictoryCondition} then
+	 {Debug game_won}
+      else
+	 {GameLoop T}
+      end
    end
 end
 
@@ -266,7 +286,6 @@ proc {InitGame}
    end
 
    proc {PositionEnemyTrainers}
-      
       {Debug enemy_trainers_positionned}
    end
    
@@ -276,7 +295,6 @@ in
    {PositionEnemyTrainers}
    {Debug game_initialized}
 end
-
 
 % Startup
 {DrawMap Game}
