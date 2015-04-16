@@ -2,7 +2,7 @@ declare
 DEBUG = true
 [QTk]={Module.link ["x-oz://system/wp/QTk.ozf"]}
 BASE_PATH = "/Users/Greg/Desktop/ozProject/"
-
+CANVAS_OFFSET_BUG = 3 % Canvas seems to start 3 pixels outside the window on the TOP-LEFT corner for no reasong.
 % Constants
 ATTACK_DAMAGE
 LEVELS_HP_AND_HP_NEEDED
@@ -11,9 +11,8 @@ POKEMOZ_BASE_XP     = 0
 GRASS               = 0
 ROAD                = 1
 
-DELAY            = 200
+DELAY            = 100
 TILE_SIZE        = 80
-PLAYER_START_POS = pos(x:0 y:0)
 
 BULBASOZ   = pokemoz(name:bulbasoz   type:grass level:POKEMOZ_BASE_LEVEL health:20 xp:POKEMOZ_BASE_XP)
 OZTIRTLE   = pokemoz(name:oztirtle   type:water level:POKEMOZ_BASE_LEVEL health:20 xp:POKEMOZ_BASE_XP)
@@ -32,6 +31,9 @@ Map=   map(r(1 1 1 0 0 0 0)
 	   r(0 0 0 1 1 0 0)
 	   r(0 0 0 0 0 0 0))
 
+STARTING_POS = pos(x:{Width Map}-1 y:{Width Map.1}-1) % Player starts bottom-right corner.
+WINNING_POS  = pos(x:{Width Map}-1 y:0)               % Player must reach top-right corner to win.
+
 % Parameters to ask
 PlayerName      = greg
 StartingPokemoz = CHARMANDOZ
@@ -39,7 +41,8 @@ StartingPokemoz = CHARMANDOZ
 % Game state
 Brock        = player(name:brock   position:pos(x:2 y:2) pokemoz:[BULBASOZ]) % TODO: Add random starting position + random number of enemy trainers.
 James        = player(name:james   position:pos(x:4 y:4) pokemoz:[OZTIRTLE])
-Ritchie      = player(name:ritchie position:pos(x:5 y:5) pokemoz:[OZTIRTLE])
+Ritchie      = player(name:ritchie position:pos(x:5 y:5) pokemoz:[CHARMANDOZ])
+
 Player       = player(name:PlayerName position:PLAYER_START_POS pokemoz:[StartingPokemoz])
 MapInfo      = map_info(map:Map height:{Width Map} width:{Width Map.1})
 Game         = game(map_info:MapInfo player:Player enemy_trainers:[Brock James Ritchie])
@@ -54,10 +57,21 @@ Drawings = drawings(player:PlayerImage
 		    map:mapRefs(window:MapWindow canvas_handle:MapCanvasHandle)
 		   )
 
+
 % Debug helper
 proc {Debug String}
    if DEBUG then {Browse String} else skip end
 end
+
+% Coordinates helper
+fun {XCoord X}
+   (X*TILE_SIZE)+CANVAS_OFFSET_BUG
+end
+
+fun {YCoord Y}
+   (Y*TILE_SIZE)+CANVAS_OFFSET_BUG
+end
+
 
 % Images helper
 ImageLibrary = {QTk.loadImageLibrary BASE_PATH#"ImagesLibrary.ozf"}
@@ -67,7 +81,7 @@ fun {GetImage Name}
 end
 
 fun {PlayerImagePosition}
-   pos(x:Game.player.position.x*TILE_SIZE y:Game.player.position.y*TILE_SIZE)
+   pos(x:{XCoord Game.player.position.x} y:{YCoord Game.player.position.y})
 end
 
 % Time helpers
@@ -114,8 +128,8 @@ proc {AnimPlayer Direction}
    proc {MoveImageOneStep}
       case Direction
       of up    then {IncrementYPos Drawings.player ~STEP_INCREMENT}
-      [] right then {IncrementXPos Drawings.player STEP_INCREMENT}
-      [] down  then {IncrementYPos Drawings.player STEP_INCREMENT}
+      [] right then {IncrementXPos Drawings.player  STEP_INCREMENT}
+      [] down  then {IncrementYPos Drawings.player  STEP_INCREMENT}
       [] left  then {IncrementXPos Drawings.player ~STEP_INCREMENT}
       end
    end
@@ -161,9 +175,9 @@ fun {PokemozArea Pokemoz}
    % Column of values
    Name   = {Value {AtomToString Pokemoz.name}}
    Type   = {Value {AtomToString Pokemoz.type}}
-   Level  = {Value {IntToString Pokemoz.level}}
-   Health = {Value {IntToString Pokemoz.health}}
-   XP     = {Value {IntToString Pokemoz.xp}}
+   Level  = {Value {IntToString  Pokemoz.level}}
+   Health = {Value {IntToString  Pokemoz.health}}
+   XP     = {Value {IntToString  Pokemoz.xp}}
    Values = td(glue:w Name Type Level Health XP)
 in
    td(TitleLabel lr(Labels Values))
@@ -172,13 +186,13 @@ end
 
 proc {DrawMap Game}
    proc {CreateMapCanvas} MapCanvas in
-      MapCanvas = canvas(bg:green width:Game.map_info.width*TILE_SIZE height:Game.map_info.height*TILE_SIZE handle:MapCanvasHandle)
+      MapCanvas = canvas(bg:yellow width:Game.map_info.width*TILE_SIZE height:Game.map_info.height*TILE_SIZE handle:MapCanvasHandle)
       MapWindow = {QTk.build lr(MapCanvas)}
    end
 
    fun {AddTileAt Type X Y} ImageName in
       ImageName = if Type==GRASS then texture_grass else texture_road end
-      create(image X*TILE_SIZE Y*TILE_SIZE anchor:nw image:{GetImage ImageName})
+      create(image {XCoord X} {YCoord Y} anchor:nw image:{GetImage ImageName})
    end
    
    proc {DrawRow RowRecord RowNumber}
@@ -243,16 +257,23 @@ proc {InitGame}
       {Drawings.map.window bind(event:"<Down>"  action:proc{$} {Send InstructionsPort down}   end)}
       {Drawings.map.window bind(event:"<Right>" action:proc{$} {Send InstructionsPort right}  end)}
       {Drawings.map.window bind(event:"<space>" action:proc{$} {Send InstructionsPort finish} end)}
+      {Debug keyboard_action_bound}
    end
    
    proc {PositionPlayer}
-      {Drawings.map.canvas_handle create(image PLAYER_START_POS.x*TILE_SIZE PLAYER_START_POS.y*TILE_SIZE image:{GetImage sacha_down_3} anchor:nw handle:Drawings.player)} 
+      {Drawings.map.canvas_handle create(image {XCoord STARTING_POS.x} {YCoord STARTING_POS.y} image:{GetImage sacha_down_3} anchor:nw handle:Drawings.player)} 
+      {Debug player_positionned_at(STARTING_POS.x STARTING_POS.y)}
    end
+
+   proc {PositionEnemyTrainers}
+      
+      {Debug enemy_trainers_positionned}
+   end
+   
 in
    {BindKeyboardActions}
-   {Debug keyboard_action_bound}
    {PositionPlayer}
-   {Debug player_positionned}
+   {PositionEnemyTrainers}
    {Debug game_initialized}
 end
 
