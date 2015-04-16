@@ -6,7 +6,8 @@ CANVAS_OFFSET_BUG = 3 % Canvas seems to start 3 pixels outside the window on the
 % Constants
 ATTACK_DAMAGE
 LEVELS_HP_AND_HP_NEEDED
-POKEMOZ_BASE_LEVEL  = 5
+POKEMOZ_MIN_LEVEL   = 5
+POKEMOZ_MAX_LEVEL   = 10
 POKEMOZ_BASE_XP     = 0
 GRASS               = 0
 ROAD                = 1
@@ -14,19 +15,19 @@ ROAD                = 1
 DELAY            = 100
 TILE_SIZE        = 80
 
-BULBASOZ   = pokemoz(name:bulbasoz   type:grass level:POKEMOZ_BASE_LEVEL health:20 xp:POKEMOZ_BASE_XP)
-OZTIRTLE   = pokemoz(name:oztirtle   type:water level:POKEMOZ_BASE_LEVEL health:20 xp:POKEMOZ_BASE_XP)
-CHARMANDOZ = pokemoz(name:charmandoz type:fire  level:POKEMOZ_BASE_LEVEL health:20 xp:POKEMOZ_BASE_XP)
+TYPE_GRASS = grass
+TYPE_WATER = water
+TYPE_FIRE  = fire
 
-WildPokemozList = [pokemoz(name:caterpie   type:grass)
-		   pokemoz(name:vulpix     type:fire)
-		   pokemoz(name:oddish     type:grass)]
+BULBASOZ   = pokemoz(name:bulbasoz   type:TYPE_GRASS level:POKEMOZ_MIN_LEVEL health:20 xp:POKEMOZ_BASE_XP)
+OZTIRTLE   = pokemoz(name:oztirtle   type:TYPE_WATER level:POKEMOZ_MIN_LEVEL health:20 xp:POKEMOZ_BASE_XP)
+CHARMANDOZ = pokemoz(name:charmandoz type:TYPE_FIRE  level:POKEMOZ_MIN_LEVEL health:20 xp:POKEMOZ_BASE_XP)
 
-WildPokemozCount = {Length WildPokemozList}
+WildPokemozList = [pokemoz(name:caterpie   type:TYPE_GRASS)
+		   pokemoz(name:vulpix     type:TYPE_FIRE)
+		   pokemoz(name:oddish     type:TYPE_GRASS)]
 
-	       
-	       
-	       
+WildPokemozCount = {Length WildPokemozList}       
 
 % Game parameters
 WildPokemozProba = 50 
@@ -62,7 +63,7 @@ Ritchie      = player(name:ritchie position:pos(x:5 y:5) pokemoz:[CHARMANDOZ])
 Player       = player(name:PlayerName pokemoz:[StartingPokemoz])
 MapInfo      = map_info(map:Map height:{Width Map} width:{Width Map.1})
 Game         = game(map_info:MapInfo player:Player enemy_trainers:[Brock James Ritchie])
-GameState    = game_state(player_position:STARTING_POS pokemoz:[StartingPokemoz])
+GameState    = game_state(turn:0 player_position:STARTING_POS pokemoz:[StartingPokemoz])
 
 % Drawing references
 PlayerImage
@@ -302,25 +303,86 @@ fun {MaxHealth Level}
 end
 
 fun {WildPokemozLevel Turn}
-   {Rand ((Turn div 5) + 2)}
+   ComputedLevel = 5 + {Rand ((Turn div 10) + 1)}
+in
+   if ComputedLevel > POKEMOZ_MAX_LEVEL then POKEMOZ_MAX_LEVEL else ComputedLevel end
 end
 
 fun {NewWildPokemoz Type Level}
    pokemoz(name:Type.name type:Type.type level:Level health:{MaxHealth Level} xp:0)
 end
 
+fun {IsAttackSuccess AttackerPokemoz DefenderPokemoz}
+   SuccessProba = (6 + AttackerPokemoz.level - DefenderPokemoz.level) * 9
+in
+   {Rand 100} >= SuccessProba
+end
+
+fun {Damage AType DType}
+   if AType==DType then 2
+   else
+      case AType#DType
+      of TYPE_GRASS#TYPE_WATER  then 3
+      [] TYPE_GRASS#TYPE_FIRE   then 1
+      [] TYPE_FIRE#TYPE_GRASS   then 3
+      [] TYPE_FIRE#TYPE_WATER   then 1
+      [] TYPE_WATER#TYPE_FIRE   then 3
+      [] TYPE_WATER#TYPE_GRASS  then 1
+      end
+   end
+end
+
 
 % pokemoz(name:charmandoz type:fire  level:POKEMOZ_BASE_LEVEL health:20 xp:POKEMOZ_BASE_XP)
 
-proc {FightWildPokemon Turn}
-   WildPokemozType = {List.nth WildPokemozList {Rand WildPokemozCount}}
-   Level = {WildPokemozLevel Turn}
-   Pokemoz = {NewWildPokemoz WildPokemozType Level}
-   proc {AskForFight}
-      skip %TODO
-   end
+% Returns true if attacker won, false otherwise.
+% Bind resulting variables to resulting pokemoz.
+proc {PokemozFight Attacker Defender ResultingAttacker ResultingDefender}   
+   proc {RecursivePokemozFight Attacker Defender ResultingAttacker ResultingDefender Round}
+      NewDefenderHealth
+      NewDefender
+   in
+      case Attacker#Defender
+      of pokemoz(name:NA type:TA level:LA xp:XA health:HA)#pokemoz(name:ND type:TD level:LD xp:XD health:HD) then
+
+	 {Debug fight_round(Round)}
+	 {Debug attack(Attacker)}
+	 {Debug defense(Defender)}
+	 
+	 NewDefenderHealth = if {IsAttackSuccess Attacker Defender} then {Max 0 HD-{Damage TA TD}} else HD end 
+	 NewDefender = pokemoz(name:ND type:TD level:LD xp:XD health:NewDefenderHealth)
+	 
+	 if NewDefenderHealth==0 then % Fight is over.
+	    {Debug fight_over(winner:Attacker looser:NewDefender)}
+	    if (Round mod 2)==0 then % Current attacker is original attacker.
+	       ResultingAttacker = Attacker
+	       ResultingDefender = NewDefender
+	    % true
+	    else % Current attacker is original defender.
+	       ResultingAttacker = NewDefender
+	       ResultingDefender = Attacker
+	    % false
+	    end
+	 else
+	    {RecursivePokemozFight NewDefender Attacker ResultingAttacker ResultingDefender Round+1} % Switch attack turn
+	 end
+      end
+   end  
 in
-   {Debug encounter(Pokemoz)}
+   {RecursivePokemozFight Attacker Defender ResultingAttacker ResultingDefender 0}
+end
+
+
+proc {FightWildPokemon GameState}
+   WildPokemozType = {List.nth WildPokemozList {Rand WildPokemozCount}}
+   Level = {WildPokemozLevel GameState.turn}
+   WildPokemoz = {NewWildPokemoz WildPokemozType Level}
+
+   EndWildPokemoz
+   EndPlayerPokemoz
+in
+   {Debug encounter(WildPokemoz)}
+   {PokemozFight GameState.pokemoz.1 WildPokemoz EndPlayerPokemoz EndWildPokemoz}
    % case AutoFight
    % of AutoFightChoose then {AskPlayerForFight}
    % [] AutoFightRun    then {Debug player_flee_combat}
@@ -329,35 +391,40 @@ in
 end
 
 
-proc {TestWildPokemonMeeting Turn}
+proc {TestWildPokemonMeeting GameState}
    if {IsOnGrass} then
       {Debug player_on_grass}
       if {Rand 100} >= WildPokemozProba then
 	 {Debug player_meet_wild_pokemon}
-	 {FightWildPokemon Turn}
+	 {FightWildPokemon GameState}
       end
    end
 end
 
+% game_state(turn:0 player_position:STARTING_POS pokemoz:[StartingPokemoz])
+fun {IncrementTurn GameState}
+   case GameState
+   of game_state(turn:Turn player_position:PP pokemoz:Pokemoz) then
+      game_state(turn:Turn+1 player_position:PP pokemoz:Pokemoz)
+   end
+end
 
-
-proc {GameLoop InstructionsStream GameState Turn}
+proc {GameLoop InstructionsStream GameState}
    case InstructionsStream
    of Instruction|T then
       {Debug instruction_received(Instruction)}
-      if {Bool.'not' {PlayerCanMoveInDirection Instruction}} then {Debug invalid_command(Instruction)} {GameLoop T GameState Turn} end % Skip command if invalid.
-      {Debug turn_number(Turn)}
+      if {Bool.'not' {PlayerCanMoveInDirection Instruction}} then {Debug invalid_command(Instruction)} {GameLoop T GameState} end % Skip command if invalid.
+      {Debug turn_number(GameState.turn)}
       
       {AnimPlayer Instruction}
-      {TestWildPokemonMeeting Turn}
+      {TestWildPokemonMeeting GameState}
       if {CheckVictoryCondition} then
 	 {Debug game_won}
       else
-	 {GameLoop T GameState Turn+1}
+	 {GameLoop T {IncrementTurn GameState}}
       end
    end
 end
-
 
 
 proc {InitGame}
@@ -390,4 +457,4 @@ end
 {DrawMap Game}
 {DrawAuxiliaryInterface}
 {InitGame}
-{GameLoop InstructionsStream GameState 0}
+{GameLoop InstructionsStream GameState}
