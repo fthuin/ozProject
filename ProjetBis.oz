@@ -18,10 +18,24 @@ BULBASOZ   = pokemoz(name:bulbasoz   type:grass level:POKEMOZ_BASE_LEVEL health:
 OZTIRTLE   = pokemoz(name:oztirtle   type:water level:POKEMOZ_BASE_LEVEL health:20 xp:POKEMOZ_BASE_XP)
 CHARMANDOZ = pokemoz(name:charmandoz type:fire  level:POKEMOZ_BASE_LEVEL health:20 xp:POKEMOZ_BASE_XP)
 
+WildPokemozList = [pokemoz(name:caterpie   type:grass)
+		   pokemoz(name:vulpix     type:fire)
+		   pokemoz(name:oddish     type:grass)]
+
+WildPokemozCount = {Length WildPokemozList}
+
+	       
+	       
+	       
+
 % Game parameters
-WildPokemozProba = 5
+WildPokemozProba = 50 
 Speed            = 5
-AutoFight        = false
+
+AutoFightRun    = run
+AutoFigthChoose = choose
+AutoFightCombat = combat
+AutoFight       = AutoFightCombat
 
 Map=   map(r(1 1 1 0 0 0 0)
 	   r(1 1 1 0 0 1 1)
@@ -31,8 +45,8 @@ Map=   map(r(1 1 1 0 0 0 0)
 	   r(0 0 0 1 1 0 0)
 	   r(0 0 0 0 0 0 0))
 
-MAP_HEIGHT = {Width Map}
-MAP_WIDTH  = {Width Map.1}
+MAP_HEIGHT   = {Width Map}
+MAP_WIDTH    = {Width Map.1}
 STARTING_POS = pos(x:MAP_WIDTH-1 y:MAP_HEIGHT-1) % Player starts bottom-right corner.
 WINNING_POS  = pos(x:MAP_WIDTH-1 y:0)            % Player must reach top-right corner to win.
 
@@ -48,6 +62,7 @@ Ritchie      = player(name:ritchie position:pos(x:5 y:5) pokemoz:[CHARMANDOZ])
 Player       = player(name:PlayerName pokemoz:[StartingPokemoz])
 MapInfo      = map_info(map:Map height:{Width Map} width:{Width Map.1})
 Game         = game(map_info:MapInfo player:Player enemy_trainers:[Brock James Ritchie])
+GameState    = game_state(player_position:STARTING_POS pokemoz:[StartingPokemoz])
 
 % Drawing references
 PlayerImage
@@ -131,6 +146,14 @@ end
 
 fun {PlayerPosition}
    {CoordToPosition {GetCoords Drawings.player}}
+end
+
+fun {TileAtPosition Position}
+   Map.(Position.y+1).(Position.x+1)
+end
+
+fun {IsOnGrass}
+   {TileAtPosition {PlayerPosition}}==GRASS
 end
 
 proc {AnimPlayer Direction}
@@ -241,6 +264,12 @@ in
    {Debug map_drawn}
 end
 
+% Random helper
+
+fun {Rand I}
+   ({OS.rand $} mod I) + 1
+end
+   
 
 % DRAW GAME
 InstructionsStream
@@ -267,28 +296,67 @@ fun {PlayerCanMoveInDirection Direction}
    end
 end
 
-proc {MovePlayer Direction}
-   if {PlayerCanMoveInDirection Direction} then
-      {AnimPlayer Direction}
-   else
-      skip
-   end 
+% Gameplay
+fun {MaxHealth Level}
+   Level * 4
 end
 
-proc {GameLoop InstructionsStream}
-   case InstructionsStream
-   of Instruction|T then
-      {Debug instruction_received}
-      {Browse Instruction}
-      {MovePlayer Instruction}
-      if {CheckVictoryCondition} then
-	 {Debug game_won}
-      else
-	 {GameLoop T}
+fun {WildPokemozLevel Turn}
+   {Rand ((Turn div 5) + 2)}
+end
+
+fun {NewWildPokemoz Type Level}
+   pokemoz(name:Type.name type:Type.type level:Level health:{MaxHealth Level} xp:0)
+end
+
+
+% pokemoz(name:charmandoz type:fire  level:POKEMOZ_BASE_LEVEL health:20 xp:POKEMOZ_BASE_XP)
+
+proc {FightWildPokemon Turn}
+   WildPokemozType = {List.nth WildPokemozList {Rand WildPokemozCount}}
+   Level = {WildPokemozLevel Turn}
+   Pokemoz = {NewWildPokemoz WildPokemozType Level}
+   proc {AskForFight}
+      skip %TODO
+   end
+in
+   {Debug encounter(Pokemoz)}
+   % case AutoFight
+   % of AutoFightChoose then {AskPlayerForFight}
+   % [] AutoFightRun    then {Debug player_flee_combat}
+   % [] AutoFightCombat then {ResolveFight}
+   % end
+end
+
+
+proc {TestWildPokemonMeeting Turn}
+   if {IsOnGrass} then
+      {Debug player_on_grass}
+      if {Rand 100} >= WildPokemozProba then
+	 {Debug player_meet_wild_pokemon}
+	 {FightWildPokemon Turn}
       end
    end
 end
 
+
+
+proc {GameLoop InstructionsStream GameState Turn}
+   case InstructionsStream
+   of Instruction|T then
+      {Debug instruction_received(Instruction)}
+      if {Bool.'not' {PlayerCanMoveInDirection Instruction}} then {Debug invalid_command(Instruction)} {GameLoop T GameState Turn} end % Skip command if invalid.
+      {Debug turn_number(Turn)}
+      
+      {AnimPlayer Instruction}
+      {TestWildPokemonMeeting Turn}
+      if {CheckVictoryCondition} then
+	 {Debug game_won}
+      else
+	 {GameLoop T GameState Turn+1}
+      end
+   end
+end
 
 
 
@@ -322,4 +390,4 @@ end
 {DrawMap Game}
 {DrawAuxiliaryInterface}
 {InitGame}
-{GameLoop InstructionsStream}
+{GameLoop InstructionsStream GameState 0}
