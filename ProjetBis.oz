@@ -31,8 +31,10 @@ Map=   map(r(1 1 1 0 0 0 0)
 	   r(0 0 0 1 1 0 0)
 	   r(0 0 0 0 0 0 0))
 
-STARTING_POS = pos(x:{Width Map}-1 y:{Width Map.1}-1) % Player starts bottom-right corner.
-WINNING_POS  = pos(x:{Width Map}-1 y:0)               % Player must reach top-right corner to win.
+MAP_HEIGHT = {Width Map}
+MAP_WIDTH  = {Width Map.1}
+STARTING_POS = pos(x:MAP_WIDTH-1 y:MAP_HEIGHT-1) % Player starts bottom-right corner.
+WINNING_POS  = pos(x:MAP_WIDTH-1 y:0)            % Player must reach top-right corner to win.
 
 % Parameters to ask
 PlayerName      = greg
@@ -256,12 +258,29 @@ fun {CheckVictoryCondition}
    {PlayerPosition} == WINNING_POS
 end
 
+fun {PlayerCanMoveInDirection Direction}
+   case Direction
+   of up    then {PlayerPosition}.y \= 0
+   [] right then {PlayerPosition}.x \= MAP_WIDTH-1
+   [] down  then {PlayerPosition}.y \= MAP_HEIGHT-1
+   [] left  then {PlayerPosition}.x \= 0
+   end
+end
+
+proc {MovePlayer Direction}
+   if {PlayerCanMoveInDirection Direction} then
+      {AnimPlayer Direction}
+   else
+      skip
+   end 
+end
+
 proc {GameLoop InstructionsStream}
    case InstructionsStream
-   of H|T then
+   of Instruction|T then
       {Debug instruction_received}
-      {Browse H}
-      {AnimPlayer H}
+      {Browse Instruction}
+      {MovePlayer Instruction}
       if {CheckVictoryCondition} then
 	 {Debug game_won}
       else
@@ -269,6 +288,9 @@ proc {GameLoop InstructionsStream}
       end
    end
 end
+
+
+
 
 proc {InitGame}
    proc {BindKeyboardActions}
