@@ -1,5 +1,5 @@
 all:
-	ozc -c test_functor.oz
+	ozc -c map_drawing.oz
 	ozc -c main.oz -o main.oza
 	ozengine ./main.oza
 
