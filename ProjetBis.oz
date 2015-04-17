@@ -3,6 +3,7 @@ DEBUG = true
 [QTk]={Module.link ["x-oz://system/wp/QTk.ozf"]}
 BASE_PATH = "/Users/Greg/Desktop/ozProject/"
 CANVAS_OFFSET_BUG = 3 % Canvas seems to start 3 pixels outside the window on the TOP-LEFT corner for no reasong.
+
 % Constants
 ATTACK_DAMAGE
 LEVELS_HP_AND_HP_NEEDED
@@ -95,10 +96,6 @@ ImageLibrary = {QTk.loadImageLibrary BASE_PATH#"ImagesLibrary.ozf"}
 
 fun {GetImage Name}
    {ImageLibrary get(name:Name image:$)}
-end
-
-fun {PlayerImagePosition}
-   pos(x:{XCoord Game.player.position.x} y:{YCoord Game.player.position.y})
 end
 
 % Time helpers

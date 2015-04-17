@@ -29,7 +29,20 @@ Library = {QTk.newImageLibrary}
 
 % Add textures
 {Library newPhoto(file:BASE_PATH#"textures/grass.gif" name:texture_grass)}
-{Library newPhoto(file:BASE_PATH#"textures/road.gif" name:texture_road)}
+{Library newPhoto(file:BASE_PATH#"textures/road.gif"  name:texture_road)}
+
+% Add pokemons
+{Library newPhoto(file:BASE_PATH#"pokemoz/bellsprout.gif" name:pokemoz_bellsprout)}
+{Library newPhoto(file:BASE_PATH#"pokemoz/bulbasaur.gif"  name:pokemoz_bulbasaur)}
+{Library newPhoto(file:BASE_PATH#"pokemoz/caterpie.gif"   name:pokemoz_caterpie)}
+{Library newPhoto(file:BASE_PATH#"pokemoz/charmander.gif" name:pokemoz_charmander)}
+{Library newPhoto(file:BASE_PATH#"pokemoz/nidoran.gif"    name:pokemoz_nidoran)}
+{Library newPhoto(file:BASE_PATH#"pokemoz/oddish.gif"     name:pokemoz_oddish)}
+{Library newPhoto(file:BASE_PATH#"pokemoz/poliwag.gif"    name:pokemoz_poliwag)}
+{Library newPhoto(file:BASE_PATH#"pokemoz/ponyta.gif"     name:pokemoz_ponyta)}
+{Library newPhoto(file:BASE_PATH#"pokemoz/squirtle.gif"   name:pokemoz_squirtle)}
+{Library newPhoto(file:BASE_PATH#"pokemoz/vulpix.gif"     name:pokemoz_vulpix)}
+
 
 % Save library to file
 {QTk.saveImageLibrary Library "/Users/Greg/Desktop/ozProject/ImagesLibrary.ozf"}
