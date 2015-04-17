@@ -38,7 +38,7 @@ NameText         = text(init:"Enter your name..." glue:ew width:15 height:2 hand
 %				  )
 ChoiceLabel = label(init:"ChosenPokemon : none" handle:ChoiceLabelHandle bg:white return:ChosenPokemoz)
 
-StartGameBtn  = button(text:"Start game!" glue:new bg:white)
+StartGameBtn  = button(text:"Start game!" glue:new bg:white action:toplevel#close)
 SachaCanvas   = canvas(handle:SachaCanvasHandle   width:400 height:300 bg:white borderwidth:0 highlightthickness:0)
 PokemozCanvas = canvas(handle:PokemozCanvasHandle width:400 height:800 bg:white borderwidth:0 highlightthickness:0)
 
@@ -85,5 +85,5 @@ Window = {QTk.build MainLayout}
 
 {Window show(wait:true modal:true)}
 
-{Browse ChosenPokemoz}
-{Browse PlayerName}
+{Browse {String.toAtom ChosenPokemoz}}
+{Browse {String.toAtom PlayerName}}
