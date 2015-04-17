@@ -1,6 +1,12 @@
-all:
-	ozc -c map_drawing.oz
+all: map main run
+
+main:
 	ozc -c main.oz -o main.oza
+
+map:
+	ozc -c map_drawing.oz
+
+run:
 	ozengine ./main.oza
 
 compileImages:

@@ -2,11 +2,8 @@ functor
 import
    Module
    System
-export  
-   SetMap
-   SetSpeed
-   SetDelay
-   GetParams
+export
+   Init
    DrawMap
    DrawPlayerAtPosition
    MovePlayer
@@ -19,17 +16,17 @@ define
    TILE_SIZE = 80
    GRASS = 0
    ROAD = 1
-   
+
    % Params
-   Speed
    Map
+   Speed
    DelayParam
-   TurnDuration
+   InstructionsPort
 
    % Local variables
    MapHeight
    MapWidth
-   
+
    MapCanvasHandle
    PlayerHandle
    MapWindow
@@ -38,7 +35,7 @@ define
    proc {Debug Msg}
       {System.show Msg}
    end
-   
+
    fun {GetImage Name}
       {ImageLibrary get(name:Name image:$)}
    end
@@ -85,62 +82,68 @@ define
       {SetYPos Handle {GetYPos Handle}+Inc}
    end
 
+   % Bind keys
+   proc {BindKeyboardActions}
+      {MapWindow bind(event:"<Up>"    action:proc{$} {Send InstructionsPort up}     end)}
+      {MapWindow bind(event:"<Left>"  action:proc{$} {Send InstructionsPort left}   end)}
+      {MapWindow bind(event:"<Down>"  action:proc{$} {Send InstructionsPort down}   end)}
+      {MapWindow bind(event:"<Right>" action:proc{$} {Send InstructionsPort right}  end)}
+      {MapWindow bind(event:"<space>" action:proc{$} {Send InstructionsPort finish} end)}
+      {Debug keyboard_actions_bound}
+   end
+
    % Public methods
 
-   % Setters
-   proc {SetMap M}
-      Map       = M
-      MapHeight = {Width Map}
-      MapWidth  = {Width Map.1}
+   proc {Init M P S D}
+      Map               = M
+      Speed             = S
+      DelayParam        = D
+      InstructionsPort  = P
+      MapHeight         = {Width Map}
+      MapWidth          = {Width Map.1}
    end
 
-   proc {SetSpeed S}    Speed = S       end
-   proc {SetDelay D}    DelayParam = D  end
-
-   fun {GetParams}
-      params(delay:DelayParam speed:Speed map:Map)
-   end
-   
    proc {DrawMap}
       proc {CreateMapCanvas} MapCanvas in
-	 MapCanvas = canvas(width:MapWidth*TILE_SIZE height:MapHeight*TILE_SIZE handle:MapCanvasHandle)
-	 MapWindow = {QTk.build lr(MapCanvas)}
+	       MapCanvas = canvas(width:MapWidth*TILE_SIZE height:MapHeight*TILE_SIZE handle:MapCanvasHandle)
+         MapWindow = {QTk.build lr(MapCanvas)}
       end
 
       fun {AddTileAt Type X Y} ImageName in
-	 ImageName = if Type==GRASS then texture_grass elseif Type==ROAD then texture_road end
-	 create(image {XCoord X} {YCoord Y} anchor:nw image:{GetImage ImageName})
+        ImageName = if Type==GRASS then texture_grass elseif Type==ROAD then texture_road end
+        create(image {XCoord X} {YCoord Y} anchor:nw image:{GetImage ImageName})
       end
-   
+
       proc {DrawRow RowRecord RowNumber}
-	 proc {RecDrawRow TilesList X}
-	    case TilesList
-	    of nil then skip
-	    [] H|T then
-	       {MapCanvasHandle {AddTileAt H X RowNumber}}
-	       {RecDrawRow T X+1} 
-	    end
-	 end
+	       proc {RecDrawRow TilesList X}
+	          case TilesList
+	          of nil then skip
+	          [] H|T then
+	             {MapCanvasHandle {AddTileAt H X RowNumber}}
+	             {RecDrawRow T X+1}
+	          end
+        end
       in
-	 {RecDrawRow {Record.toList RowRecord} 0}
+        {RecDrawRow {Record.toList RowRecord} 0}
       end
-      
+
       proc {Draw}
-	 proc {RecDraw RowsList RowNumber}
-	    case RowsList
-	    of nil then skip
-	    [] Row|RemainingRows then
-	       {DrawRow Row RowNumber}
-	       {RecDraw RemainingRows RowNumber+1}
-	    end
-	 end
+        proc {RecDraw RowsList RowNumber}
+          case RowsList
+          of nil then skip
+          [] Row|RemainingRows then
+            {DrawRow Row RowNumber}
+            {RecDraw RemainingRows RowNumber+1}
+          end
+        end
       in
-	 {RecDraw {Record.toList Map} 0}
+        {RecDraw {Record.toList Map} 0}
       end
    in
       {CreateMapCanvas}
       {Draw}
       {MapWindow show}
+      {BindKeyboardActions}
       {Debug map_drawn}
    end
 
@@ -154,35 +157,31 @@ define
       STEPS_BY_MOVE  = 8
       STEP_DURATION  = {TurnDuration} div STEPS_BY_MOVE
       STEP_INCREMENT = TILE_SIZE div STEPS_BY_MOVE
-      
+
       proc {MoveImageOneStep}
-	 case Direction
-	 of up    then {IncrementYPos PlayerHandle ~STEP_INCREMENT}
-	 [] right then {IncrementXPos PlayerHandle  STEP_INCREMENT}
-	 [] down  then {IncrementYPos PlayerHandle  STEP_INCREMENT}
-	 [] left  then {IncrementXPos PlayerHandle ~STEP_INCREMENT}
-	 end
+        case Direction
+        of up    then {IncrementYPos PlayerHandle ~STEP_INCREMENT}
+        [] right then {IncrementXPos PlayerHandle  STEP_INCREMENT}
+        [] down  then {IncrementYPos PlayerHandle  STEP_INCREMENT}
+        [] left  then {IncrementXPos PlayerHandle ~STEP_INCREMENT}
+        end
       end
-      
+
       proc {SetImageForStep Step} ImageName in
-	 ImageName = {VirtualString.toAtom "sacha_"#Direction#"_"#(Step mod IMAGE_STEPS)}
-	 {PlayerHandle set(image:{GetImage ImageName})}
+        ImageName = {VirtualString.toAtom "sacha_"#Direction#"_"#(Step mod IMAGE_STEPS)}
+        {PlayerHandle set(image:{GetImage ImageName})}
       end
-      
+
       proc {Anim Step}
-	 if Step==STEPS_BY_MOVE then skip
-	 else
-	    {SetImageForStep Step}
-	    {MoveImageOneStep}
-	    {Debug anim}
-	    {Debug STEP_DURATION}
-	    {Debug {TurnDuration}}    
-	    {Delay STEP_DURATION}
-	    {Debug anim}
-	    {Anim Step+1} 
-	 end
+        if Step==STEPS_BY_MOVE then skip
+        else
+          {SetImageForStep Step}
+          {MoveImageOneStep}
+          {Delay STEP_DURATION}
+          {Anim Step+1}
+        end
       end
-   in
+    in
       {Anim 0}
-   end
+    end
 end
