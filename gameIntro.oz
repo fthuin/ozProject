@@ -1,7 +1,8 @@
 declare
 [QTk]={Module.link ["x-oz://system/wp/QTk.ozf"]}
-BASE_PATH = "/Users/Greg/Desktop/ozProject/"
-ImageLibrary = {QTk.loadImageLibrary BASE_PATH#"ImagesLibrary.ozf"}
+%BASE_PATH = "/Users/Greg/Desktop/ozProject/"
+BASE_PATH = "/home/florian/Documents/Project_2015/"
+ImageLibrary = {QTk.loadImageLibrary BASE_PATH#"ImageLibrary.ozf"}
 
 fun {GetImage Name}
    {ImageLibrary get(name:Name image:$)}
@@ -29,15 +30,15 @@ PokemozCanvasHandle
 NewGameMsg       = {Title "New game"}
 ChooseNameMsg    = {Subtitle "Choose your name"}
 ChoosePokemozMsg = {Subtitle "Choose your starting Pokemoz"}
-NameText         = text(init:"Enter your name..." glue:ew width:15 height:2 handle:NameTextHandle bg:white return:PlayerName)
+NameText         = text(init:"Enter your name..." glue:ew width:15 height:2 handle:NameTextHandle bg:white return:PlayerName borderwidth:0 highlightthickness:0)
 DropdownPokemoz  = dropdownlistbox(init:["Bulbasoz - Grass" "Charmandoz - Fire" "Oztirtle - Water"]
 				   return:ChosenPokemoz
 				   glue:new
 				  )
 
 StartGameBtn  = button(text:"Start game!" glue:new bg:white)
-SachaCanvas   = canvas(handle:SachaCanvasHandle   width:400 height:300 bg:white borderwidth:0)
-PokemozCanvas = canvas(handle:PokemozCanvasHandle width:400 height:750 bg:white borderwidth:0)
+SachaCanvas   = canvas(handle:SachaCanvasHandle   width:400 height:300 bg:white borderwidth:0 highlightthickness:0)
+PokemozCanvas = canvas(handle:PokemozCanvasHandle width:400 height:750 bg:white borderwidth:0 highlightthickness:0)
 	
 MainLayout = td(title:"Pokemoz"
 		bg:white
