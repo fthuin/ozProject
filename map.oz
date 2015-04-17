@@ -1,7 +1,7 @@
 functor
 import
    Module
-   System
+   Lib at 'lib.ozf'
 export
    Init
    DrawMap
@@ -32,9 +32,6 @@ define
    MapWindow
 
    % Private methods
-   proc {Debug Msg}
-      {System.show Msg}
-   end
 
    fun {GetImage Name}
       {ImageLibrary get(name:Name image:$)}
@@ -89,7 +86,7 @@ define
       {MapWindow bind(event:"<Down>"  action:proc{$} {Send InstructionsPort down}   end)}
       {MapWindow bind(event:"<Right>" action:proc{$} {Send InstructionsPort right}  end)}
       {MapWindow bind(event:"<space>" action:proc{$} {Send InstructionsPort finish} end)}
-      {Debug keyboard_actions_bound}
+      {Lib.debug keyboard_actions_bound}
    end
 
    % Public methods
@@ -144,12 +141,12 @@ define
       {Draw}
       {MapWindow show}
       {BindKeyboardActions}
-      {Debug map_drawn}
+      {Lib.debug map_drawn}
    end
 
    proc {DrawPlayerAtPosition Pos}
       {MapCanvasHandle create(image {XCoord Pos.x} {YCoord Pos.y} image:{GetImage sacha_down_3} anchor:nw handle:PlayerHandle)}
-      {Debug player_positioned_at(Pos)}
+      {Lib.debug player_positioned_at(Pos)}
    end
 
    proc {MovePlayer Direction}

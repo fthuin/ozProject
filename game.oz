@@ -1,11 +1,9 @@
 functor
 import
-   % OZ modules
-   Application
    System
-
-   % Custom modules
-   MapDrawing at 'map_drawing.ozf'
+   Lib at 'lib.ozf'
+   Map at 'map.ozf'
+   Interface at 'interface.ozf'
 define
    {System.show game_started}
 
@@ -21,21 +19,20 @@ define
    OZTIRTLE   = pokemoz(name:oztirtle   type:TYPE_WATER level:POKEMOZ_MIN_LEVEL health:20 xp:POKEMOZ_BASE_XP)
    CHARMANDOZ = pokemoz(name:charmandoz type:TYPE_FIRE  level:POKEMOZ_MIN_LEVEL health:20 xp:POKEMOZ_BASE_XP)
 
-
    % Temporary
-   Map =  map(r(1 1 1 0 0 0 0)
-	            r(1 1 1 0 0 1 1)
-	            r(1 1 1 0 0 1 1)
-	            r(0 0 0 0 0 1 1)
-	            r(0 0 0 1 1 1 1)
-	            r(0 0 0 1 1 0 0)
-	            r(0 0 0 0 0 0 0))
+   TestMap = map(r(1 1 1 0 0 0 0)
+	               r(1 1 1 0 0 1 1)
+	               r(1 1 1 0 0 1 1)
+	               r(0 0 0 0 0 1 1)
+	               r(0 0 0 1 1 1 1)
+	               r(0 0 0 1 1 0 0)
+	               r(0 0 0 0 0 0 0))
    PlayerName = greg
    StartingPokemoz = CHARMANDOZ
 
    % Config starting position
-   MapHeight   = {Width Map}
-   MapWidth    = {Width Map.1}
+   MapHeight   = {Width TestMap}
+   MapWidth    = {Width TestMap.1}
    StartingPos = pos(x:MapWidth-1 y:MapHeight-1)
 
    % Setup intial game state
@@ -44,13 +41,10 @@ define
    GameState        = game_state(turn:0 player_position:StartingPos pokemoz:[StartingPokemoz])
 
    % Setup Map
-   {MapDrawing.init Map InstructionsPort 5 200}
-   {MapDrawing.drawMap}
-   {MapDrawing.drawPlayerAtPosition StartingPos}
-
-   proc {Debug Msg}
-      {System.show Msg}
-   end
+   {Map.init TestMap InstructionsPort 5 200}
+   {Map.drawMap}
+   {Map.drawPlayerAtPosition StartingPos}
+   {Interface.draw GameState}
 
    fun {IncrementTurn GameState}
       case GameState
@@ -62,11 +56,11 @@ define
    proc {GameLoop InstructionsStream GameState}
       case InstructionsStream
       of Instruction|T then
-         {Debug instruction_received(Instruction)}
+         {Lib.debug instruction_received(Instruction)}
          % if {Bool.'not' {PlayerCanMoveInDirection Instruction}} then {Debug invalid_command(Instruction)} {GameLoop T GameState} end % Skip command if invalid.
-         {Debug turn_number(GameState.turn)}
+         {Lib.debug turn_number(GameState.turn)}
 
-         {MapDrawing.movePlayer Instruction}
+         {Map.movePlayer Instruction}
          % {TestWildPokemonMeeting GameState}
          % if {CheckVictoryCondition} then
    	     %  {Debug game_won}

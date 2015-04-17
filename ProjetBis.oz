@@ -28,10 +28,10 @@ WildPokemozList = [pokemoz(name:caterpie   type:TYPE_GRASS)
 		   pokemoz(name:vulpix     type:TYPE_FIRE)
 		   pokemoz(name:oddish     type:TYPE_GRASS)]
 
-WildPokemozCount = {Length WildPokemozList}       
+WildPokemozCount = {Length WildPokemozList}
 
 % Game parameters
-WildPokemozProba = 50 
+WildPokemozProba = 50
 Speed            = 5
 
 AutoFightRun    = run
@@ -154,12 +154,12 @@ fun {IsOnGrass}
    {TileAtPosition {PlayerPosition}}==GRASS
 end
 
-proc {AnimPlayer Direction}
+/*proc {AnimPlayer Direction}
    IMAGE_STEPS    = 4
    STEPS_BY_MOVE  = 8
    STEP_DURATION  = {TurnDuration} div STEPS_BY_MOVE
    STEP_INCREMENT = TILE_SIZE div STEPS_BY_MOVE
-   
+
    proc {MoveImageOneStep}
       case Direction
       of up    then {IncrementYPos Drawings.player ~STEP_INCREMENT}
@@ -173,23 +173,23 @@ proc {AnimPlayer Direction}
       ImageName = {VirtualString.toAtom "sacha_"#Direction#"_"#(Step mod IMAGE_STEPS)}
       {Drawings.player set(image:{GetImage ImageName})}
    end
-   
+
    proc {Anim Step}
       if Step==STEPS_BY_MOVE then skip
       else
 	 {SetImageForStep Step}
 	 {MoveImageOneStep}
 	 {Delay STEP_DURATION}
-	 {Anim Step+1} 
+	 {Anim Step+1}
       end
    end
 in
    {Anim 0}
-end
+end*/
 
- 
+
 % Return a widget that represents a pokemoz' state.
-fun {PokemozArea Pokemoz}
+/*fun {PokemozArea Pokemoz}
    fun {Label Text}
       label(init:Text glue:w font:{QTk.newFont font(weight:bold)})
    end
@@ -216,10 +216,10 @@ fun {PokemozArea Pokemoz}
    Values = td(glue:w Name Type Level Health XP)
 in
    td(TitleLabel lr(Labels Values))
-end
+end*/
 
 
-proc {DrawMap Game}
+/*proc {DrawMap Game}
    proc {CreateMapCanvas} MapCanvas in
       MapCanvas = canvas(bg:yellow width:Game.map_info.width*TILE_SIZE height:Game.map_info.height*TILE_SIZE handle:MapCanvasHandle)
       MapWindow = {QTk.build lr(MapCanvas)}
@@ -229,20 +229,20 @@ proc {DrawMap Game}
       ImageName = if Type==GRASS then texture_grass else texture_road end
       create(image {XCoord X} {YCoord Y} anchor:nw image:{GetImage ImageName})
    end
-   
+
    proc {DrawRow RowRecord RowNumber}
       proc {RecDrawRow TilesList X}
 	 case TilesList
 	 of nil then skip
 	 [] H|T then
 	    {MapCanvasHandle {AddTileAt H X RowNumber}}
-	    {RecDrawRow T X+1} 
+	    {RecDrawRow T X+1}
 	 end
       end
    in
       {RecDrawRow {Record.toList RowRecord} 0}
    end
-	 
+
    proc {DrawMap Map}
       proc {RecDrawMap RowsList RowNumber}
 	 case RowsList
@@ -260,18 +260,18 @@ in
    {DrawMap Game.map_info.map}
    {MapWindow show}
    {Debug map_drawn}
-end
+end*/
 
 % Random helper
 
 fun {Rand I}
    ({OS.rand $} mod I) + 1
 end
-   
+
 
 % DRAW GAME
-InstructionsStream
-InstructionsPort = {NewPort InstructionsStream}
+/*InstructionsStream
+InstructionsPort = {NewPort InstructionsStream}*/
 
 proc {DrawAuxiliaryInterface}
    Interface = lr({PokemozArea Game.player.pokemoz.1})
@@ -334,7 +334,7 @@ end
 
 % Returns true if attacker won, false otherwise.
 % Bind resulting variables to resulting pokemoz.
-proc {PokemozFight Attacker Defender ResultingAttacker ResultingDefender}   
+proc {PokemozFight Attacker Defender ResultingAttacker ResultingDefender}
    proc {RecursivePokemozFight Attacker Defender ResultingAttacker ResultingDefender Round}
       NewDefenderHealth
       NewDefender
@@ -345,10 +345,10 @@ proc {PokemozFight Attacker Defender ResultingAttacker ResultingDefender}
 	 {Debug fight_round(Round)}
 	 {Debug attack(Attacker)}
 	 {Debug defense(Defender)}
-	 
-	 NewDefenderHealth = if {IsAttackSuccess Attacker Defender} then {Max 0 HD-{Damage TA TD}} else HD end 
+
+	 NewDefenderHealth = if {IsAttackSuccess Attacker Defender} then {Max 0 HD-{Damage TA TD}} else HD end
 	 NewDefender = pokemoz(name:ND type:TD level:LD xp:XD health:NewDefenderHealth)
-	 
+
 	 if NewDefenderHealth==0 then % Fight is over.
 	    {Debug fight_over(winner:Attacker looser:NewDefender)}
 	    if (Round mod 2)==0 then % Current attacker is original attacker.
@@ -364,7 +364,7 @@ proc {PokemozFight Attacker Defender ResultingAttacker ResultingDefender}
 	    {RecursivePokemozFight NewDefender Attacker ResultingAttacker ResultingDefender Round+1} % Switch attack turn
 	 end
       end
-   end  
+   end
 in
    {RecursivePokemozFight Attacker Defender ResultingAttacker ResultingDefender 0}
 end
@@ -412,7 +412,7 @@ proc {GameLoop InstructionsStream GameState}
       {Debug instruction_received(Instruction)}
       if {Bool.'not' {PlayerCanMoveInDirection Instruction}} then {Debug invalid_command(Instruction)} {GameLoop T GameState} end % Skip command if invalid.
       {Debug turn_number(GameState.turn)}
-      
+
       {AnimPlayer Instruction}
       {TestWildPokemonMeeting GameState}
       if {CheckVictoryCondition} then
@@ -433,16 +433,16 @@ proc {InitGame}
       {Drawings.map.window bind(event:"<space>" action:proc{$} {Send InstructionsPort finish} end)}
       {Debug keyboard_action_bound}
    end
-   
+
    proc {PositionPlayer}
-      {Drawings.map.canvas_handle create(image {XCoord STARTING_POS.x} {YCoord STARTING_POS.y} image:{GetImage sacha_down_3} anchor:nw handle:Drawings.player)} 
+      {Drawings.map.canvas_handle create(image {XCoord STARTING_POS.x} {YCoord STARTING_POS.y} image:{GetImage sacha_down_3} anchor:nw handle:Drawings.player)}
       {Debug player_positionned_at(STARTING_POS.x STARTING_POS.y)}
    end
 
    proc {PositionEnemyTrainers}
       {Debug enemy_trainers_positionned}
    end
-   
+
 in
    {BindKeyboardActions}
    {PositionPlayer}
