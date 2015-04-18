@@ -9,11 +9,7 @@ import
 define
   {System.show game_started}
 
-  % Base pokemoz
-  POKEMOZ_MIN_LEVEL  = 5
-  POKEMOZ_MAX_LEVEL  = 10
-
-  % Temporary
+  % Temporary game parameters
   TestMap = map(r(1 1 1 0 0 0 0)
                 r(1 1 1 0 0 1 1)
                 r(1 1 1 0 0 1 1)
@@ -21,12 +17,15 @@ define
                 r(0 0 0 1 1 1 1)
                 r(0 0 0 1 1 0 0)
                 r(0 0 0 0 0 0 0))
+  WildPokemozProba = 50
+  Speed = 8
+  DELAY = 200
 
+  % Intro - Ask player for name and starting pokemoz
   PlayerName
   PokemozName
   {GameIntro.getUserChoice PlayerName PokemozName}
-  {Lib.debug PlayerName}
-  {Lib.debug PokemozName}
+
 
   % Save some map info
   MapHeight   = {Width TestMap}
@@ -42,7 +41,7 @@ define
     InstructionsPort = {NewPort InstructionsStream}
   in
     GameState = game_state(turn:0 player:Player trainers:Characters.trainers)
-    {Map.init TestMap InstructionsPort 5 200}
+    {Map.init TestMap InstructionsPort Speed DELAY}
     {Map.drawMap}
     {Map.drawPlayerAtPosition StartingPos}
     {Interface.init GameState}
@@ -82,14 +81,14 @@ define
     end
   end
 
+
   proc {TestWildPokemonMeeting GameState}
      if {Map.isGrass GameState.player.position} then
        {Lib.debug player_on_grass}
-        /*{Debug player_on_grass}
-        if {Rand 100} >= WildPokemozProba then
-  	       {Debug player_meet_wild_pokemon}
-  	        {FightWildPokemon GameState}
-        end*/
+        if {Lib.rand 100} >= WildPokemozProba then
+  	       {Lib.debug player_meet_wild_pokemon({Characters.summonWildPokemon GameState})}
+  	        % {FightWildPokemon GameState}
+        end
      end
   end
 

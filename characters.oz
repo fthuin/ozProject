@@ -1,24 +1,38 @@
 functor
+import
+  Lib at 'lib.ozf'
 export
   BasePokemoz
-  WildPokemozList
+  SummonWildPokemon
   Trainers
 define
   GRASS = grass
   WATER = water
   FIRE  = fire
 
-  Bulbasoz   = pokemoz(name:bulbasoz   type:GRASS level:5 health:20 xp:0)
-  Oztirtle   = pokemoz(name:oztirtle   type:WATER level:5 health:20 xp:0)
-  Charmandoz = pokemoz(name:charmandoz type:FIRE  level:5 health:20 xp:0)
+  % Base pokemoz
+  POKEMOZ_MIN_LEVEL  = 5
+  POKEMOZ_MAX_LEVEL  = 10
+  POKEMOZ_BASE_XP    = 0
 
-  BasePokemoz = base_pokemoz(
-    bulbasoz:Bulbasoz
-    oztirtle:Oztirtle
-    charmandoz:Charmandoz
-  )
+  fun {MaxHealth Level}
+     Level * 4
+  end
 
-  WildPokemozList = [
+  fun {NewPokemon Name Type Level}
+    pokemoz(name:Name
+            type:Type
+            level:Level
+            health:{MaxHealth POKEMOZ_MIN_LEVEL}
+            xp:POKEMOZ_BASE_XP)
+  end
+
+  Bulbasoz   = {NewPokemon bulbasoz   GRASS POKEMOZ_MIN_LEVEL}
+  Oztirtle   = {NewPokemon oztirtle   WATER POKEMOZ_MIN_LEVEL}
+  Charmandoz = {NewPokemon charmandoz FIRE  POKEMOZ_MIN_LEVEL}
+
+
+  WildPokemozBreedsList = [
     pokemoz(name:bellsprout   type:GRASS)
     pokemoz(name:caterpie     type:GRASS)
     pokemoz(name:nidoran      type:GRASS)
@@ -32,6 +46,23 @@ define
     pokemoz(name:vulpix       type:FIRE)
     pokemoz(name:moltres      type:FIRE)
   ]
+  WildPokemozBreedsCount = {Length WildPokemozBreedsList}
+
+  fun {GenerateWildPokemozLevel Turn}
+     ComputedLevel = 5 + {Lib.rand (Turn div 10)}
+  in
+     if ComputedLevel > POKEMOZ_MAX_LEVEL then POKEMOZ_MAX_LEVEL
+     else ComputedLevel
+     end
+  end
+
+  % Public
+
+  BasePokemoz = base_pokemoz(
+    bulbasoz:Bulbasoz
+    oztirtle:Oztirtle
+    charmandoz:Charmandoz
+  )
 
   Trainers = [
     trainer(name:brock        position:pos(x:2 y:2) pokemoz:[Bulbasoz])
@@ -41,4 +72,10 @@ define
     trainer(name:team_rocket  position:pos(x:6 y:6) pokemoz:[Bulbasoz Oztirtle Charmandoz])
   ]
 
+  fun {SummonWildPokemon GameState}
+    Breed       = {List.nth WildPokemozBreedsList {Lib.rand WildPokemozBreedsCount}}
+    Level       = {GenerateWildPokemozLevel GameState.turn}
+  in
+    {NewPokemon Breed.name Breed.type Level}
+  end
 end
