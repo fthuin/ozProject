@@ -7,7 +7,7 @@ export
    DrawMap
    DrawPlayerAtPosition
    MovePlayer
-   IsGrass
+   IsRoad
 define
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
    ImageLibrary = {QTk.loadImageLibrary "ImageLibrary.ozf"}
@@ -183,8 +183,8 @@ define
       {Anim 0}
     end
 
-    fun {IsGrass Position}
-      Map.(Position.y+1).(Position.x+1) == GRASS
+    fun {IsRoad Position}
+      Map.(Position.y+1).(Position.x+1) == ROAD
     end
 
 end

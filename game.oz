@@ -6,6 +6,7 @@ import
   Characters at 'characters.ozf'
   Map        at 'map.ozf'
   Interface  at 'interface.ozf'
+  Fight      at 'fight.ozf'
   GameIntro  at 'gameIntro.ozf'
 define
   {System.show game_started}
@@ -82,13 +83,15 @@ define
     end
   end
 
-  proc {TestWildPokemonMeeting GameState}
-     if {Map.isGrass GameState.player.position} then
+  fun {TestWildPokemozMeeting GameState}
+     if {Map.isRoad GameState.player.position} then
+       {Lib.debug player_on_road} false
+     else
        {Lib.debug player_on_grass}
-        if {Lib.rand 100} >= WildPokemozProba then
-  	       {Lib.debug player_meet_wild_pokemon({Characters.summonWildPokemon GameState})}
-  	        % {FightWildPokemon GameState}
-        end
+       if {Lib.rand 100} >= WildPokemozProba then
+         {Lib.debug player_meet_wild_pokemon} true
+       else false
+       end
      end
   end
 
@@ -98,27 +101,31 @@ define
 
   proc {GameLoop InstructionsStream GameState}
     case InstructionsStream
-    of Instruction|T then AfterMoveState in
-      % GAME LOOP
+    of Instruction|T then AfterMoveState AfterFightState in
       {Lib.debug instruction_received(Instruction)}
 
       if {Bool.'not' {PlayerCanMoveInDirection GameState Instruction}} then
         {Lib.debug invalid_command(Instruction)}
         {GameLoop T GameState}
-      end % Skip command if invalid.
+      end
 
       {Lib.debug turn_number(GameState.turn)}
       AfterMoveState = {MovePlayer GameState Instruction}
       {Lib.debug player_moved_to(AfterMoveState.player.position)}
 
-      {TestWildPokemonMeeting AfterMoveState}
 
-      if {CheckVictoryCondition AfterMoveState} then
+      if {TestWildPokemozMeeting AfterMoveState} then
+        {Fight.fightWildPokemoz AfterMoveState AfterFightState Interface}
+      else
+        AfterFightState = AfterMoveState
+      end
+
+      if {CheckVictoryCondition AfterFightState} then
         {Lib.debug game_won}
         {Application.exit 0}
       end
 
-      {GameLoop T {IncrementTurn AfterMoveState}}
+      {GameLoop T {IncrementTurn AfterFightState}}
     end
   end
 

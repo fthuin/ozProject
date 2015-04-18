@@ -15,6 +15,9 @@ map:
 interface:
 	ozc -c interface.oz
 
+fight:
+	ozc -c fight.oz
+
 game:
 	ozc -c game.oz -o game.oza
 
