@@ -8,52 +8,56 @@ define
    [QTk]     = {Module.link ["x-oz://system/wp/QTk.ozf"]}
    Library   = {QTk.newImageLibrary}
 
+   proc {AddPhoto Folder Name}
+     {Library newPhoto(file:BASE_PATH#Folder#"/"#Name#".gif" name:{VirtualString.toAtom Folder#"_"#Name})}
+   end
+
    % Add player images
-   {Library newPhoto(file:BASE_PATH#"sacha/down0.gif" name:sacha_down_0)}
-   {Library newPhoto(file:BASE_PATH#"sacha/down1.gif" name:sacha_down_1)}
-   {Library newPhoto(file:BASE_PATH#"sacha/down2.gif" name:sacha_down_2)}
-   {Library newPhoto(file:BASE_PATH#"sacha/down3.gif" name:sacha_down_3)}
+   {AddPhoto sacha down0}
+   {AddPhoto sacha down1}
+   {AddPhoto sacha down2}
+   {AddPhoto sacha down3}
 
-   {Library newPhoto(file:BASE_PATH#"sacha/up0.gif" name:sacha_up_0)}
-   {Library newPhoto(file:BASE_PATH#"sacha/up1.gif" name:sacha_up_1)}
-   {Library newPhoto(file:BASE_PATH#"sacha/up2.gif" name:sacha_up_2)}
-   {Library newPhoto(file:BASE_PATH#"sacha/up3.gif" name:sacha_up_3)}
+   {AddPhoto sacha up0}
+   {AddPhoto sacha up1}
+   {AddPhoto sacha up2}
+   {AddPhoto sacha up3}
 
-   {Library newPhoto(file:BASE_PATH#"sacha/left0.gif" name:sacha_left_0)}
-   {Library newPhoto(file:BASE_PATH#"sacha/left1.gif" name:sacha_left_1)}
-   {Library newPhoto(file:BASE_PATH#"sacha/left2.gif" name:sacha_left_2)}
-   {Library newPhoto(file:BASE_PATH#"sacha/left3.gif" name:sacha_left_3)}
+   {AddPhoto sacha left0}
+   {AddPhoto sacha left1}
+   {AddPhoto sacha left2}
+   {AddPhoto sacha left3}
 
-   {Library newPhoto(file:BASE_PATH#"sacha/right0.gif" name:sacha_right_0)}
-   {Library newPhoto(file:BASE_PATH#"sacha/right1.gif" name:sacha_right_1)}
-   {Library newPhoto(file:BASE_PATH#"sacha/right2.gif" name:sacha_right_2)}
-   {Library newPhoto(file:BASE_PATH#"sacha/right3.gif" name:sacha_right_3)}
+   {AddPhoto sacha right0}
+   {AddPhoto sacha right1}
+   {AddPhoto sacha right2}
+   {AddPhoto sacha right3}
 
-   {Library newPhoto(file:BASE_PATH#"/sacha/large.gif" name:sacha_large)}
+   {AddPhoto sacha large}
 
    % Add textures
-   {Library newPhoto(file:BASE_PATH#"textures/grass.gif" name:texture_grass)}
-   {Library newPhoto(file:BASE_PATH#"textures/road.gif"  name:texture_road)}
+   {AddPhoto textures grass}
+   {AddPhoto textures road}
 
    % Add pokemons
-   {Library newPhoto(file:BASE_PATH#"pokemoz/bellsprout.gif" name:pokemoz_bellsprout)}
-   {Library newPhoto(file:BASE_PATH#"pokemoz/bulbasaur.gif"  name:pokemoz_bulbasaur)}
-   {Library newPhoto(file:BASE_PATH#"pokemoz/caterpie.gif"   name:pokemoz_caterpie)}
-   {Library newPhoto(file:BASE_PATH#"pokemoz/charmander.gif" name:pokemoz_charmander)}
-   {Library newPhoto(file:BASE_PATH#"pokemoz/nidoran.gif"    name:pokemoz_nidoran)}
-   {Library newPhoto(file:BASE_PATH#"pokemoz/oddish.gif"     name:pokemoz_oddish)}
-   {Library newPhoto(file:BASE_PATH#"pokemoz/poliwag.gif"    name:pokemoz_poliwag)}
-   {Library newPhoto(file:BASE_PATH#"pokemoz/ponyta.gif"     name:pokemoz_ponyta)}
-   {Library newPhoto(file:BASE_PATH#"pokemoz/squirtle.gif"   name:pokemoz_squirtle)}
-   {Library newPhoto(file:BASE_PATH#"pokemoz/vulpix.gif"     name:pokemoz_vulpix)}
+   {AddPhoto pokemoz bellsprout}
+   {AddPhoto pokemoz bulbasaur}
+   {AddPhoto pokemoz caterpie}
+   {AddPhoto pokemoz charmander}
+   {AddPhoto pokemoz nidoran}
+   {AddPhoto pokemoz oddish}
+   {AddPhoto pokemoz poliwag}
+   {AddPhoto pokemoz ponyta}
+   {AddPhoto pokemoz squirtle}
+   {AddPhoto pokemoz vulpix}
 
    % Add characters
-   {Library newPhoto(file:BASE_PATH#"characters/brock.gif"        name:characters_brock)}
-   {Library newPhoto(file:BASE_PATH#"characters/james.gif"        name:characters_james)}
-   {Library newPhoto(file:BASE_PATH#"characters/may.gif"          name:characters_may)}
-   {Library newPhoto(file:BASE_PATH#"characters/misty.gif"        name:characters_misty)}
-   {Library newPhoto(file:BASE_PATH#"characters/player.gif"       name:characters_player)}
-   {Library newPhoto(file:BASE_PATH#"characters/team_rocket.gif"  name:characters_team_rocket)}
+   {AddPhoto characters brock}
+   {AddPhoto characters james}
+   {AddPhoto characters may}
+   {AddPhoto characters misty}
+   {AddPhoto characters player}
+   {AddPhoto characters team_rocket}
 
    % Save library
    {QTk.saveImageLibrary Library "ImageLibrary.ozf"}

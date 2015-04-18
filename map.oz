@@ -7,6 +7,7 @@ export
    DrawMap
    DrawPlayerAtPosition
    MovePlayer
+   IsRoad
 define
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
    ImageLibrary = {QTk.loadImageLibrary "ImageLibrary.ozf"}
@@ -15,7 +16,7 @@ define
    CANVAS_OFFSET_BUG = 3
    TILE_SIZE = 80
    GRASS = 0
-   ROAD = 1
+   ROAD  = 1
 
    % Params
    Map
@@ -107,7 +108,7 @@ define
       end
 
       fun {AddTileAt Type X Y} ImageName in
-        ImageName = if Type==GRASS then texture_grass elseif Type==ROAD then texture_road end
+        ImageName = if Type==GRASS then textures_grass elseif Type==ROAD then textures_road end
         create(image {XCoord X} {YCoord Y} anchor:nw image:{GetImage ImageName})
       end
 
@@ -145,7 +146,7 @@ define
    end
 
    proc {DrawPlayerAtPosition Pos}
-      {MapCanvasHandle create(image {XCoord Pos.x} {YCoord Pos.y} image:{GetImage sacha_down_3} anchor:nw handle:PlayerHandle)}
+      {MapCanvasHandle create(image {XCoord Pos.x} {YCoord Pos.y} image:{GetImage sacha_down3} anchor:nw handle:PlayerHandle)}
       {Lib.debug player_positioned_at(Pos)}
    end
 
@@ -165,7 +166,7 @@ define
       end
 
       proc {SetImageForStep Step} ImageName in
-        ImageName = {VirtualString.toAtom "sacha_"#Direction#"_"#(Step mod IMAGE_STEPS)}
+        ImageName = {VirtualString.toAtom "sacha_"#Direction#(Step mod IMAGE_STEPS)}
         {PlayerHandle set(image:{GetImage ImageName})}
       end
 
@@ -181,4 +182,9 @@ define
     in
       {Anim 0}
     end
+
+    fun {IsRoad Position}
+      Map.(Position.y+1).(Position.x+1) == ROAD
+    end
+
 end
