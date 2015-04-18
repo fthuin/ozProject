@@ -54,7 +54,7 @@ define
      
   in
      %td(TitleLabel lr(Labels Values))
-     td(Title Label td(NameLabels TypeLabels LevelLabels HealthLabels XPLabels))
+     td(TitleLabel Label td(NameLabels TypeLabels LevelLabels HealthLabels XPLabels))
   end
 
   % Public method
