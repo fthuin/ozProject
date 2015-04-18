@@ -7,6 +7,7 @@ export
    DrawMap
    DrawPlayerAtPosition
    MovePlayer
+   IsGrass
 define
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
    ImageLibrary = {QTk.loadImageLibrary "ImageLibrary.ozf"}
@@ -15,7 +16,7 @@ define
    CANVAS_OFFSET_BUG = 3
    TILE_SIZE = 80
    GRASS = 0
-   ROAD = 1
+   ROAD  = 1
 
    % Params
    Map
@@ -181,4 +182,9 @@ define
     in
       {Anim 0}
     end
+
+    fun {IsGrass Position}
+      Map.(Position.y+1).(Position.x+1) == GRASS
+    end
+
 end
