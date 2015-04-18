@@ -1,11 +1,17 @@
 functor
 import
-   Module
-   Lib at 'lib.ozf'
+  Module
+  Lib at 'lib.ozf'
 export
-  Draw
+  Init
+  DrawPlayer
+  DrawWildPokemoz
+  DrawEnemyTrainer
 define
   [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
+
+  Interface
+  Window
 
   % Private methods
   fun {PlayerArea Pokemoz}
@@ -43,10 +49,10 @@ define
   % Nécessaire de sauver les références aux handles des différents élements pour
   % modifier le contenu plus tard via les autres méthodes.
   % (Il faut changer ce que j'ai déjà fait, ça ne convient forcément pas, c'est temporaire)
-  % Game a la forme suivante:
-  % game_state(turn:0 player_position:StartingPos pokemoz:[FirstPokemoz SecondPokemoz])
+  % Ex data: game_state(turn:0 player:Player trainers:Characters.trainers)
+  % Où Player = player(name:PlayerName position:StartingPos pokemoz:[StartingPokemoz])
   proc {Init GameState}
-    Interface = lr({PlayerArea GameState.pokemoz.1})
+    Interface = lr({PlayerArea GameState.player.pokemoz.1})
     Window = {QTk.build Interface}
     {Window show}
     {Lib.debug auxialiary_interface_drawn}
@@ -56,18 +62,21 @@ define
   % Photo + nom et l'état de ses pokémons (les photos sont déjà compilées dans imageLibrary).
   % Pour chaque pokémon pareil: photo, nom, niveau, health/total health, type, etc.
   proc {DrawPlayer GameState}
+    skip
   end
 
   % Afficher l'état d'un pokemon sauvage sur la droite.
   % Photo, nom, niveau, health/total health, type, etc.
-  % Ex data: pokemoz(name:bulbasoz type:grass level:5 health:20 xp:7)
-  % Max HP can be derived from the level (level*4)
+  % Ex data: pokemoz(name:oddish type:grass level:5 health:20 xp:7)
+  % (Max HP peut être dérivé du niveau => level*4)
   proc {DrawWildPokemoz WildPokemoz}
+    skip
   end
 
   % Afficher l'état du trainer enemy sur la droite.
   % Mirroir du joueur. Mêmes infos. Pas besoin d'utiliser position.
-  % Ex data: trainer(name:brock position:pos(x:2 y:2) pokemoz:[Pokemoz1 Pokemoz2])
+  % Ex data: trainer(name:team_rocket  position:pos(x:6 y:6) pokemoz:[Bulbasoz Oztirtle Charmandoz])
   proc {DrawEnemyTrainer Trainer}
+    skip
   end
 end

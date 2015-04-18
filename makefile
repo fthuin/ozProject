@@ -1,7 +1,10 @@
-all: lib map interface game run
+all: lib characters map interface game run
 
 lib:
 	ozc -c lib.oz
+
+characters:
+	ozc -c characters.oz
 
 map:
 	ozc -c map.oz

@@ -20,16 +20,6 @@ TYPE_GRASS = grass
 TYPE_WATER = water
 TYPE_FIRE  = fire
 
-BULBASOZ   = pokemoz(name:bulbasoz   type:TYPE_GRASS level:POKEMOZ_MIN_LEVEL health:20 xp:POKEMOZ_BASE_XP)
-OZTIRTLE   = pokemoz(name:oztirtle   type:TYPE_WATER level:POKEMOZ_MIN_LEVEL health:20 xp:POKEMOZ_BASE_XP)
-CHARMANDOZ = pokemoz(name:charmandoz type:TYPE_FIRE  level:POKEMOZ_MIN_LEVEL health:20 xp:POKEMOZ_BASE_XP)
-
-WildPokemozList = [pokemoz(name:caterpie   type:TYPE_GRASS)
-		   pokemoz(name:vulpix     type:TYPE_FIRE)
-		   pokemoz(name:oddish     type:TYPE_GRASS)]
-
-WildPokemozCount = {Length WildPokemozList}
-
 % Game parameters
 WildPokemozProba = 50
 Speed            = 5
