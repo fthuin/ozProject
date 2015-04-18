@@ -52,22 +52,6 @@ fun {CheckVictoryCondition}
    {PlayerPosition} == WINNING_POS
 end
 
-
-% Gameplay
-fun {MaxHealth Level}
-   Level * 4
-end
-
-fun {WildPokemozLevel Turn}
-   ComputedLevel = 5 + {Rand ((Turn div 10) + 1)}
-in
-   if ComputedLevel > POKEMOZ_MAX_LEVEL then POKEMOZ_MAX_LEVEL else ComputedLevel end
-end
-
-fun {NewWildPokemoz Type Level}
-   pokemoz(name:Type.name type:Type.type level:Level health:{MaxHealth Level} xp:0)
-end
-
 fun {IsAttackSuccess AttackerPokemoz DefenderPokemoz}
    SuccessProba = (6 + AttackerPokemoz.level - DefenderPokemoz.level) * 9
 in

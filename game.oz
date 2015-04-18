@@ -1,5 +1,6 @@
 functor
 import
+  Application
   System
   Lib        at 'lib.ozf'
   Characters at 'characters.ozf'
@@ -26,10 +27,10 @@ define
   PokemozName
   {GameIntro.getUserChoice PlayerName PokemozName}
 
-
   % Save some map info
   MapHeight   = {Width TestMap}
   MapWidth    = {Width TestMap.1}
+  VictoryPosition = pos(x:MapWidth-1 y:0)
 
   % Setup intial game state
   InstructionsStream
@@ -81,7 +82,6 @@ define
     end
   end
 
-
   proc {TestWildPokemonMeeting GameState}
      if {Map.isGrass GameState.player.position} then
        {Lib.debug player_on_grass}
@@ -90,6 +90,10 @@ define
   	        % {FightWildPokemon GameState}
         end
      end
+  end
+
+  fun {CheckVictoryCondition GameState}
+     GameState.player.position == VictoryPosition
   end
 
   proc {GameLoop InstructionsStream GameState}
@@ -108,9 +112,11 @@ define
       {Lib.debug player_moved_to(AfterMoveState.player.position)}
 
       {TestWildPokemonMeeting AfterMoveState}
-      % if {CheckVictoryCondition} then
-      %  {Debug game_won}
-      % else
+
+      if {CheckVictoryCondition AfterMoveState} then
+        {Lib.debug game_won}
+        {Application.exit 0}
+      end
 
       {GameLoop T {IncrementTurn AfterMoveState}}
     end
