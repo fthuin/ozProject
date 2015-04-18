@@ -24,23 +24,37 @@ define
 
      TitleLabel  = label(init:"My pokemoz" font:{QTk.newFont font(size:20 weight:bold)})
 
-     % Column of labels
+     % Name : <PokemozName>
      NameLabel   = {Label "Name:"}
-     TypeLabel   = {Label "Type:"}
-     LevelLabel  = {Label "Level:"}
-     HealthLabel = {Label "Health:"}
-     XPLabel     = {Label "XP:"}
-     Labels = td(glue:e NameLabel TypeLabel LevelLabel HealthLabel XPLabel)
-
-     % Column of values
      Name   = {Value {AtomToString Pokemoz.name}}
+     NameLabels = lr(NameLabel Name)
+
+     % Type : <PokemozType>
+     TypeLabel   = {Label "Type:"}
      Type   = {Value {AtomToString Pokemoz.type}}
+     TypeLabels= lr(TypeLabel Type)
+
+     % Level : <PokemozLevel>
+     LevelLabel  = {Label "Level:"}
      Level  = {Value {IntToString  Pokemoz.level}}
+     LevelLabels = lr(LevelLabel Level)
+     
+     % Health : <PokemozHealth>
+     HealthLabel = {Label "Health:"}
      Health = {Value {IntToString  Pokemoz.health}}
+     HealthLabels = lr(HealthLabel Health)
+     
+     % XP : <PokemozXP>
+     XPLabel     = {Label "XP:"}
      XP     = {Value {IntToString  Pokemoz.xp}}
-     Values = td(glue:w Name Type Level Health XP)
+     XPLabels = lr(XPLabel XP)
+     
+     %Labels = td(glue:e NameLabel TypeLabel LevelLabel HealthLabel XPLabel)    
+     %Values = td(glue:w Name Type Level Health XP)
+     
   in
-     td(TitleLabel lr(Labels Values))
+     %td(TitleLabel lr(Labels Values))
+     td(Title Label td(NameLabels TypeLabels LevelLabels HealthLabels XPLabels))
   end
 
   % Public method
