@@ -46,7 +46,7 @@ define
     {Map.init TestMap InstructionsPort Speed DELAY}
     {Map.drawMap}
     {Map.drawPlayerAtPosition StartingPos}
-    {Interface.init GameState}
+    % {Interface.init GameState}
   end
 
   fun {IncrementTurn GameState}
@@ -113,9 +113,8 @@ define
       AfterMoveState = {MovePlayer GameState Instruction}
       {Lib.debug player_moved_to(AfterMoveState.player.position)}
 
-
       if {TestWildPokemozMeeting AfterMoveState} then
-        {Fight.fightWildPokemoz AfterMoveState AfterFightState Interface}
+        AfterFightState = {Fight.fightWildPokemoz AfterMoveState Interface}
       else
         AfterFightState = AfterMoveState
       end

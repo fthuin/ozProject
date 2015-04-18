@@ -49,7 +49,7 @@ define
   WildPokemozBreedsCount = {Length WildPokemozBreedsList}
 
   fun {GenerateWildPokemozLevel Turn}
-     ComputedLevel = 5 + {Lib.rand (Turn div 10)}
+     ComputedLevel = 4 + {Lib.rand ((Turn div 10)+1)}
   in
      if ComputedLevel > POKEMOZ_MAX_LEVEL then POKEMOZ_MAX_LEVEL
      else ComputedLevel

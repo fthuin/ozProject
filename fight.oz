@@ -26,11 +26,12 @@ define
      end
   end
 
-  proc {FightWildPokemoz InitialState FinalState Interface}
+  fun {FightWildPokemoz InitialState Interface}
+    FinalState = InitialState
     WildPokemoz = {Characters.summonWildPokemon InitialState}
   in
     {Lib.debug fight_started_against(WildPokemoz)}
-    FinalState = InitialState
+    FinalState
   end
 
 
