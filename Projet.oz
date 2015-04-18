@@ -2,8 +2,6 @@ declare
 
 [QTk]={Module.link ["x-oz://system/wp/QTk.ozf"]}
 
-
-
 WidthBox  = 40     % Largeur de case
 HeightBox = 40     % Hauteur de case
 PLAYER_MAXSTEP = 8 % Nombre maximum de case par tour
