@@ -1,7 +1,7 @@
 declare
 [QTk]={Module.link ["x-oz://system/wp/QTk.ozf"]}
-BASE_PATH = "/Users/Greg/Desktop/ozProject/"
-% BASE_PATH = "/home/florian/Documents/Project_2015/"
+%BASE_PATH = "/Users/Greg/Desktop/ozProject/"
+BASE_PATH = "/home/florian/Documents/Project_2015/"
 ImageLibrary = {QTk.loadImageLibrary BASE_PATH#"ImageLibrary.ozf"}
 
 fun {GetImage Name}
@@ -33,7 +33,7 @@ ChooseNameMsg    = {Subtitle "Choose your name"}
 ChoosePokemozMsg = {Subtitle "Choose your starting Pokemoz"}
 NameText         = text(glue:n width:15 height:2 handle:NameTextHandle return:PlayerName borderwidth:0 highlightthickness:0)
 
-ChoiceLabel = label(init:"ChosenPokemon : none" handle:ChoiceLabelHandle bg:white return:ChosenPokemoz)
+ChoiceLabel = lr(label(init:"ChosenPokemoz :" bg:white) label(init:"none" handle:ChoiceLabelHandle bg:white return:ChosenPokemoz))
 
 StartGameBtn  = button(text:"Start game!" glue:new bg:white action:toplevel#close)
 SachaCanvas   = canvas(handle:SachaCanvasHandle   width:400 height:350 bg:white borderwidth:0 highlightthickness:0)
@@ -64,11 +64,11 @@ Window = {QTk.build MainLayout}
 {SachaCanvasHandle   create(image 110 50   anchor:nw image:{GetImage sacha_large})}
 {PokemozCanvasHandle bind(event:"<1>" action:proc{$ X Y}
 						if Y < 180 then
-						   {ChoiceLabelHandle set("Chosen Pokemoz : "#"Bulbasoz")}
+						   {ChoiceLabelHandle set("Bulbasoz")}
 						elseif Y < 360 then
-						   {ChoiceLabelHandle set("Chosen Pokemoz : "#"Charmandoz")}
+						   {ChoiceLabelHandle set("Charmandoz")}
 						else
-						   {ChoiceLabelHandle set("Chosen Pokemoz : "#"Oztirtle")}
+						   {ChoiceLabelHandle set("Oztirtle")}
 						end
 					     end
 			  args:[int(x) int(y)])} 
