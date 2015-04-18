@@ -13,12 +13,12 @@ define
    {Library newPhoto(file:BASE_PATH#"sacha/down1.gif" name:sacha_down_1)}
    {Library newPhoto(file:BASE_PATH#"sacha/down2.gif" name:sacha_down_2)}
    {Library newPhoto(file:BASE_PATH#"sacha/down3.gif" name:sacha_down_3)}
-   
+
    {Library newPhoto(file:BASE_PATH#"sacha/up0.gif" name:sacha_up_0)}
    {Library newPhoto(file:BASE_PATH#"sacha/up1.gif" name:sacha_up_1)}
    {Library newPhoto(file:BASE_PATH#"sacha/up2.gif" name:sacha_up_2)}
    {Library newPhoto(file:BASE_PATH#"sacha/up3.gif" name:sacha_up_3)}
-   
+
    {Library newPhoto(file:BASE_PATH#"sacha/left0.gif" name:sacha_left_0)}
    {Library newPhoto(file:BASE_PATH#"sacha/left1.gif" name:sacha_left_1)}
    {Library newPhoto(file:BASE_PATH#"sacha/left2.gif" name:sacha_left_2)}
@@ -28,13 +28,13 @@ define
    {Library newPhoto(file:BASE_PATH#"sacha/right1.gif" name:sacha_right_1)}
    {Library newPhoto(file:BASE_PATH#"sacha/right2.gif" name:sacha_right_2)}
    {Library newPhoto(file:BASE_PATH#"sacha/right3.gif" name:sacha_right_3)}
-   
+
    {Library newPhoto(file:BASE_PATH#"/sacha/large.gif" name:sacha_large)}
 
    % Add textures
    {Library newPhoto(file:BASE_PATH#"textures/grass.gif" name:texture_grass)}
    {Library newPhoto(file:BASE_PATH#"textures/road.gif"  name:texture_road)}
-   
+
    % Add pokemons
    {Library newPhoto(file:BASE_PATH#"pokemoz/bellsprout.gif" name:pokemoz_bellsprout)}
    {Library newPhoto(file:BASE_PATH#"pokemoz/bulbasaur.gif"  name:pokemoz_bulbasaur)}
@@ -53,6 +53,6 @@ define
    % Double check execution
    LoadedLib = {QTk.loadImageLibrary "ImageLibrary.ozf"}
    {System.show {LoadedLib getNames($)}}
-   
+
    {Application.exit 0}
 end
