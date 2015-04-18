@@ -47,6 +47,14 @@ define
    {Library newPhoto(file:BASE_PATH#"pokemoz/squirtle.gif"   name:pokemoz_squirtle)}
    {Library newPhoto(file:BASE_PATH#"pokemoz/vulpix.gif"     name:pokemoz_vulpix)}
 
+   % Add characters
+   {Library newPhoto(file:BASE_PATH#"characters/brock.gif"        name:characters_brock)}
+   {Library newPhoto(file:BASE_PATH#"characters/james.gif"        name:characters_james)}
+   {Library newPhoto(file:BASE_PATH#"characters/may.gif"          name:characters_may)}
+   {Library newPhoto(file:BASE_PATH#"characters/misty.gif"        name:characters_misty)}
+   {Library newPhoto(file:BASE_PATH#"characters/player.gif"       name:characters_player)}
+   {Library newPhoto(file:BASE_PATH#"characters/team_rocket.gif"  name:characters_team_rocket)}
+
    % Save library
    {QTk.saveImageLibrary Library "ImageLibrary.ozf"}
 

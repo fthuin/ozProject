@@ -8,7 +8,7 @@ define
   [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
 
   % Private methods
-  fun {PokemozArea Pokemoz}
+  fun {PlayerArea Pokemoz}
      fun {Label Text}
         label(init:Text glue:w font:{QTk.newFont font(weight:bold)})
      end
@@ -38,12 +38,36 @@ define
   end
 
   % Public method
-  proc {Draw GameState}
-     Interface = lr({PokemozArea GameState.pokemoz.1})
-     Window = {QTk.build Interface}
-  in
-     {Window show}
-     {Lib.debug auxialiary_interface_drawn}
+
+  % Initialiser l'interface de base.
+  % Nécessaire de sauver les références aux handles des différents élements pour
+  % modifier le contenu plus tard via les autres méthodes.
+  % (Il faut changer ce que j'ai déjà fait, ça ne convient forcément pas, c'est temporaire)
+  % Game a la forme suivante:
+  % game_state(turn:0 player_position:StartingPos pokemoz:[FirstPokemoz SecondPokemoz])
+  proc {Init GameState}
+    Interface = lr({PlayerArea GameState.pokemoz.1})
+    Window = {QTk.build Interface}
+    {Window show}
+    {Lib.debug auxialiary_interface_drawn}
   end
 
+  % Afficher l'état du joueur sur la gauche.
+  % Photo + nom et l'état de ses pokémons (les photos sont déjà compilées dans imageLibrary).
+  % Pour chaque pokémon pareil: photo, nom, niveau, health/total health, type, etc.
+  proc {DrawPlayer GameState}
+  end
+
+  % Afficher l'état d'un pokemon sauvage sur la droite.
+  % Photo, nom, niveau, health/total health, type, etc.
+  % Ex data: pokemoz(name:bulbasoz type:grass level:5 health:20 xp:7)
+  % Max HP can be derived from the level (level*4)
+  proc {DrawWildPokemoz WildPokemoz}
+  end
+
+  % Afficher l'état du trainer enemy sur la droite.
+  % Mirroir du joueur. Mêmes infos. Pas besoin d'utiliser position.
+  % Ex data: trainer(name:brock position:pos(x:2 y:2) pokemoz:[Pokemoz1 Pokemoz2])
+  proc {DrawEnemyTrainer Trainer}
+  end
 end

@@ -35,17 +35,22 @@ define
    MapWidth    = {Width TestMap.1}
    StartingPos = pos(x:MapWidth-1 y:MapHeight-1)
 
+   % Trainers
+   Brock        = trainer(name:brock   position:pos(x:2 y:2) pokemoz:[Pokemoz1 Pokemoz2])
+   James        = trainer(name:james   position:pos(x:4 y:4) pokemoz:[Pokemoz1 Pokemoz2])
+   May          = trainer(name:may     position:pos(x:5 y:5) pokemoz:[Pokemoz1 Pokemoz2])
+
    % Setup intial game state
    InstructionsStream
    InstructionsPort = {NewPort InstructionsStream}
-   GameState        = game_state(turn:0 player_position:StartingPos pokemoz:[StartingPokemoz])
+   GameState        = game_state(turn:0 player_position:StartingPos pokemoz:[StartingPokemoz] trainers:[])
 
-   % Setup Map
-   {Map.init TestMap InstructionsPort 5 200}
-   {Map.drawMap}
-   {Map.drawPlayerAtPosition StartingPos}
-   {Interface.draw GameState}
-
+   proc {InitGame}
+     {Map.init TestMap InstructionsPort 5 200}
+     {Map.drawMap}
+     {Map.drawPlayerAtPosition StartingPos}
+     {Interface.draw GameState}
+   end
 
    fun {IncrementTurn GameState}
       case GameState
@@ -77,27 +82,31 @@ define
      end
    end
 
-
    proc {GameLoop InstructionsStream GameState}
       case InstructionsStream
       of Instruction|T then AfterMoveState in
-         {Lib.debug instruction_received(Instruction)}
-         if {Bool.'not' {PlayerCanMoveInDirection GameState Instruction}} then
-           {Lib.debug invalid_command(Instruction)}
-           {GameLoop T GameState}
-         end % Skip command if invalid.
+        % GAME LOOP
+        {Lib.debug instruction_received(Instruction)}
 
-         {Lib.debug turn_number(GameState.turn)}
-         AfterMoveState = {MovePlayer GameState Instruction}
-         {Lib.debug player_moved_to(AfterMoveState.player_position)}
-         % {TestWildPokemonMeeting GameState}
-         % if {CheckVictoryCondition} then
-   	     %  {Debug game_won}
-         % else
-   	     {GameLoop T {IncrementTurn AfterMoveState}}
-         % end
+        if {Bool.'not' {PlayerCanMoveInDirection GameState Instruction}} then
+          {Lib.debug invalid_command(Instruction)}
+          {GameLoop T GameState}
+        end % Skip command if invalid.
+
+        {Lib.debug turn_number(GameState.turn)}
+        AfterMoveState = {MovePlayer GameState Instruction}
+        {Lib.debug player_moved_to(AfterMoveState.player_position)}
+
+        % {TestWildPokemonMeeting GameState}
+        % if {CheckVictoryCondition} then
+        %  {Debug game_won}
+        % else
+
+        {GameLoop T {IncrementTurn AfterMoveState}}
       end
    end
 
+   % Startup
+   {InitGame}
    {GameLoop InstructionsStream GameState}
 end
