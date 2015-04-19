@@ -26,48 +26,75 @@ define
      end
   end
 
-  fun {FightWildPokemoz InitialState Interface}
-    FinalState = InitialState
-    WildPokemoz = {Characters.summonWildPokemon InitialState}
+  % Return resulting defender after an attack.
+  fun {DealDamage Attacker Defender}
+    case Defender
+    of pokemoz(name:Name type:Type level:Level xp:Xp health:Health) then
+      if {IsAttackSuccess Attacker Defender} then
+        NewHealth = {Max 0 Health-{Damage Attacker.type Type}} in
+        pokemoz(name:Name type:Type level:Level xp:Xp health:NewHealth)
+      else
+        Defender
+      end
+    end
+  end
+
+  proc {AssignEndingStates Round CurrentA CurrentD EndAttacker EndDefender}
+    if (Round mod 2)==0 then % Current attacker is original attacker.
+       EndAttacker = CurrentA
+       EndDefender = CurrentD
+    else % Current attacker is original defender.
+       EndAttacker = CurrentD
+       EndDefender = CurrentA
+    end
+  end
+
+  proc {UpdateInterface Interface Round Pokemoz}
+    if (Round mod 2)==0 then % Current attacker is original attacker (player).
+      {Lib.debug player_attacks_wild_pokemon(round:Round)}
+      {Interface.drawWildPokemoz Pokemoz}
+    else
+      {Lib.debug wild_pokemon_attacks_player(round:Round)}
+      {Interface.drawPlayerPokemoz Pokemoz}
+    end
+  end
+
+  proc {PokemozFight Attacker Defender EndAttacker EndDefender Interface}
+    proc {RecFight A D Round} NewDef in
+      NewDef = {DealDamage A D}
+      {UpdateInterface Interface Round NewDef}
+      if NewDef.health == 0 then % Fight is over.
+        {Lib.debug fight_is_over(winner:A looser:NewDef)}
+        {AssignEndingStates Round A NewDef EndAttacker EndDefender}
+      else
+        {RecFight NewDef A Round+1} % Switch attack turn
+      end
+    end
   in
-    {Lib.debug fight_started_against(WildPokemoz)}
-    FinalState
+     {RecFight Attacker Defender 0}
+  end
+
+  fun {ReplacePlayerPokemonListState GameState NewPokemozList}
+    case GameState
+    of game_state(turn:Turn
+                  player:player(name:Name position:Pos pokemoz:_)
+                  trainers:Trainers) then
+       game_state(turn:Turn
+                  player:player(name:Name position:Pos pokemoz:NewPokemozList)
+                  trainers:Trainers)
+    end
   end
 
 
-  /*proc {PokemozFight Attacker Defender ResultingAttacker ResultingDefender}
-     proc {RecursivePokemozFight Attacker Defender ResultingAttacker ResultingDefender Round}
-        NewDefenderHealth
-        NewDefender
-     in
-        case Attacker#Defender
-        of pokemoz(name:NA type:TA level:LA xp:XA health:HA)#pokemoz(name:ND type:TD level:LD xp:XD health:HD) then
-
-  	 {Debug fight_round(Round)}
-  	 {Debug attack(Attacker)}
-  	 {Debug defense(Defender)}
-
-  	 NewDefenderHealth = if {IsAttackSuccess Attacker Defender} then {Max 0 HD-{Damage TA TD}} else HD end
-  	 NewDefender = pokemoz(name:ND type:TD level:LD xp:XD health:NewDefenderHealth)
-
-  	 if NewDefenderHealth==0 then % Fight is over.
-  	    {Debug fight_over(winner:Attacker looser:NewDefender)}
-  	    if (Round mod 2)==0 then % Current attacker is original attacker.
-  	       ResultingAttacker = Attacker
-  	       ResultingDefender = NewDefender
-  	    % true
-  	    else % Current attacker is original defender.
-  	       ResultingAttacker = NewDefender
-  	       ResultingDefender = Attacker
-  	    % false
-  	    end
-  	 else
-  	    {RecursivePokemozFight NewDefender Attacker ResultingAttacker ResultingDefender Round+1} % Switch attack turn
-  	 end
-        end
-     end
+  % Public
+  fun {FightWildPokemoz InitialState Interface}
+    WildPokemoz = {Characters.summonWildPokemon InitialState}
+    EndAttacker EndDefender
   in
-     {RecursivePokemozFight Attacker Defender ResultingAttacker ResultingDefender 0}
-  end*/
-
+    {Lib.debug fight_started_with_wild_pokemoz(WildPokemoz)}
+    {Interface.drawWildPokemoz WildPokemoz}
+    {PokemozFight InitialState.player.pokemoz.1 WildPokemoz EndAttacker EndDefender Interface}
+    {ReplacePlayerPokemonListState InitialState [EndAttacker]}
+    % TODO: Ask for capture?
+  end
 end

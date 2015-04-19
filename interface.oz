@@ -5,6 +5,7 @@ import
 export
   Init
   DrawPlayer
+  DrawPlayerPokemoz
   DrawWildPokemoz
   DrawEnemyTrainer
 define
@@ -38,20 +39,20 @@ define
      LevelLabel  = {Label "Level:"}
      Level  = {Value {IntToString  Pokemoz.level}}
      LevelLabels = lr(LevelLabel Level)
-     
+
      % Health : <PokemozHealth>
      HealthLabel = {Label "Health:"}
      Health = {Value {IntToString  Pokemoz.health}}
      HealthLabels = lr(HealthLabel Health)
-     
+
      % XP : <PokemozXP>
      XPLabel     = {Label "XP:"}
      XP     = {Value {IntToString  Pokemoz.xp}}
      XPLabels = lr(XPLabel XP)
-     
-     %Labels = td(glue:e NameLabel TypeLabel LevelLabel HealthLabel XPLabel)    
+
+     %Labels = td(glue:e NameLabel TypeLabel LevelLabel HealthLabel XPLabel)
      %Values = td(glue:w Name Type Level Health XP)
-     
+
   in
      %td(TitleLabel lr(Labels Values))
      td(TitleLabel Label td(NameLabels TypeLabels LevelLabels HealthLabels XPLabels))
@@ -79,11 +80,17 @@ define
     skip
   end
 
+  proc {DrawPlayerPokemoz Pokemoz}
+    {Lib.debug drawing_player_pokemoz(Pokemoz)}
+    skip
+  end
+
   % Afficher l'état d'un pokemon sauvage sur la droite.
   % Photo, nom, niveau, health/total health, type, etc.
   % Ex data: pokemoz(name:oddish type:grass level:5 health:20 xp:7)
   % (Max HP peut être dérivé du niveau => level*4)
   proc {DrawWildPokemoz WildPokemoz}
+    {Lib.debug drawing_wild_pokemoz(WildPokemoz)}
     skip
   end
 
