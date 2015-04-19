@@ -16,7 +16,6 @@ define
    
   % Private methods
    fun {PlayerArea PlayerName Pokemoz NameHandle TypeHandle LevelHandle HealthHandle XPHandle}
-      {Lib.debug entering_playerArea_method}
       fun {Label Text}
 	 label(init:Text glue:w font:{QTk.newFont font(weight:bold)})
       end
@@ -89,21 +88,17 @@ define
 	   PartPlayer = {PlayerArea PlayerName ListPokemoz.1 PokemozNameHandle PokemozTypeHandle PokemozLevelHandle PokemozHealthHandle PokemozXPHandle}
 	   PartWild = {PlayerArea "Enemy" ListPokemoz.1 WildNameHandle WildTypeHandle WildLevelHandle WildHealthHandle WildXPHandle}
 	   in
-	   {Lib.debug interface_init_doublecase}
 	   Interface = td(title:"My Pokemoz"
 			  lr(PartPlayer
 			     PartWild)
 			 )
-	   {Lib.debug variable_interface_linked}
 	   % TODO : Gerer la liste de pokemoz ?
      	end
      end
      {Lib.debug interface_before_build}
      Window = {QTk.build Interface}
-     {Lib.debug interface_after_build}
      {Window show}
      {WildNameHandle set("none")}
-     {Lib.debug wild_pokemoz_set_name}
      {WildTypeHandle set("none")}
      {WildLevelHandle set("none")}
      {WildHealthHandle set("none")}
