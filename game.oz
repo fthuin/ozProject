@@ -46,7 +46,7 @@ define
     {Map.init TestMap InstructionsPort Speed DELAY}
     {Map.drawMap}
     {Map.drawPlayerAtPosition StartingPos}
-    % {Interface.init GameState}
+    {Interface.init GameState}
   end
 
   fun {IncrementTurn GameState}
