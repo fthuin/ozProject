@@ -41,14 +41,14 @@ define
 
    % Add pokemons
    {AddPhoto pokemoz bellsprout}
-   {AddPhoto pokemoz bulbasaur}
+   {AddPhoto pokemoz bulbasoz}
    {AddPhoto pokemoz caterpie}
-   {AddPhoto pokemoz charmander}
+   {AddPhoto pokemoz charmandoz}
    {AddPhoto pokemoz nidoran}
    {AddPhoto pokemoz oddish}
    {AddPhoto pokemoz poliwag}
    {AddPhoto pokemoz ponyta}
-   {AddPhoto pokemoz squirtle}
+   {AddPhoto pokemoz oztirtle}
    {AddPhoto pokemoz vulpix}
 
    % Add characters
@@ -58,6 +58,15 @@ define
    {AddPhoto characters misty}
    {AddPhoto characters player}
    {AddPhoto characters team_rocket}
+
+   % Add types
+   {AddPhoto types electric}
+   {AddPhoto types fire}
+   {AddPhoto types flying}
+   {AddPhoto types grass}
+   {AddPhoto types ground}
+   {AddPhoto types normal}
+   {AddPhoto types water}
 
    % Save library
    {QTk.saveImageLibrary Library "ImageLibrary.ozf"}

@@ -5,6 +5,7 @@ export
   BasePokemoz
   SummonWildPokemon
   Trainers
+  MaxHealth
 define
   GRASS = grass
   WATER = water
@@ -65,11 +66,11 @@ define
   )
 
   Trainers = [
-    trainer(name:brock        position:pos(x:2 y:2) pokemoz:[Bulbasoz])
-    trainer(name:james        position:pos(x:4 y:4) pokemoz:[Oztirtle])
-    trainer(name:may          position:pos(x:2 y:4) pokemoz:[Oztirtle])
-    trainer(name:misty        position:pos(x:4 y:2) pokemoz:[Bulbasoz])
-    trainer(name:team_rocket  position:pos(x:6 y:6) pokemoz:[Bulbasoz Oztirtle Charmandoz])
+    trainer(name:"Brock"        image:characters_brock        position:pos(x:2 y:2) pokemoz:[Bulbasoz])
+    trainer(name:"James"        image:characters_james        position:pos(x:4 y:4) pokemoz:[Oztirtle])
+    trainer(name:"May"          image:characters_may          position:pos(x:2 y:4) pokemoz:[Oztirtle])
+    trainer(name:"Misty"        image:characters_misty        position:pos(x:4 y:2) pokemoz:[Bulbasoz])
+    trainer(name:"Team rocket"  image:characters_team_rocket  position:pos(x:6 y:6) pokemoz:[Bulbasoz Oztirtle Charmandoz])
   ]
 
   fun {SummonWildPokemon GameState}

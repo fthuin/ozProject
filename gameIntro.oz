@@ -66,21 +66,29 @@ define
      {ChoiceLabelHandle set(Name)}
    end
 
+   proc {DisplayPokemoz}
+     {PokemozCanvasHandle create(image 75  0   anchor:nw image:{GetImage pokemoz_bulbasaur})}
+     {PokemozCanvasHandle create(text  150 160 anchor:center text:"Bulbasoz - Grass" justify:center)}
+     {PokemozCanvasHandle create(image 75  180 anchor:nw image:{GetImage pokemoz_charmander})}
+     {PokemozCanvasHandle create(text  150 340 anchor:center text:"Charmandoz - Fire" justify:center)}
+     {PokemozCanvasHandle create(image 75  360 anchor:nw image:{GetImage pokemoz_squirtle})}
+     {PokemozCanvasHandle create(text  150 520 anchor:center text:"Ozirtle - Water" justify:center)}
+   end
+
+   proc {DisplaySachaImage}
+     {SachaCanvasHandle   create(image 110 50  anchor:nw image:{GetImage sacha_large})}
+   end
+
 
    proc {GetUserChoice Name PokemozName}
      Window = {QTk.build MainLayout}
    in
      {PokemozCanvasHandle bind(event:"<1>" action:SetChoosenPokemonText args:[int(x) int(y)])}
-    {SachaCanvasHandle   create(image 110 50   anchor:nw image:{GetImage sacha_large})}
-    {PokemozCanvasHandle create(image 75  0   anchor:nw image:{GetImage pokemoz_bulbasaur})}
-    {PokemozCanvasHandle create(text  150 160 anchor:center text:"Bulbasoz - Grass" justify:center)}
-    {PokemozCanvasHandle create(image 75  180 anchor:nw image:{GetImage pokemoz_charmander})}
-    {PokemozCanvasHandle create(text  150 340 anchor:center text:"Charmandoz - Fire" justify:center)}
-    {PokemozCanvasHandle create(image 75  360 anchor:nw image:{GetImage pokemoz_squirtle})}
-    {PokemozCanvasHandle create(text  150 520 anchor:center text:"Ozirtle - Water" justify:center)}
-    {Window show(wait:true modal:true)}
+     {DisplaySachaImage}
+     {DisplayPokemoz}
+     {Window show(wait:true modal:true)}
 
-    Name = PlayerName
-    PokemozName = {String.toAtom ChosenPokemoz}
+     Name = PlayerName
+     PokemozName = {String.toAtom ChosenPokemoz}
    end
 end

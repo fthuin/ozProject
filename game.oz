@@ -24,9 +24,9 @@ define
   DELAY = 200
 
   % Intro - Ask player for name and starting pokemoz
-  PlayerName
-  PokemozName
-  {GameIntro.getUserChoice PlayerName PokemozName}
+  PlayerName = "Greg"
+  PokemozName = bulbasoz
+  % {GameIntro.getUserChoice PlayerName PokemozName}
 
   % Save some map info
   MapHeight   = {Width TestMap}
@@ -39,7 +39,8 @@ define
 
   proc {InitGame}
     StartingPos      = pos(x:MapWidth-1 y:MapHeight-1)
-    Player           = player(name:PlayerName position:StartingPos pokemoz:[Characters.basePokemoz.PokemozName])
+    Player           = player(name:PlayerName image:characters_player position:StartingPos
+                              pokemoz:[Characters.basePokemoz.PokemozName Characters.basePokemoz.charmandoz Characters.basePokemoz.oztirtle])
     InstructionsPort = {NewPort InstructionsStream}
   in
     GameState = game_state(turn:0 player:Player trainers:Characters.trainers)
