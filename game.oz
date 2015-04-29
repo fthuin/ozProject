@@ -69,7 +69,7 @@ define
   fun {MovePlayer GameState Direction}
     case GameState
     of game_state(turn:Turn
-                 player:player(name:Name position:pos(x:X y:Y) pokemoz:Pokemoz)
+                 player:player(name:Name image:Img position:pos(x:X y:Y) pokemoz:Pokemoz)
                  trainers:Trainers) then X2 Y2 in
      case Direction
      of up    then X2 = X    Y2 = Y-1
@@ -79,7 +79,7 @@ define
      end
      {Map.movePlayer Direction}
      game_state(turn:Turn
-                player:player(name:Name position:pos(x:X2 y:Y2) pokemoz:Pokemoz)
+                player:player(name:Name image:Img position:pos(x:X2 y:Y2) pokemoz:Pokemoz)
                 trainers:Trainers)
     end
   end

@@ -52,10 +52,10 @@ define
   proc {UpdateInterface Interface Round Pokemoz}
     if (Round mod 2)==0 then % Current attacker is original attacker (player).
       {Lib.debug player_attacks_wild_pokemon(round:Round)}
-      {Interface.drawWildPokemoz Pokemoz}
+      {Interface.updatePlayer2 player(name:"" image:characters_wild pokemoz:[Pokemoz])}
     else
       {Lib.debug wild_pokemon_attacks_player(round:Round)}
-      {Interface.drawPlayerPokemoz Pokemoz}
+      {Interface.updatePlayer1 player(name:"Greg" image:characters_player pokemoz:[Pokemoz])} %TODO: TEMPORARY. IMPLMENT MULTIPLE POKEMONS FIGHTS
     end
   end
 
@@ -77,10 +77,10 @@ define
   fun {ReplacePlayerPokemonListState GameState NewPokemozList}
     case GameState
     of game_state(turn:Turn
-                  player:player(name:Name position:Pos pokemoz:_)
+                  player:player(name:Name image:Img position:Pos pokemoz:_)
                   trainers:Trainers) then
        game_state(turn:Turn
-                  player:player(name:Name position:Pos pokemoz:NewPokemozList)
+                  player:player(name:Name image:Img position:Pos pokemoz:NewPokemozList)
                   trainers:Trainers)
     end
   end
@@ -92,7 +92,7 @@ define
     EndAttacker EndDefender
   in
     {Lib.debug fight_started_with_wild_pokemoz(WildPokemoz)}
-    {Interface.drawWildPokemoz WildPokemoz}
+    {Interface.updatePlayer2 player(name:"" image:characters_wild pokemoz:[WildPokemoz])}
     {PokemozFight InitialState.player.pokemoz.1 WildPokemoz EndAttacker EndDefender Interface}
     {ReplacePlayerPokemonListState InitialState [EndAttacker]}
     % TODO: Ask for capture?

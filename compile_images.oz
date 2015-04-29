@@ -40,16 +40,21 @@ define
    {AddPhoto textures road}
 
    % Add pokemons
-   {AddPhoto pokemoz bellsprout}
    {AddPhoto pokemoz bulbasoz}
-   {AddPhoto pokemoz caterpie}
    {AddPhoto pokemoz charmandoz}
+   {AddPhoto pokemoz oztirtle}
+
+   {AddPhoto pokemoz bellsprout}
+   {AddPhoto pokemoz caterpie}
    {AddPhoto pokemoz nidoran}
    {AddPhoto pokemoz oddish}
    {AddPhoto pokemoz poliwag}
+   {AddPhoto pokemoz lapras}
+   {AddPhoto pokemoz omanyte}
+   {AddPhoto pokemoz magby}
    {AddPhoto pokemoz ponyta}
-   {AddPhoto pokemoz oztirtle}
    {AddPhoto pokemoz vulpix}
+   {AddPhoto pokemoz moltres}
 
    % Add characters
    {AddPhoto characters brock}
@@ -58,6 +63,7 @@ define
    {AddPhoto characters misty}
    {AddPhoto characters player}
    {AddPhoto characters team_rocket}
+   {AddPhoto characters wild}
 
    % Add types
    {AddPhoto types electric}
