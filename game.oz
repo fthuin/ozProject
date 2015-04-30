@@ -8,6 +8,7 @@ import
   Interface  at 'interface.ozf'
   Fight      at 'fight.ozf'
   GameIntro  at 'gameIntro.ozf'
+  Pokemoz    at 'pokemoz.ozf'
 define
   {System.show game_started}
 
@@ -112,10 +113,7 @@ define
     fun {HealPokemozRec PokemozList}
       case PokemozList
       of nil then nil
-      [] H|T then
-        case H of pokemoz(name:Name type:Type level:Level health:_ xp:Xp) then
-          pokemoz(name:Name type:Type level:Level health:{Characters.maxHealth Level} xp:Xp)|{HealPokemozRec T}
-        end
+      [] H|T then {Pokemoz.setMaxHealth H}|{HealPokemozRec T}
       end
     end
   in

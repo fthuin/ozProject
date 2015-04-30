@@ -2,6 +2,8 @@ functor
 import
   Lib        at 'lib.ozf'
   Characters at 'characters.ozf'
+  Pokemoz    at 'pokemoz.ozf'
+  Player     at 'player.ozf'
 export
   FightWildPokemoz
   SetInterface
@@ -18,30 +20,12 @@ define
      {Lib.rand 100} >= SuccessProba
   end
 
-  fun {Damage AType DType}
-     if AType==DType then 2
-     else
-        case AType#DType
-        of grass#water  then 3
-        [] grass#fire   then 1
-        [] fire#grass   then 3
-        [] fire#water   then 1
-        [] water#fire   then 3
-        [] water#grass  then 1
-        end
-     end
-  end
 
   % Return resulting defender after an attack.
-  fun {DealDamage Attacker Defender}
-    case Defender
-    of pokemoz(name:Name type:Type level:Level xp:Xp health:Health) then
-      if {IsAttackSuccess Attacker Defender} then
-        NewHealth = {Max 0 Health-{Damage Attacker.type Type}} in
-        pokemoz(name:Name type:Type level:Level xp:Xp health:NewHealth)
-      else
-        Defender
-      end
+  fun {Attack Attacker Defender}
+    if {IsAttackSuccess Attacker Defender}
+    then {Pokemoz.dealDamage Defender Attacker.type}
+    else Defender
     end
   end
 
@@ -52,24 +36,6 @@ define
     else % Current attacker is original defender.
        EndAttacker = CurrentD
        EndDefender = CurrentA
-    end
-  end
-
-
-
-  fun {ReplaceNthInList List Nth NewElement}
-    case List
-    of nil then nil
-    [] H|T then
-      if Nth>1 then H|{ReplaceNthInList T Nth-1 NewElement}
-      else NewElement|T end
-    end
-  end
-
-  fun {UpdateSelectedPokemoz Player NewPokemoz} NewList in
-    case Player of player(name:Name image:Img position:Pos pokemoz_list:OriginalList selected_pokemoz:SP) then
-      NewList = {ReplaceNthInList OriginalList SP NewPokemoz}
-      player(name:Name image:Img position:Pos pokemoz_list:NewList selected_pokemoz:SP)
     end
   end
 
@@ -108,8 +74,8 @@ define
     proc {RecFight CurrentAttackingPlayer CurrentDefendingPlayer Round}
       AttackingPokemoz    = {List.nth CurrentAttackingPlayer.pokemoz_list CurrentAttackingPlayer.selected_pokemoz}
       DefendingPokemoz    = {List.nth CurrentDefendingPlayer.pokemoz_list CurrentDefendingPlayer.selected_pokemoz}
-      EndDefendingPokemoz = {DealDamage AttackingPokemoz DefendingPokemoz}
-      EndDefendingPlayer  = {UpdateSelectedPokemoz CurrentDefendingPlayer EndDefendingPokemoz}
+      EndDefendingPokemoz = {Attack AttackingPokemoz DefendingPokemoz}
+      EndDefendingPlayer  = {Player.updateCurrentPokemoz CurrentDefendingPlayer EndDefendingPokemoz}
     in
       {UpdateInterface EndDefendingPlayer}
       if {AllPokemozAreDead EndDefendingPlayer.pokemoz_list} then % Fight is over
