@@ -196,7 +196,7 @@ define
      AskQuestionStream AskQuestionPort 
      {NewPort AskQuestionStream AskQuestionPort}
      Answer
-     fun {AskQuestionServer Stream}
+     proc {AskQuestionServer Stream}
 	case Stream of fight|T then Answer=1
 	[] run|T then Answer=2
 	[] _|T then {AskQuestionServer T}
@@ -207,10 +207,10 @@ define
 	{LabelH set("Wow ! Do you think you can handle a fight ?")}
 	{Button1H set(text:"Fight")}
 	{Button1H set(state:normal)}
-	{Button1H set(action:proc{$} {Send AskQuestionPort fight} widget#set(state:disabled) end)}
+	{Button1H set(action:proc{$} {Send AskQuestionPort fight} end)}
 	{Button2H set(text:"Run")}
 	{Button2H set(state:normal)}
-	{Button2H set(action:proc{$} {Send AskQuestionPort run} widget#set(state:disabled) end)}
+	{Button2H set(action:proc{$} {Send AskQuestionPort run} end)}
 	thread {AskQuestionServer AskQuestionStream} end
 	Answer
      end
