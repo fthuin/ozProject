@@ -62,8 +62,12 @@ define
    {AddPhoto characters may}
    {AddPhoto characters misty}
    {AddPhoto characters player}
-   {AddPhoto characters team_rocket}
    {AddPhoto characters wild}
+
+   {AddPhoto characters brock_small}
+   {AddPhoto characters james_small}
+   {AddPhoto characters may_small}
+   {AddPhoto characters misty_small}
 
    % Add types
    {AddPhoto types electric}

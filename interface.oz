@@ -196,10 +196,6 @@ define
      {AddImagesToCanvas Player2Handles}
      {UpdatePlayerInterface GameState.player Player1Handles}
      {Lib.debug auxialiary_interface_drawn}
-
-     /*{Lib.debug {Player1Handles winfo(toplevel:$)}}
-     {Lib.debug Player1Handles.panel1handles.top_level}
-     {Lib.debug Player1Handles.panel1handles.top_level == {Player1Handles winfo(toplevel:$)}}*/
    end
 
   proc {UpdatePlayer1 Player}
