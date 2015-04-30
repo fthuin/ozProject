@@ -2,14 +2,13 @@ functor
 import
   Application
   System
-  Lib        at 'lib.ozf'
-  Characters at 'characters.ozf'
-  Map        at 'map.ozf'
-  Interface  at 'interface.ozf'
-  Fight      at 'fight.ozf'
-  GameIntro  at 'gameIntro.ozf'
-  Pokemoz    at 'pokemoz.ozf'
-  GameStateM at 'game_state.ozf'
+  Lib           at 'lib.ozf'
+  Characters    at 'characters.ozf'
+  Map           at 'map.ozf'
+  Interface     at 'interface.ozf'
+  Fight         at 'fight.ozf'
+  GameIntro     at 'gameIntro.ozf'
+  GameStateMod  at 'game_state.ozf'
 define
   {System.show game_started}
 
@@ -69,7 +68,7 @@ define
 
   fun {MovePlayer GameState Direction}
     {Map.movePlayer Direction}
-    {GameStateM.movePlayer GameState Direction}
+    {GameStateMod.movePlayer GameState Direction}
   end
 
   fun {TestWildPokemozMeeting GameState}
@@ -93,7 +92,7 @@ define
   end
 
   fun {HealPokemoz GameState} NewState in
-    NewState = {GameStateM.healPokemoz GameState}
+    NewState = {GameStateMod.healPokemoz GameState}
     {Interface.updatePlayer1 NewState.player}
     NewState
   end
@@ -125,7 +124,7 @@ define
         {Application.exit 0}
       end
 
-      {GameLoop T {GameStateM.incrementTurn AfterFightState}}
+      {GameLoop T {GameStateMod.incrementTurn AfterFightState}}
     end
   end
 

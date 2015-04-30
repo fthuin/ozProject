@@ -71,6 +71,7 @@ define
         AfterEvolutionAttackingPlayer = {PlayerMod.evolveSelectedPokemoz CurrentAttackingPlayer DefendingPokemoz}
         {AssignEndingStates Round AfterEvolutionAttackingPlayer EndDefendingPlayer EndAttacker EndDefender}
         {UpdateInterface AfterEvolutionAttackingPlayer}
+        {Interface.clearPlayer2}
       else FinalDefender in
         if {SelectedPokemonIsDead EndDefendingPlayer} then
           FinalDefender = {PlayerMod.switchToNextPokemoz EndDefendingPlayer}

@@ -5,7 +5,6 @@ export
   BasePokemoz
   SummonWildPokemon
   Trainers
-  MaxHealth
 define
   GRASS = grass
   WATER = water
