@@ -74,9 +74,8 @@ define
 
   fun {MovePlayer GameState Direction}
     case GameState
-    of game_state(turn:Turn
-                 player:player(name:Name image:Img position:pos(x:X y:Y) pokemoz_list:Pokemoz selected_pokemoz:SP)
-                 trainers:Trainers) then X2 Y2 in
+    of game_state(player:player(name:Name image:Img position:pos(x:X y:Y) pokemoz_list:Pokemoz selected_pokemoz:SP)
+                 trainers:Trainers turn:Turn) then X2 Y2 in
      case Direction
      of up    then X2 = X    Y2 = Y-1
      [] right then X2 = X+1  Y2 = Y
@@ -84,9 +83,8 @@ define
      [] left  then X2 = X-1  Y2 = Y
      end
      {Map.movePlayer Direction}
-     game_state(turn:Turn
-                player:player(name:Name image:Img position:pos(x:X2 y:Y2) pokemoz_list:Pokemoz selected_pokemoz:SP)
-                trainers:Trainers)
+     game_state(player:player(name:Name image:Img position:pos(x:X2 y:Y2) pokemoz_list:Pokemoz selected_pokemoz:SP)
+                trainers:Trainers turn:Turn)
     end
   end
 
@@ -103,7 +101,31 @@ define
   end
 
   fun {CheckVictoryCondition GameState}
-     GameState.player.position == VictoryPosition
+    GameState.player.position == VictoryPosition
+  end
+
+  fun {CheckHospitalCondition GameState}
+    GameState.player.position == HospitalPosition
+  end
+
+  fun {HealPokemoz GameState}
+    fun {HealPokemozRec PokemozList}
+      case PokemozList
+      of nil then nil
+      [] H|T then
+        case H of pokemoz(name:Name type:Type level:Level health:_ xp:Xp) then
+          pokemoz(name:Name type:Type level:Level health:{Characters.maxHealth Level} xp:Xp)|{HealPokemozRec T}
+        end
+      end
+    end
+  in
+    case GameState
+    of game_state(player:player(name:Name image:Img position:pos(x:X y:Y) pokemoz_list:PokemozL selected_pokemoz:SP)
+                  trainers:Trainers turn:Turn) then NewPlayer in
+       NewPlayer = player(name:Name image:Img position:pos(x:X y:Y) pokemoz_list:{HealPokemozRec PokemozL} selected_pokemoz:SP)
+       {Interface.updatePlayer1 NewPlayer}
+       game_state(turn:Turn player:NewPlayer trainers:Trainers)
+    end
   end
 
   proc {GameLoop InstructionsStream GameState}
@@ -120,7 +142,9 @@ define
       AfterMoveState = {MovePlayer GameState Instruction}
       {Lib.debug player_moved_to(AfterMoveState.player.position)}
 
-      if {TestWildPokemozMeeting AfterMoveState} then
+      if {CheckHospitalCondition AfterMoveState} then
+        AfterFightState = {HealPokemoz AfterMoveState}
+      elseif {TestWildPokemozMeeting AfterMoveState} then
         AfterFightState = {Fight.fightWildPokemoz AfterMoveState}
       else
         AfterFightState = AfterMoveState
