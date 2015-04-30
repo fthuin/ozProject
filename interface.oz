@@ -2,12 +2,13 @@ functor
 import
    Module
    Lib          at 'lib.ozf'
-   Characters   at 'characters.ozf'
+   PokemozMod   at 'pokemoz.ozf'
 export
   Init
   UpdatePlayer1
   UpdatePlayer2
   AskQuestion
+  ClearPlayer2
 define
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
    ImageLibrary = {QTk.loadImageLibrary "ImageLibrary.ozf"}
@@ -140,7 +141,7 @@ define
 
      proc {FillPokemoz Handles Pokemoz}
        fun {HealthGreen Pokemoz}
-         {FloatToInt ({IntToFloat Pokemoz.health}/{IntToFloat {Pokemoz.maxHealth Pokemoz.level}})*100.0}
+         {FloatToInt ({IntToFloat Pokemoz.health}/{IntToFloat {PokemozMod.maxHealth Pokemoz.level}})*100.0}
        end
        GreenWidth       = {HealthGreen Pokemoz}
        RedWidth         = 100 - GreenWidth
@@ -164,6 +165,24 @@ define
      {LoopPokemoz Player.pokemoz_list 1}
    end
 
+   proc {ClearPlayerInterface Handles}
+     proc {ClearPanel Handles}
+       {Handles.name_label          set(text:nil)}
+       {Handles.level_xp_label      set(text:nil)}
+       {Handles.hp_label_handle     set(text:nil)}
+       {Handles.pokemoz_img         set(image:nil)}
+       {Handles.type_img            set(image:nil)}
+       {Handles.health_green_canvas set(width:0 bg:white)}
+       {Handles.health_red_canvas   set(width:0 bg:white)}
+     end
+   in
+     {Handles.picture_img set(image:nil)}
+     {Handles.name_label  set(text:nil)}
+     {ClearPanel Handles.panel1handles}
+     {ClearPanel Handles.panel2handles}
+     {ClearPanel Handles.panel3handles}
+   end
+
    proc {Init GameState}
      Player1   = {CreatePlayerInterface Player1Handles}
      Player2   = {CreatePlayerInterface Player2Handles}
@@ -177,6 +196,10 @@ define
      {AddImagesToCanvas Player2Handles}
      {UpdatePlayerInterface GameState.player Player1Handles}
      {Lib.debug auxialiary_interface_drawn}
+
+     /*{Lib.debug {Player1Handles winfo(toplevel:$)}}
+     {Lib.debug Player1Handles.panel1handles.top_level}
+     {Lib.debug Player1Handles.panel1handles.top_level == {Player1Handles winfo(toplevel:$)}}*/
    end
 
   proc {UpdatePlayer1 Player}
@@ -186,6 +209,11 @@ define
   proc {UpdatePlayer2 Player}
     {UpdatePlayerInterface Player Player2Handles}
   end
+
+  proc {ClearPlayer2}
+    {ClearPlayerInterface Player2Handles}
+  end
+
 
   % Used to ask question to the player.
   % We use the central area for that.

@@ -1,5 +1,6 @@
 functor
 export
+  MaxHealth
   SetMaxHealth
   DealDamage
   Evolve
