@@ -74,6 +74,9 @@ define
    {AddPhoto types normal}
    {AddPhoto types water}
 
+   % Add various
+   {AddPhoto various hospital}
+
    % Save library
    {QTk.saveImageLibrary Library "ImageLibrary.ozf"}
 

@@ -31,7 +31,9 @@ define
   % Save some map info
   MapHeight   = {Width TestMap}
   MapWidth    = {Width TestMap.1}
-  VictoryPosition = pos(x:MapWidth-1 y:0)
+  VictoryPosition  = pos(x:MapWidth-1 y:0)
+  HospitalPosition = pos(x:(MapWidth div 2) y:(MapHeight div 2))
+  {Lib.debug HospitalPosition}
 
   % Setup intial game state
   InstructionsStream
@@ -49,6 +51,7 @@ define
     {Map.init TestMap InstructionsPort Speed DELAY}
     {Map.drawMap}
     {Map.drawPlayerAtPosition StartingPos}
+    {Map.drawHospitalAtPosition HospitalPosition}
     {Interface.init GameState}
     {Fight.setInterface Interface}
   end

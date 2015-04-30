@@ -6,6 +6,7 @@ export
    Init
    DrawMap
    DrawPlayerAtPosition
+   DrawHospitalAtPosition
    MovePlayer
    IsRoad
 define
@@ -148,6 +149,11 @@ define
    proc {DrawPlayerAtPosition Pos}
       {MapCanvasHandle create(image {XCoord Pos.x} {YCoord Pos.y} image:{GetImage sacha_down3} anchor:nw handle:PlayerHandle)}
       {Lib.debug player_positioned_at(Pos)}
+   end
+
+   proc {DrawHospitalAtPosition Pos}
+     {MapCanvasHandle create(image {XCoord Pos.x} {YCoord Pos.y} image:{GetImage various_hospital} anchor:nw)}
+     {Lib.debug hospital_positioned_at(Pos)}
    end
 
    proc {MovePlayer Direction}
