@@ -94,7 +94,7 @@ define
 
      proc {FillPokemoz Handles Pokemoz}
        fun {HealthGreen Pokemoz}
-         {FloatToInt ({IntToFloat Pokemoz.health}/{IntToFloat {Characters.maxHealth Pokemoz.level}})*100.0}
+         {FloatToInt ({IntToFloat Pokemoz.health}/{IntToFloat {Pokemoz.maxHealth Pokemoz.level}})*100.0}
        end
        GreenWidth       = {HealthGreen Pokemoz}
        RedWidth         = 100 - GreenWidth
@@ -112,7 +112,6 @@ define
 
      SelectedPanel = Handles.{VirtualString.toAtom panel#Player.selected_pokemoz#handles}.top_level
    in
-     {Lib.debug SelectedPanel}
      {Handles.picture_img    set(image:{GetImage Player.image})}
      {Handles.name_label     set(text:Player.name)}
      {Handles.panel selectPanel(SelectedPanel)}
@@ -140,11 +139,11 @@ define
    % We save the handles to each of them so that we can easily change them afterwards.
    proc {AddImagesToCanvas Handles}
      proc {CreateImageForPanel Handles}
-       {Handles.image_canvas create(image 0 0 anchor:nw handle:Handles.pokemoz_img)}
-       {Handles.type_canvas  create(image 0 0 anchor:nw handle:Handles.type_img)}
+       {Handles.image_canvas create(image 0 0 anchor:nw handle:Handles.pokemoz_img tags:init)}
+       {Handles.type_canvas  create(image 0 0 anchor:nw handle:Handles.type_img    tags:init)}
      end
    in
-     {Handles.picture_canvas      create(image 0 0 anchor:nw handle:Handles.picture_img)}
+     {Handles.picture_canvas create(image 0 0 anchor:nw handle:Handles.picture_img tags:init)}
      {CreateImageForPanel Handles.panel1handles}
      {CreateImageForPanel Handles.panel2handles}
      {CreateImageForPanel Handles.panel3handles}
