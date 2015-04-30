@@ -217,8 +217,26 @@ define
   % It a record like this: handles(label:LabelH button1:Button1H button2:Button2H)
   % Must set the text on both buttons, and get the answer (1 or 2 depending of the buttons selected)
   fun {AskQuestion QuestionText Button1Text Button2Text}
-    2
+     AskQuestionStream AskQuestionPort 
+     {NewPort AskQuestionStream AskQuestionPort}
+     Answer
+     proc {AskQuestionServer Stream}
+	case Stream of fight|T then Answer=1
+	[] run|T then Answer=2
+	[] _|T then {AskQuestionServer T}
+	end
+     end
+  in
+     case CenterAreaHandles of handles(label:LabelH button1:Button1H button2:Button2H) then
+	{LabelH set("Wow ! Do you think you can handle a fight ?")}
+	{Button1H set(text:"Fight")}
+	{Button1H set(state:normal)}
+	{Button1H set(action:proc{$} {Send AskQuestionPort fight} end)}
+	{Button2H set(text:"Run")}
+	{Button2H set(state:normal)}
+	{Button2H set(action:proc{$} {Send AskQuestionPort run} end)}
+	thread {AskQuestionServer AskQuestionStream} end
+	Answer
+     end
   end
-
-
 end
