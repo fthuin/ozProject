@@ -193,6 +193,7 @@ define
   % It a record like this: handles(label:LabelH button1:Button1H button2:Button2H)
   % Must set the text on both buttons, and get the answer (1 or 2 depending of the buttons selected)
   fun {AskQuestion QuestionText Button1Text Button2Text}
+     AskQuestionStream AskQuestionPort 
      {NewPort AskQuestionStream AskQuestionPort}
      Answer
      fun {AskQuestionServer Stream}
