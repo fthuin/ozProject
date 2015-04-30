@@ -16,15 +16,11 @@ define
   POKEMOZ_MAX_LEVEL  = 10
   POKEMOZ_BASE_XP    = 0
 
-  fun {MaxHealth Level}
-     Level * 4
-  end
-
   fun {NewPokemon Name Type Level}
     pokemoz(name:Name
             type:Type
             level:Level
-            health:{MaxHealth POKEMOZ_MIN_LEVEL}
+            health:20
             xp:POKEMOZ_BASE_XP)
   end
 

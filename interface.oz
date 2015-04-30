@@ -20,7 +20,14 @@ define
       {ImageLibrary get(name:Name image:$)}
    end
 
-   Window
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    ____ ____  _____    _  _____ _____   _        _ __   _____  _   _ _____
+%  / ___|  _ \| ____|  / \|_   _| ____| | |      / \\ \ / / _ \| | | |_   _|
+% | |   | |_) |  _|   / _ \ | | |  _|   | |     / _ \\ V / | | | | | | | |
+% | |___|  _ <| |___ / ___ \| | | |___  | |___ / ___ \| || |_| | |_| | | |
+%  \____|_| \_\_____/_/   \_\_| |_____| |_____/_/   \_\_| \___/ \___/  |_|
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
    fun {CreatePokemozInterface Handles Number}
      NameLabelH LevelXpLabelH HPLabelH ImageCanvasH TypeCanvasH HPGreenCanvasH HPRedCanvasH
@@ -82,45 +89,7 @@ define
         Panel)
    end
 
-   proc {UpdatePlayerInterface Player Handles}
-     proc {LoopPokemoz PokemozList N}
-       case PokemozList
-       of nil then skip
-       [] H|T then
-         {FillPokemoz Handles.{VirtualString.toAtom panel#N#handles} H}
-         {LoopPokemoz T N+1}
-       end
-     end
-
-     proc {FillPokemoz Handles Pokemoz}
-       fun {HealthGreen Pokemoz}
-         {FloatToInt ({IntToFloat Pokemoz.health}/{IntToFloat {Characters.maxHealth Pokemoz.level}})*100.0}
-       end
-       GreenWidth       = {HealthGreen Pokemoz}
-       RedWidth         = 100 - GreenWidth
-       BackgroundGreen  = if GreenWidth==0 then white else green end
-       BackgroundRed    = if RedWidth==0   then white else red   end   % Hack since 0 pixel still appears...
-     in
-       {Handles.name_label          set(text:Pokemoz.name)}
-       {Handles.level_xp_label      set(text:{VirtualString.toString "Level "#Pokemoz.level#" - "#Pokemoz.xp#" XP"})}
-       {Handles.hp_label_handle     set(text:{VirtualString.toString Pokemoz.health#" HP"})}
-       {Handles.pokemoz_img         set(image:{GetImage {VirtualString.toAtom pokemoz_#Pokemoz.name}})}
-       {Handles.type_img            set(image:{GetImage {VirtualString.toAtom types_#Pokemoz.type}})}
-       {Handles.health_green_canvas set(width:GreenWidth bg:BackgroundGreen)}
-       {Handles.health_red_canvas   set(width:RedWidth   bg:BackgroundRed)}
-     end
-
-     SelectedPanel = Handles.{VirtualString.toAtom panel#Player.selected_pokemoz#handles}.top_level
-   in
-     {Lib.debug SelectedPanel}
-     {Handles.picture_img    set(image:{GetImage Player.image})}
-     {Handles.name_label     set(text:Player.name)}
-     {Handles.panel selectPanel(SelectedPanel)}
-     {LoopPokemoz Player.pokemoz_list 1}
-   end
-
-
-   fun {CenterArea}
+   fun {CreateCenterArea}
      LabelH Button1H Button2H
    in
      CenterAreaHandles = handles(label:LabelH button1:Button1H button2:Button2H)
@@ -141,23 +110,67 @@ define
    proc {AddImagesToCanvas Handles}
      proc {CreateImageForPanel Handles}
        {Handles.image_canvas create(image 0 0 anchor:nw handle:Handles.pokemoz_img)}
-       {Handles.type_canvas  create(image 0 0 anchor:nw handle:Handles.type_img)}
+       {Handles.type_canvas  create(image 0 0 anchor:nw handle:Handles.type_img   )}
      end
    in
-     {Handles.picture_canvas      create(image 0 0 anchor:nw handle:Handles.picture_img)}
+     {Handles.picture_canvas create(image 0 0 anchor:nw handle:Handles.picture_img)}
      {CreateImageForPanel Handles.panel1handles}
      {CreateImageForPanel Handles.panel2handles}
      {CreateImageForPanel Handles.panel3handles}
    end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   _   _ ____  ____    _  _____ _____   _        _ __   _____  _   _ _____
+%  | | | |  _ \|  _ \  / \|_   _| ____| | |      / \\ \ / / _ \| | | |_   _|
+%  | | | | |_) | | | |/ _ \ | | |  _|   | |     / _ \\ V / | | | | | | | |
+%  | |_| |  __/| |_| / ___ \| | | |___  | |___ / ___ \| || |_| | |_| | | |
+%   \___/|_|   |____/_/   \_\_| |_____| |_____/_/   \_\_| \___/ \___/  |_|
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+   proc {UpdatePlayerInterface Player Handles}
+     proc {LoopPokemoz PokemozList N}
+       case PokemozList
+       of nil then skip
+       [] H|T then
+         {FillPokemoz Handles.{VirtualString.toAtom panel#N#handles} H}
+         {LoopPokemoz T N+1}
+       end
+     end
+
+     proc {FillPokemoz Handles Pokemoz}
+       fun {HealthGreen Pokemoz}
+         {FloatToInt ({IntToFloat Pokemoz.health}/{IntToFloat {Pokemoz.maxHealth Pokemoz.level}})*100.0}
+       end
+       GreenWidth       = {HealthGreen Pokemoz}
+       RedWidth         = 100 - GreenWidth
+       BackgroundGreen  = if GreenWidth==0 then white else green end
+       BackgroundRed    = if RedWidth==0   then white else red   end   % Hack since 0 pixel still appears...
+     in
+       {Handles.name_label          set(text:Pokemoz.name)}
+       {Handles.level_xp_label      set(text:{VirtualString.toString "Level "#Pokemoz.level#" - "#Pokemoz.xp#" XP"})}
+       {Handles.hp_label_handle     set(text:{VirtualString.toString Pokemoz.health#" HP"})}
+       {Handles.pokemoz_img         set(image:{GetImage {VirtualString.toAtom pokemoz_#Pokemoz.name}})}
+       {Handles.type_img            set(image:{GetImage {VirtualString.toAtom types_#Pokemoz.type}})}
+       {Handles.health_green_canvas set(width:GreenWidth bg:BackgroundGreen)}
+       {Handles.health_red_canvas   set(width:RedWidth   bg:BackgroundRed)}
+     end
+
+     SelectedPanel = Handles.{VirtualString.toAtom panel#Player.selected_pokemoz#handles}.top_level
+   in
+     {Handles.picture_img    set(image:{GetImage Player.image})}
+     {Handles.name_label     set(text:Player.name)}
+     {Handles.panel selectPanel(SelectedPanel)}
+     {LoopPokemoz Player.pokemoz_list 1}
+   end
 
    proc {Init GameState}
-     Player1 = {CreatePlayerInterface Player1Handles}
-     Player2 = {CreatePlayerInterface Player2Handles}
-     Center  = {CenterArea}
+     Player1   = {CreatePlayerInterface Player1Handles}
+     Player2   = {CreatePlayerInterface Player2Handles}
+     Center    = {CreateCenterArea}
      Interface = lr(title:"My Pokemoz" resizable:resizable(width:false height:false) background:black Player1 Center Player2)
+     Window    = {QTk.build Interface}
    in
-     Window = {QTk.build Interface}
      {Window show}
      {Window set(geometry:geometry(x:50 y:500 width:1050 height:217))}
      {AddImagesToCanvas Player1Handles}

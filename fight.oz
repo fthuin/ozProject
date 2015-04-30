@@ -2,8 +2,8 @@ functor
 import
   Lib        at 'lib.ozf'
   Characters at 'characters.ozf'
-  Pokemoz    at 'pokemoz.ozf'
-  Player     at 'player.ozf'
+  PokemozMod at 'pokemoz.ozf'
+  PlayerMod  at 'player.ozf'
   GameState  at 'game_state.ozf'
 export
   FightWildPokemoz
@@ -24,7 +24,7 @@ define
   % Return resulting defender after an attack.
   fun {Attack Attacker Defender}
     if {IsAttackSuccess Attacker Defender}
-    then {Pokemoz.dealDamage Defender Attacker.type}
+    then {PokemozMod.dealDamage Defender Attacker.type}
     else Defender
     end
   end
@@ -42,12 +42,7 @@ define
   fun {AllPokemozAreDead PokemozList}
     case PokemozList
     of nil then true
-    [] H|T then
-      {Lib.debug head(H)}
-      {Lib.debug tail(T)}
-      if H.health==0 then {AllPokemozAreDead T}
-      else false
-      end
+    [] H|T then if H.health==0 then {AllPokemozAreDead T} else false end
     end
   end
 
@@ -57,7 +52,7 @@ define
 
   proc {Fight AttackingPlayer DefendingPlayer EndAttacker EndDefender}
     proc {UpdateInterface Player}
-      if Player.image == characters_player then % Player
+      if Player.image == characters_player then
         {Interface.updatePlayer1 Player}
       else
         {Interface.updatePlayer2 Player}
@@ -68,21 +63,23 @@ define
       AttackingPokemoz    = {List.nth CurrentAttackingPlayer.pokemoz_list CurrentAttackingPlayer.selected_pokemoz}
       DefendingPokemoz    = {List.nth CurrentDefendingPlayer.pokemoz_list CurrentDefendingPlayer.selected_pokemoz}
       EndDefendingPokemoz = {Attack AttackingPokemoz DefendingPokemoz}
-      EndDefendingPlayer  = {Player.updateCurrentPokemoz CurrentDefendingPlayer EndDefendingPokemoz}
+      EndDefendingPlayer  = {PlayerMod.updateCurrentPokemoz CurrentDefendingPlayer EndDefendingPokemoz}
     in
       {UpdateInterface EndDefendingPlayer}
-      if {AllPokemozAreDead EndDefendingPlayer.pokemoz_list} then % Fight is over
+      if {AllPokemozAreDead EndDefendingPlayer.pokemoz_list} then AfterEvolutionAttackingPlayer in % Fight is over
         {Lib.debug fight_is_over(winner:CurrentAttackingPlayer looser:EndDefendingPlayer)}
-        {AssignEndingStates Round CurrentAttackingPlayer EndDefendingPlayer EndAttacker EndDefender}
-      else AfterSwapDefender in
+        AfterEvolutionAttackingPlayer = {PlayerMod.evolveSelectedPokemoz CurrentAttackingPlayer DefendingPokemoz}
+        {AssignEndingStates Round AfterEvolutionAttackingPlayer EndDefendingPlayer EndAttacker EndDefender}
+        {UpdateInterface AfterEvolutionAttackingPlayer}
+      else FinalDefender in
         if {SelectedPokemonIsDead EndDefendingPlayer} then
-          AfterSwapDefender = {Player.switchToNextPokemon EndDefendingPlayer}
+          FinalDefender = {PlayerMod.switchToNextPokemoz EndDefendingPlayer}
           {Lib.debug defender_pokemon_is_dead}
-          {UpdateInterface AfterSwapDefender}
+          {UpdateInterface FinalDefender}
         else
-          AfterSwapDefender = EndDefendingPlayer
+          FinalDefender = EndDefendingPlayer
         end
-        {RecFight AfterSwapDefender CurrentAttackingPlayer Round+1} % Switch attack turn
+        {RecFight FinalDefender CurrentAttackingPlayer Round+1} % Switch attack turn
       end
     end
   in

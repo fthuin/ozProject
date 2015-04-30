@@ -1,13 +1,13 @@
-all: lib gameIntro characters pokemoz player map interface fight game run
+all: lib characters gameIntro pokemoz player gameState map interface fight game run
 
 lib:
 	ozc -c lib.oz
 
-gameIntro:
-	ozc -c gameIntro.oz
-
 characters:
 	ozc -c characters.oz
+
+gameIntro:
+	ozc -c gameIntro.oz
 
 pokemoz:
 	ozc -c pokemoz.oz

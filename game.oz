@@ -9,6 +9,7 @@ import
   Fight      at 'fight.ozf'
   GameIntro  at 'gameIntro.ozf'
   Pokemoz    at 'pokemoz.ozf'
+  GameStateM at 'game_state.ozf'
 define
   {System.show game_started}
 
@@ -57,13 +58,6 @@ define
     {Fight.setInterface Interface}
   end
 
-  fun {IncrementTurn GameState}
-    case GameState
-    of game_state(turn:Turn    player:Player trainers:Trainers) then
-       game_state(turn:Turn+1  player:Player trainers:Trainers)
-    end
-  end
-
   fun {PlayerCanMoveInDirection GameState Direction}
     case Direction
     of up    then GameState.player.position.y \= 0
@@ -74,19 +68,8 @@ define
   end
 
   fun {MovePlayer GameState Direction}
-    case GameState
-    of game_state(player:player(name:Name image:Img position:pos(x:X y:Y) pokemoz_list:Pokemoz selected_pokemoz:SP)
-                 trainers:Trainers turn:Turn) then X2 Y2 in
-     case Direction
-     of up    then X2 = X    Y2 = Y-1
-     [] right then X2 = X+1  Y2 = Y
-     [] down  then X2 = X    Y2 = Y+1
-     [] left  then X2 = X-1  Y2 = Y
-     end
-     {Map.movePlayer Direction}
-     game_state(player:player(name:Name image:Img position:pos(x:X2 y:Y2) pokemoz_list:Pokemoz selected_pokemoz:SP)
-                trainers:Trainers turn:Turn)
-    end
+    {Map.movePlayer Direction}
+    {GameStateM.movePlayer GameState Direction}
   end
 
   fun {TestWildPokemozMeeting GameState}
@@ -109,21 +92,10 @@ define
     GameState.player.position == HospitalPosition
   end
 
-  fun {HealPokemoz GameState}
-    fun {HealPokemozRec PokemozList}
-      case PokemozList
-      of nil then nil
-      [] H|T then {Pokemoz.setMaxHealth H}|{HealPokemozRec T}
-      end
-    end
-  in
-    case GameState
-    of game_state(player:player(name:Name image:Img position:pos(x:X y:Y) pokemoz_list:PokemozL selected_pokemoz:SP)
-                  trainers:Trainers turn:Turn) then NewPlayer in
-       NewPlayer = player(name:Name image:Img position:pos(x:X y:Y) pokemoz_list:{HealPokemozRec PokemozL} selected_pokemoz:SP)
-       {Interface.updatePlayer1 NewPlayer}
-       game_state(turn:Turn player:NewPlayer trainers:Trainers)
-    end
+  fun {HealPokemoz GameState} NewState in
+    NewState = {GameStateM.healPokemoz GameState}
+    {Interface.updatePlayer1 NewState.player}
+    NewState
   end
 
   proc {GameLoop InstructionsStream GameState}
@@ -153,7 +125,7 @@ define
         {Application.exit 0}
       end
 
-      {GameLoop T {IncrementTurn AfterFightState}}
+      {GameLoop T {GameStateM.incrementTurn AfterFightState}}
     end
   end
 
