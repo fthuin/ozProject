@@ -18,12 +18,11 @@ define
       {ImageLibrary get(name:Name image:$)}
    end
 
-   Interface
    Window
 
    fun {CreatePokemozInterface Handles Number}
-     NameLabelH LevelXpLabelH HPLabelH ImageCanvasH TypeCanvasH HPGreenCanvasH HPRedCanvasH TopLevel
-     ImageCanvasImgH TypeCanvasImgH
+     NameLabelH LevelXpLabelH HPLabelH ImageCanvasH TypeCanvasH HPGreenCanvasH HPRedCanvasH
+     ImageCanvasImgH TypeCanvasImgH TopLevelH
 
      ImageCanvas = canvas(handle:ImageCanvasH glue:w width:150 height:150 bg:white borderwidth:0 highlightthickness:0)
      TypeCanvas  = canvas(handle:TypeCanvasH  glue:e width:40  height:40  bg:white borderwidth:0 highlightthickness:0)
@@ -40,7 +39,8 @@ define
         )
      )
    in
-     Handles = handles( name_label:         NameLabelH
+     Handles = handles( top_level:          TopLevelH
+                        name_label:         NameLabelH
                         level_xp_label:     LevelXpLabelH
                         hp_label_handle:    HPLabelH
                         image_canvas:       ImageCanvasH
@@ -50,7 +50,8 @@ define
                         pokemoz_img:        ImageCanvasImgH
                         type_img:           TypeCanvasImgH
                         )
-      lr(borderwidth:0 highlightthickness:0 background:white title:{VirtualString.toString "Pokemoz "#Number} ImageCanvas InfosArea)
+      lr(handle:TopLevelH borderwidth:0 highlightthickness:0 background:white
+         title:{VirtualString.toString "Pokemoz "#Number} ImageCanvas InfosArea)
    end
 
 
@@ -68,9 +69,9 @@ define
                         picture_canvas: PictureCanvasH
                         picture_img:    PictureImgH
                         name_label:     NameLabelH
-                        panel1:         Panel1H
-                        panel2:         Panel2H
-                        panel3:         Panel3H)
+                        panel1handles: Panel1H
+                        panel2handles: Panel2H
+                        panel3handles: Panel3H)
      lr(padx:20 pady:20 background:white glue:nsew
         td(glue:wn bg:white
           PictureCanvas
@@ -80,12 +81,11 @@ define
    end
 
    proc {UpdatePlayerInterface Player Handles}
-
      proc {LoopPokemoz PokemozList N}
        case PokemozList
        of nil then skip
        [] H|T then
-         {FillPokemoz Handles.{VirtualString.toAtom panel#N} H}
+         {FillPokemoz Handles.{VirtualString.toAtom panel#N#handles} H}
          {LoopPokemoz T N+1}
        end
      end
@@ -107,10 +107,14 @@ define
        {Handles.health_green_canvas set(width:GreenWidth bg:BackgroundGreen)}
        {Handles.health_red_canvas   set(width:RedWidth   bg:BackgroundRed)}
      end
+
+     SelectedPanel = Handles.{VirtualString.toAtom panel#Player.selected_pokemoz#handles}.top_level
    in
+     {Lib.debug SelectedPanel}
      {Handles.picture_img    set(image:{GetImage Player.image})}
      {Handles.name_label     set(text:Player.name)}
-     {LoopPokemoz Player.pokemoz 1}
+     {Handles.panel selectPanel(SelectedPanel)}
+     {LoopPokemoz Player.pokemoz_list 1}
    end
 
 
@@ -136,9 +140,9 @@ define
      end
    in
      {Handles.picture_canvas      create(image 0 0 anchor:nw handle:Handles.picture_img)}
-     {CreateImageForPanel Handles.panel1}
-     {CreateImageForPanel Handles.panel2}
-     {CreateImageForPanel Handles.panel3}
+     {CreateImageForPanel Handles.panel1handles}
+     {CreateImageForPanel Handles.panel2handles}
+     {CreateImageForPanel Handles.panel3handles}
    end
 
 
@@ -164,4 +168,5 @@ define
   proc {UpdatePlayer2 Player}
     {UpdatePlayerInterface Player Player2Handles}
   end
+
 end
