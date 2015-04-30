@@ -7,12 +7,14 @@ export
   Init
   UpdatePlayer1
   UpdatePlayer2
+  AskQuestion
 define
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
    ImageLibrary = {QTk.loadImageLibrary "ImageLibrary.ozf"}
 
    Player1Handles
    Player2Handles
+   CenterAreaHandles
 
    fun {GetImage Name}
       {ImageLibrary get(name:Name image:$)}
@@ -119,14 +121,17 @@ define
 
 
    fun {CenterArea}
+     LabelH Button1H Button2H
+   in
+     CenterAreaHandles = handles(label:LabelH button1:Button1H button2:Button2H)
      td(
         pady:20
         glue:nesw
         background:white
-        label(justify:center background:white height:2 text:"You meet a wild pokemon..." wraplength:100)
+        label(justify:center handle:LabelH background:white height:2 wraplength:100)
         lr(background:white
-          button(text:"Fight!" width:10)
-          button(text:"Run!"   width:10)
+          button(handle:Button1H width:10)
+          button(handle:Button2H width:10)
         )
      )
    end
@@ -168,5 +173,15 @@ define
   proc {UpdatePlayer2 Player}
     {UpdatePlayerInterface Player Player2Handles}
   end
+
+  % Used to ask question to the player.
+  % We use the central area for that.
+  % All the handles are in this variable: CenterAreaHandles
+  % It a record like this: handles(label:LabelH button1:Button1H button2:Button2H)
+  % Must set the text on both buttons, and get the answer (1 or 2 depending of the buttons selected)
+  fun {AskQuestion QuestionText Button1Text Button2Text}
+    2
+  end
+
 
 end
