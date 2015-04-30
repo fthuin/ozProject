@@ -20,7 +20,14 @@ define
       {ImageLibrary get(name:Name image:$)}
    end
 
-   Window
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%    ____ ____  _____    _  _____ _____   _        _ __   _____  _   _ _____
+%  / ___|  _ \| ____|  / \|_   _| ____| | |      / \\ \ / / _ \| | | |_   _|
+% | |   | |_) |  _|   / _ \ | | |  _|   | |     / _ \\ V / | | | | | | | |
+% | |___|  _ <| |___ / ___ \| | | |___  | |___ / ___ \| || |_| | |_| | | |
+%  \____|_| \_\_____/_/   \_\_| |_____| |_____/_/   \_\_| \___/ \___/  |_|
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
    fun {CreatePokemozInterface Handles Number}
      NameLabelH LevelXpLabelH HPLabelH ImageCanvasH TypeCanvasH HPGreenCanvasH HPRedCanvasH
@@ -82,6 +89,45 @@ define
         Panel)
    end
 
+   fun {CreateCenterArea}
+     LabelH Button1H Button2H
+   in
+     CenterAreaHandles = handles(label:LabelH button1:Button1H button2:Button2H)
+     td(
+        pady:20
+        glue:nesw
+        background:white
+        label(justify:center handle:LabelH background:white height:2 wraplength:100)
+        lr(background:white
+          button(handle:Button1H width:10)
+          button(handle:Button2H width:10)
+        )
+     )
+   end
+
+   % We already create all the image without specifying the image.
+   % We save the handles to each of them so that we can easily change them afterwards.
+   proc {AddImagesToCanvas Handles}
+     proc {CreateImageForPanel Handles}
+       {Handles.image_canvas create(image 0 0 anchor:nw handle:Handles.pokemoz_img)}
+       {Handles.type_canvas  create(image 0 0 anchor:nw handle:Handles.type_img   )}
+     end
+   in
+     {Handles.picture_canvas create(image 0 0 anchor:nw handle:Handles.picture_img)}
+     {CreateImageForPanel Handles.panel1handles}
+     {CreateImageForPanel Handles.panel2handles}
+     {CreateImageForPanel Handles.panel3handles}
+   end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   _   _ ____  ____    _  _____ _____   _        _ __   _____  _   _ _____
+%  | | | |  _ \|  _ \  / \|_   _| ____| | |      / \\ \ / / _ \| | | |_   _|
+%  | | | | |_) | | | |/ _ \ | | |  _|   | |     / _ \\ V / | | | | | | | |
+%  | |_| |  __/| |_| / ___ \| | | |___  | |___ / ___ \| || |_| | |_| | | |
+%   \___/|_|   |____/_/   \_\_| |_____| |_____/_/   \_\_| \___/ \___/  |_|
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
    proc {UpdatePlayerInterface Player Handles}
      proc {LoopPokemoz PokemozList N}
        case PokemozList
@@ -118,45 +164,13 @@ define
      {LoopPokemoz Player.pokemoz_list 1}
    end
 
-
-   fun {CenterArea}
-     LabelH Button1H Button2H
-   in
-     CenterAreaHandles = handles(label:LabelH button1:Button1H button2:Button2H)
-     td(
-        pady:20
-        glue:nesw
-        background:white
-        label(justify:center handle:LabelH background:white height:2 wraplength:100)
-        lr(background:white
-          button(handle:Button1H width:10)
-          button(handle:Button2H width:10)
-        )
-     )
-   end
-
-   % We already create all the image without specifying the image.
-   % We save the handles to each of them so that we can easily change them afterwards.
-   proc {AddImagesToCanvas Handles}
-     proc {CreateImageForPanel Handles}
-       {Handles.image_canvas create(image 0 0 anchor:nw handle:Handles.pokemoz_img tags:init)}
-       {Handles.type_canvas  create(image 0 0 anchor:nw handle:Handles.type_img    tags:init)}
-     end
-   in
-     {Handles.picture_canvas create(image 0 0 anchor:nw handle:Handles.picture_img tags:init)}
-     {CreateImageForPanel Handles.panel1handles}
-     {CreateImageForPanel Handles.panel2handles}
-     {CreateImageForPanel Handles.panel3handles}
-   end
-
-
    proc {Init GameState}
-     Player1 = {CreatePlayerInterface Player1Handles}
-     Player2 = {CreatePlayerInterface Player2Handles}
-     Center  = {CenterArea}
+     Player1   = {CreatePlayerInterface Player1Handles}
+     Player2   = {CreatePlayerInterface Player2Handles}
+     Center    = {CreateCenterArea}
      Interface = lr(title:"My Pokemoz" resizable:resizable(width:false height:false) background:black Player1 Center Player2)
+     Window    = {QTk.build Interface}
    in
-     Window = {QTk.build Interface}
      {Window show}
      {Window set(geometry:geometry(x:50 y:500 width:1050 height:217))}
      {AddImagesToCanvas Player1Handles}
