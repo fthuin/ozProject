@@ -4,6 +4,7 @@ import
   Characters at 'characters.ozf'
   Pokemoz    at 'pokemoz.ozf'
   Player     at 'player.ozf'
+  GameState  at 'game_state.ozf'
 export
   FightWildPokemoz
   SetInterface
@@ -19,7 +20,6 @@ define
   in
      {Lib.rand 100} >= SuccessProba
   end
-
 
   % Return resulting defender after an attack.
   fun {Attack Attacker Defender}
@@ -55,13 +55,6 @@ define
     {List.nth Player.pokemoz_list Player.selected_pokemoz}.health==0
   end
 
-  fun {SwitchToNextPokemon Player}
-    case Player of player(name:Name image:Img position:Pos pokemoz_list:List selected_pokemoz:SP) then
-      player(name:Name image:Img position:Pos pokemoz_list:List selected_pokemoz:SP+1)
-    end
-  end
-
-
   proc {Fight AttackingPlayer DefendingPlayer EndAttacker EndDefender}
     proc {UpdateInterface Player}
       if Player.image == characters_player then % Player
@@ -83,7 +76,7 @@ define
         {AssignEndingStates Round CurrentAttackingPlayer EndDefendingPlayer EndAttacker EndDefender}
       else AfterSwapDefender in
         if {SelectedPokemonIsDead EndDefendingPlayer} then
-          AfterSwapDefender = {SwitchToNextPokemon EndDefendingPlayer}
+          AfterSwapDefender = {Player.switchToNextPokemon EndDefendingPlayer}
           {Lib.debug defender_pokemon_is_dead}
           {UpdateInterface AfterSwapDefender}
         else
@@ -105,8 +98,6 @@ define
     {Lib.debug fight_started_with_wild_pokemoz(WildPokemoz)}
     {Interface.updatePlayer2 WildPlayer}
     {Fight InitialState.player WildPlayer EndAttackingPlayer _}
-    case InitialState of game_state(turn:Turn player:_ trainers:Trainers) then
-      game_state(turn:Turn player:EndAttackingPlayer trainers:Trainers)
-    end
+    {GameState.updatePlayer InitialState EndAttackingPlayer}
   end
 end

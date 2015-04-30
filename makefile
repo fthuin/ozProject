@@ -15,6 +15,9 @@ pokemoz:
 player:
 	ozc -c player.oz
 
+gameState:
+	ozc -c game_state.oz
+
 map:
 	ozc -c map.oz
 
