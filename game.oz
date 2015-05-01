@@ -26,7 +26,7 @@ define
   YES = "Yes"
 
    %% Game parameters
-   TestMap MapPath
+   Map MapPath
    WildPokemozProba
    Speed
    AutoFight
@@ -35,7 +35,7 @@ define
    {Lib.debug start_args}
    {Lib.getArgs MapPath WildPokemozProba Speed AutoFight DELAY}
    {Lib.debug args_recuperes}
-   {Map.loadMapFromFile MapPath TestMap}
+   Map = {MapMod.loadMapFromFile MapPath}
 
   % Intro - Ask player for name and starting pokemoz
   PlayerName  = "Greg"
