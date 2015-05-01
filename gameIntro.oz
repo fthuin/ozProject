@@ -10,7 +10,7 @@ define
 
    DefaultChosenPokemozLabel = "none"
    DefaultChosenName = ""
-   
+
    fun {GetImage Name}
       {ImageLibrary get(name:Name image:$)}
    end
@@ -38,10 +38,15 @@ define
    NewGameMsg       = {Title "New game"}
    ChooseNameMsg    = {Subtitle "Choose your name"}
    ChoosePokemozMsg = {Subtitle "Choose your starting Pokemoz"}
-   NameText         = text(init:DefaultChosenName glue:n width:15 height:2 return:PlayerName borderwidth:0 highlightthickness:0 action:CheckResult handle:NameTextHandle)
+   NameText         = text(init:DefaultChosenName glue:n width:15 height:2 return:PlayerName
+                           borderwidth:0 highlightthickness:0 action:CheckInputs handle:NameTextHandle)
 
-   ChoiceLabel   = lr(label(init:"ChosenPokemoz :" bg:white) label(init:DefaultChosenPokemozLabel handle:ChoiceLabelHandle bg:white return:ChosenPokemoz text:DefaultChosenPokemozLabel))
-   StartGameBtn  = button(text:"Start game !" padx:150 pady:20 glue:new bg:white action:toplevel#close state:disabled handle:StartGameBtnHandle)
+   ChoiceLabel   = lr(label(init:"ChosenPokemoz :" bg:white)
+                      label(init:DefaultChosenPokemozLabel handle:ChoiceLabelHandle bg:white return:ChosenPokemoz text:DefaultChosenPokemozLabel))
+
+   StartGameBtn  = button(text:"Start game !" padx:150 pady:20 glue:new bg:white
+                          action:toplevel#close state:disabled handle:StartGameBtnHandle)
+
    SachaCanvas   = canvas(handle:SachaCanvasHandle width:400 height:350 bg:white borderwidth:0 highlightthickness:0)
    PokemozCanvas = canvas(handle:PokemozCanvasHandle width:300 height:600 bg:white borderwidth:0 highlightthickness:0)
 
@@ -63,16 +68,15 @@ define
 			)
 		      )
 		  )
-   
-   proc {CheckResult}
-      NameVarText PokemozVarText
+
+   proc {CheckInputs}
+      NameVarText    = {NameTextHandle    get(1:$)}
+      PokemozVarText = {ChoiceLabelHandle get(1:$)}
    in
-      {NameTextHandle get(1:NameVarText)}
-      {ChoiceLabelHandle get(1:PokemozVarText)}
       if NameVarText==DefaultChosenName orelse PokemozVarText==DefaultChosenPokemozLabel then
-	 {StartGameBtnHandle set(state:disabled)}
+	       {StartGameBtnHandle set(state:disabled)}
       else
-	 {StartGameBtnHandle set(state:normal)}
+	       {StartGameBtnHandle set(state:normal)}
       end
    end
 
@@ -82,7 +86,7 @@ define
      else                Name = oztirtle
      end
      {ChoiceLabelHandle set(Name)}
-     {CheckResult}
+     {CheckInputs}
    end
 
    proc {DisplayPokemoz}
@@ -106,8 +110,7 @@ define
       {DisplayPokemoz}
       {NameTextHandle set(DefaultChosenName)}
       {Window show(wait:true modal:true)}
-      
-      Name = PlayerName
+      Name        = PlayerName
       PokemozName = {String.toAtom ChosenPokemoz}
    end
 end

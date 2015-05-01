@@ -64,12 +64,14 @@ define
       EndDefendingPlayer  = {PlayerMod.updateCurrentPokemoz CurrentDefendingPlayer EndDefendingPokemoz}
     in
       {UpdateInterface EndDefendingPlayer}
-      if {AllPokemozAreDead EndDefendingPlayer.pokemoz_list} then AfterEvolutionAttackingPlayer in % Fight is over
+      % Fight is over
+      if {AllPokemozAreDead EndDefendingPlayer.pokemoz_list} then AfterEvolutionAttackingPlayer in
         {Lib.debug fight_is_over(winner:CurrentAttackingPlayer looser:EndDefendingPlayer)}
         AfterEvolutionAttackingPlayer = {PlayerMod.evolveSelectedPokemoz CurrentAttackingPlayer DefendingPokemoz}
         {AssignEndingStates Round AfterEvolutionAttackingPlayer EndDefendingPlayer EndAttacker EndDefender}
         {UpdateInterface AfterEvolutionAttackingPlayer}
         if (Round mod 2) == 0 then victory else defeat end
+      % Fight continue to next round
       else FinalDefender in
         if {SelectedPokemonIsDead EndDefendingPlayer} then
           FinalDefender = {PlayerMod.switchToNextPokemoz EndDefendingPlayer}

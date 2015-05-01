@@ -5,6 +5,7 @@ import
 export
   UpdatePokemoz
   UpdateCurrentPokemoz
+  UpdatePositionInDirection
   UpdatePosition
   SwitchToPokemoz
   SwitchToNextPokemoz
@@ -35,17 +36,17 @@ define
     {SwitchToPokemoz Player Player.selected_pokemoz+1}
   end
 
-  fun {UpdatePosition Player Direction}
+  fun {UpdatePositionInDirection Player Direction}
     case Player
-    of player(name:Name image:Img position:pos(x:X y:Y) pokemoz_list:Pokemoz selected_pokemoz:SP)
-    then X2 Y2 in
-      case Direction
-      of up    then X2 = X    Y2 = Y-1
-      [] right then X2 = X+1  Y2 = Y
-      [] down  then X2 = X    Y2 = Y+1
-      [] left  then X2 = X-1  Y2 = Y
-      end
-      player(name:Name image:Img position:pos(x:X2 y:Y2) pokemoz_list:Pokemoz selected_pokemoz:SP)
+    of   player(name:Name image:Img position:Pos pokemoz_list:Pokemoz selected_pokemoz:SP)
+    then player(name:Name image:Img position:{Lib.positionInDirection Pos Direction} pokemoz_list:Pokemoz selected_pokemoz:SP)
+    end
+  end
+
+  fun {UpdatePosition Player Position}
+    case Player
+    of   player(name:Name image:Img position:_        pokemoz_list:Pokemoz selected_pokemoz:SP)
+    then player(name:Name image:Img position:Position pokemoz_list:Pokemoz selected_pokemoz:SP)
     end
   end
 

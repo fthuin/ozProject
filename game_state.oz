@@ -3,7 +3,6 @@ import
   PlayerMod at 'player.ozf'
 export
   UpdatePlayer
-  MovePlayer
   IncrementTurn
   HealPokemoz
   CapturePokemoz
@@ -12,13 +11,6 @@ define
     case GameState
     of   game_state(turn:Turn player:_ trainers:Trainers)
     then game_state(turn:Turn player:NewPlayer trainers:Trainers)
-    end
-  end
-
-  fun {MovePlayer GameState Direction}
-    case GameState
-    of   game_state(turn:Turn player:Player trainers:Trainers)
-    then game_state(turn:Turn player:{PlayerMod.updatePosition Player Direction} trainers:Trainers)
     end
   end
 
