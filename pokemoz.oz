@@ -20,7 +20,9 @@ define
   Water     = water
   Fire      = fire
   Ground    = ground
-  Ground    = poison
+  Poison    = poison
+  Electric  = electric
+  Flying    = flying
 
   fun {New Name Type Level}
     pokemoz(name:   Name
@@ -44,12 +46,86 @@ define
      Level * 4
   end
 
+  fun {GrassDamage OtherType}
+    case OtherType
+    of Grass  then 2
+    [] Water  then 3
+    [] Fire   then 1
+    [] Ground then 3
+    [] Poison then 1
+    [] Electric  then 2
+    [] Flying    then 1
+    end
+  end
+
+  fun {WaterDamage OtherType}
+    case OtherType
+    of Grass  then 1
+    [] Water  then 2
+    [] Fire   then 3
+    [] Ground then 3
+    [] Poison then 2
+    [] Electric  then 2
+    [] Flying    then 2
+    end
+  end
+
+  fun {FireDamage OtherType}
+    case OtherType
+    of Grass  then 3
+    [] Water  then 1
+    [] Fire   then 2
+    [] Ground then 2
+    [] Poison then 2
+    [] Electric  then 2
+    [] Flying    then 2
+    end
+  end
+
+  fun {GroundDamage OtherType}
+    case OtherType
+    of Grass  then 1
+    [] Water  then 2
+    [] Fire   then 3
+    [] Ground then 2
+    [] Poison then 3
+    [] Electric  then 3
+    [] Flying    then 0
+    end
+  end
+
+  fun {PoisonDamage OtherType}
+    case OtherType
+    of Grass  then 3
+    [] Water  then 2
+    [] Fire   then 2
+    [] Ground then 1
+    [] Poison then 2
+    [] Electric  then 2
+    [] Flying    then 2
+    end
+  end
+
+  fun {ElectricDamage OtherType}
+    case OtherType
+    of Grass     then 1
+    [] Water     then 3
+    [] Fire      then 2
+    [] Ground    then 0
+    [] Poison    then 2
+    [] Electric  then 1
+    [] Flying    then 3
+    end
+  end
+
   fun {Damage AType DType}
      if AType==DType then 2
      else
         case AType#DType
         of grass#water  then 3
         [] grass#fire   then 1
+        [] grass#ground then 1
+        [] grass#poison then 1
         [] fire#grass   then 3
         [] fire#water   then 1
         [] water#fire   then 3

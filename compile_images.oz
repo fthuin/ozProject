@@ -58,6 +58,7 @@ define
    {AddPhoto pokemoz onix}
    {AddPhoto pokemoz geodude}
    {AddPhoto pokemoz koffing}
+   {AddPhoto pokemoz horsea}
 
    % Add characters
    {AddPhoto characters brock}
