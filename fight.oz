@@ -1,10 +1,8 @@
 functor
 import
   Lib        at 'lib.ozf'
-  Characters at 'characters.ozf'
   PokemozMod at 'pokemoz.ozf'
   PlayerMod  at 'player.ozf'
-  GameState  at 'game_state.ozf'
 export
   Fight
   SetInterface
@@ -50,7 +48,7 @@ define
     {List.nth Player.pokemoz_list Player.selected_pokemoz}.health==0
   end
 
-  proc {Fight AttackingPlayer DefendingPlayer EndAttacker EndDefender}
+  fun {Fight AttackingPlayer DefendingPlayer EndAttacker EndDefender}
     proc {UpdateInterface Player}
       if Player.image == characters_player then
         {Interface.updatePlayer1 Player}
@@ -59,7 +57,7 @@ define
       end
     end
 
-    proc {RecFight CurrentAttackingPlayer CurrentDefendingPlayer Round}
+    fun {RecFight CurrentAttackingPlayer CurrentDefendingPlayer Round}
       AttackingPokemoz    = {List.nth CurrentAttackingPlayer.pokemoz_list CurrentAttackingPlayer.selected_pokemoz}
       DefendingPokemoz    = {List.nth CurrentDefendingPlayer.pokemoz_list CurrentDefendingPlayer.selected_pokemoz}
       EndDefendingPokemoz = {Attack AttackingPokemoz DefendingPokemoz}
@@ -71,7 +69,7 @@ define
         AfterEvolutionAttackingPlayer = {PlayerMod.evolveSelectedPokemoz CurrentAttackingPlayer DefendingPokemoz}
         {AssignEndingStates Round AfterEvolutionAttackingPlayer EndDefendingPlayer EndAttacker EndDefender}
         {UpdateInterface AfterEvolutionAttackingPlayer}
-        {Interface.clearPlayer2}
+        if (Round mod 2) == 0 then victory else defeat end
       else FinalDefender in
         if {SelectedPokemonIsDead EndDefendingPlayer} then
           FinalDefender = {PlayerMod.switchToNextPokemoz EndDefendingPlayer}

@@ -10,6 +10,7 @@ export
   SwitchToNextPokemoz
   HealPokemoz
   EvolveSelectedPokemoz
+  CapturePokemoz
 define
   fun {UpdatePokemoz Player NewPokemoz Index}
     case Player
@@ -71,5 +72,11 @@ define
     end
   end
 
+  fun {CapturePokemoz Player NewPokemoz}
+    case Player
+    of   player(name:Name image:Img position:Pos pokemoz_list:PokemozList                       selected_pokemoz:SP)
+    then player(name:Name image:Img position:Pos pokemoz_list:{Append PokemozList [NewPokemoz]} selected_pokemoz:SP)
+    end
+  end
 
 end

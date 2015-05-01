@@ -3,6 +3,7 @@ import
   Lib at 'lib.ozf'
 export
   MaxHealth
+  SetHealth
   SetMaxHealth
   DealDamage
   Evolve
@@ -167,11 +168,15 @@ define
     end
   end
 
-  fun {SetMaxHealth Pokemoz}
+  fun {SetHealth Pokemoz Health}
     case Pokemoz
-    of   pokemoz(name:Name type:Type level:Level health:_ xp:Xp)
-    then pokemoz(name:Name type:Type level:Level health:{MaxHealth Level} xp:Xp)
+    of   pokemoz(name:Name type:Type level:Level health:_      xp:Xp)
+    then pokemoz(name:Name type:Type level:Level health:Health xp:Xp)
     end
+  end
+
+  fun {SetMaxHealth Pokemoz}
+    {SetHealth Pokemoz {MaxHealth Pokemoz.level}}
   end
 
   % Return defender

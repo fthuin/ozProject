@@ -1,11 +1,12 @@
 functor
 import
-  PlayerM at 'player.ozf'
+  PlayerMod at 'player.ozf'
 export
   UpdatePlayer
   MovePlayer
   IncrementTurn
   HealPokemoz
+  CapturePokemoz
 define
   fun {UpdatePlayer GameState NewPlayer}
     case GameState
@@ -17,7 +18,7 @@ define
   fun {MovePlayer GameState Direction}
     case GameState
     of   game_state(turn:Turn player:Player trainers:Trainers)
-    then game_state(turn:Turn player:{PlayerM.updatePosition Player Direction} trainers:Trainers)
+    then game_state(turn:Turn player:{PlayerMod.updatePosition Player Direction} trainers:Trainers)
     end
   end
 
@@ -31,7 +32,7 @@ define
   fun {HealPokemoz GameState}
     case GameState
     of   game_state(turn:Turn player:Player trainers:Trainers)
-    then game_state(turn:Turn player:{PlayerM.healPokemoz Player} trainers:Trainers)
+    then game_state(turn:Turn player:{PlayerMod.healPokemoz Player} trainers:Trainers)
     end
   end
 
