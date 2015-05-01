@@ -151,18 +151,18 @@ define
       WantsToCapture = {Interface.askQuestion CAPTURE_POKEMOZ NO YES} in
       if WantsToCapture==1 then
         NewPlayer = {PlayerMod.capturePokemoz GameState.player {PokemozMod.setHealth WildPokemoz 0}} in
-        {Interface.clearPlayer2}
+        {Interface.hidePlayer2}
         {Lib.debug pokemoz_captured(NewPlayer.pokemoz_list)}
         {Interface.updatePlayer1 NewPlayer}
         {Interface.selectPlayer1Panel {PokemozCount NewPlayer}}
         {GameStateMod.updatePlayer GameState NewPlayer}
       else
-        {Interface.clearPlayer2}
+        {Interface.hidePlayer2}
         GameState
       end
     else
       {Interface.writeMessage WIN_BUT_CANNOT_CAPTURE}
-      {Interface.clearPlayer2}
+      {Interface.hidePlayer2}
       GameState
     end
   end
@@ -178,14 +178,14 @@ define
       {WildPokemozVictory AfterFightState WildPokemoz}
     else
       {Interface.writeMessage FIGHT_LOST}
-      {Interface.clearPlayer2}
+      {Interface.hidePlayer2}
       AfterFightState
     end
   end
 
   fun {MeetWildPokemoz GameState}
     WildPlayer = {PlayerMod.getWildPlayer {CharactersMod.summonWildPokemon GameState}}
-    {Interface.updatePlayer2 WildPlayer}
+    {Interface.showPlayer2 WildPlayer}
     fun {CanFight} {Bool.'not' {PokemozMod.allPokemozAreDead GameState.player.pokemoz_list}} end
   in
     if {CanFight} then
@@ -194,13 +194,13 @@ define
         {FightWildPokemoz GameState WildPlayer}
       else
         {Lib.debug player_run_from_fight}
-        {Interface.clearPlayer2}
+        {Interface.hidePlayer2}
         GameState
       end
     else
       {Lib.debug player_cannot_fight}
       {Interface.writeMessage UNABLE_TO_FIGHT}
-      {Interface.clearPlayer2}
+      {Interface.hidePlayer2}
       GameState
     end
   end

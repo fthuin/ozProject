@@ -6,10 +6,11 @@ import
 export
   Init
   UpdatePlayer1
+  ShowPlayer2
   UpdatePlayer2
+  HidePlayer2
   AskQuestion
   WriteMessage
-  ClearPlayer2
   SelectPlayer1Panel
 define
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
@@ -17,7 +18,9 @@ define
 
    Player1Handles
    Player2Handles
+   Player2PlaceHolderHandle
    CenterAreaHandles
+   CenterAreaPlaceHolderHandle
 
    fun {GetImage Name}
       {ImageLibrary get(name:Name image:$)}
@@ -68,7 +71,7 @@ define
 
 
    fun {CreatePlayerInterface Handles}
-     PanelH PictureCanvasH NameLabelH PictureImgH Panel1H Panel2H Panel3H
+     TopLevel PanelH PictureCanvasH NameLabelH PictureImgH Panel1H Panel2H Panel3H
      PictureCanvas = canvas(handle:PictureCanvasH glue:w width:100 height:100
                             bg:white borderwidth:0 highlightthickness:0)
      Panel=panel(borderwidth:0 highlightthickness:0 glue:n handle:PanelH bg:white
@@ -77,14 +80,15 @@ define
         {CreatePokemozInterface Panel3H 3}
      )
    in
-     Handles = handles( panel:          PanelH
+     Handles = handles( top_level:      TopLevel
+                        panel:          PanelH
                         picture_canvas: PictureCanvasH
                         picture_img:    PictureImgH
                         name_label:     NameLabelH
-                        panel1handles: Panel1H
-                        panel2handles: Panel2H
-                        panel3handles: Panel3H)
-     lr(padx:20 pady:20 background:white glue:nsew
+                        panel1handles:  Panel1H
+                        panel2handles:  Panel2H
+                        panel3handles:  Panel3H)
+     lr(background:white glue:nsew handle:TopLevel
         td(glue:wn bg:white
           PictureCanvas
           label(handle:NameLabelH bg:white font:{QTk.newFont font(weight:bold size:25)}
@@ -93,13 +97,11 @@ define
    end
 
    fun {CreateCenterArea}
-     LabelH Button0H Button1H
+     TopLevel LabelH Button0H Button1H
    in
-     CenterAreaHandles = handles(label:LabelH button0:Button0H button1:Button1H)
+     CenterAreaHandles = handles(top_level:TopLevel label:LabelH button0:Button0H button1:Button1H)
      td(
-        pady:20
-        glue:nesw
-        background:white
+        handle:TopLevel glue:nesw background:white
         label(justify:center handle:LabelH background:white height:6 width:20 wraplength:160)
         lr(background:white
           button(handle:Button0H width:10)
@@ -189,27 +191,42 @@ define
      Player1   = {CreatePlayerInterface Player1Handles}
      Player2   = {CreatePlayerInterface Player2Handles}
      Center    = {CreateCenterArea}
-     Interface = lr(title:"My Pokemoz" resizable:resizable(width:false height:false) background:black Player1 Center Player2)
+     Player1Placeholder = placeholder(glue:nswe background:white  width:394  padx:20 pady:20 Player1)
+     Player2Placeholder = placeholder(glue:nswe handle:Player2PlaceHolderHandle
+                                      background:white  width:394  padx:20 pady:20 Player2)
+     CenterPlaceholder  = placeholder(glue:nswe handle:CenterAreaPlaceHolderHandle
+                                      background:white  width:250  padx:0 pady:20  Center)
+     Interface = lr(title:"My Pokemoz" resizable:resizable(width:false height:false) background:black
+                    Player1Placeholder CenterPlaceholder Player2Placeholder)
      Window    = {QTk.build Interface}
      {Lib.bindKeyboardActions Window InstructionsPort}
    in
      {Window show}
-     {Window set(geometry:geometry(x:50 y:500 width:1037 height:217))}
+     {Window set(geometry:geometry(x:0 y:600 width:1 height:1))}
      {AddImagesToCanvas Player1Handles}
      {AddImagesToCanvas Player2Handles}
+     {Player2PlaceHolderHandle set(empty)}
+     {CenterAreaPlaceHolderHandle set(empty)}
      {UpdatePlayerInterface GameState.player Player1Handles}
      {Lib.debug auxialiary_interface_drawn}
+     {Window set(geometry:geometry(x:0 y:600 width:1038 height:217))}
    end
 
   proc {UpdatePlayer1 Player}
     {UpdatePlayerInterface Player Player1Handles}
   end
 
+  proc {ShowPlayer2 Player}
+    {UpdatePlayerInterface Player Player2Handles}
+    {Player2PlaceHolderHandle set(Player2Handles.top_level)}
+  end
+
   proc {UpdatePlayer2 Player}
     {UpdatePlayerInterface Player Player2Handles}
   end
 
-  proc {ClearPlayer2}
+  proc {HidePlayer2}
+    {Player2PlaceHolderHandle set(empty)}
     {ClearPlayerInterface Player2Handles}
   end
 
@@ -222,14 +239,16 @@ define
     proc {HitBtn0} Answer=0 end
     proc {HitBtn1} Answer=1 end
     proc {Cleanup}
+      {CenterAreaPlaceHolderHandle set(empty)}
       {CenterAreaHandles.label   set(text:nil)}
       {CenterAreaHandles.button0 set(state:disabled text:nil)}
       {CenterAreaHandles.button1 set(state:disabled text:nil)}
     end
   in
-    {CenterAreaHandles.label   set(text:QuestionText)}
-    {CenterAreaHandles.button0 set(state:normal text:Btn0Text action:HitBtn0)}
-    {CenterAreaHandles.button1 set(state:normal text:Btn1Text action:HitBtn1)}
+    {CenterAreaHandles.label     set(text:QuestionText)}
+    {CenterAreaHandles.button0   set(state:normal text:Btn0Text action:HitBtn0)}
+    {CenterAreaHandles.button1   set(state:normal text:Btn1Text action:HitBtn1)}
+    {CenterAreaPlaceHolderHandle set(CenterAreaHandles.top_level)}
     if Answer==1 then {Cleanup} 1 else {Cleanup} 0 end
   end
 
@@ -237,8 +256,10 @@ define
     Answer
     proc {HitBtn0} Answer=0 end
     proc {Cleanup}
+      {CenterAreaPlaceHolderHandle set(empty)}
       {CenterAreaHandles.label   set(text:nil)}
       {CenterAreaHandles.button0 set(state:disabled text:nil)}
+      {CenterAreaPlaceHolderHandle set(CenterAreaHandles.top_level)}
     end
   in
     {CenterAreaHandles.label   set(text:Message)}

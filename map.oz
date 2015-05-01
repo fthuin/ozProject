@@ -141,6 +141,7 @@ define
       {CreateMapCanvas}
       {Draw}
       {MapWindow show}
+      {MapWindow set(geometry:geometry(x:0 y:0 width:1038 height:600))}
       {Lib.bindKeyboardActions MapWindow InstructionsPort}
       {Lib.debug map_drawn}
    end
