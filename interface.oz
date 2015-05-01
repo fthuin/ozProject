@@ -193,7 +193,7 @@ define
      Window    = {QTk.build Interface}
    in
      {Window show}
-     {Window set(geometry:geometry(x:50 y:500 width:1050 height:217))}
+     {Window set(geometry:geometry(x:50 y:500 width:1037 height:217))}
      {AddImagesToCanvas Player1Handles}
      {AddImagesToCanvas Player2Handles}
      {UpdatePlayerInterface GameState.player Player1Handles}
