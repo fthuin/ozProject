@@ -1,6 +1,7 @@
 functor
 import
    Module
+   Lib at 'lib.ozf'
 export
    GetUserChoice
 define
@@ -10,7 +11,6 @@ define
    DefaultChosenPokemozLabel = "none"
    DefaultChosenName = ""
    
-
    fun {GetImage Name}
       {ImageLibrary get(name:Name image:$)}
    end
@@ -32,35 +32,49 @@ define
    SachaCanvasHandle
    PokemozCanvasHandle
    ChoiceLabelHandle
+   StartGameBtnHandle
+   NameTextHandle
 
    NewGameMsg       = {Title "New game"}
    ChooseNameMsg    = {Subtitle "Choose your name"}
    ChoosePokemozMsg = {Subtitle "Choose your starting Pokemoz"}
-   NameText         = text(init:DefaultChosenName glue:n width:15 height:2 return:PlayerName borderwidth:0 highlightthickness:0)
+   NameText         = text(init:DefaultChosenName glue:n width:15 height:2 return:PlayerName borderwidth:0 highlightthickness:0 action:CheckResult handle:NameTextHandle)
 
-   ChoiceLabel   = lr(label(init:"ChosenPokemoz :" bg:white) label(init:DefaultChosenPokemozLabel handle:ChoiceLabelHandle bg:white return:ChosenPokemoz))
-   StartGameBtn  = button(text:"Start game !" padx:150 pady:20 glue:new bg:white action:toplevel#close)
-   SachaCanvas   = canvas(handle:SachaCanvasHandle   width:400 height:350 bg:white borderwidth:0 highlightthickness:0)
+   ChoiceLabel   = lr(label(init:"ChosenPokemoz :" bg:white) label(init:DefaultChosenPokemozLabel handle:ChoiceLabelHandle bg:white return:ChosenPokemoz text:DefaultChosenPokemozLabel))
+   StartGameBtn  = button(text:"Start game !" padx:150 pady:20 glue:new bg:white action:toplevel#close state:disabled handle:StartGameBtnHandle)
+   SachaCanvas   = canvas(handle:SachaCanvasHandle width:400 height:350 bg:white borderwidth:0 highlightthickness:0)
    PokemozCanvas = canvas(handle:PokemozCanvasHandle width:300 height:600 bg:white borderwidth:0 highlightthickness:0)
 
    MainLayout = td(title:"Pokemoz" bg:white
-     NewGameMsg
-     lr(
-        bg:white
-        glue:new
-        td(bg:white glue:new
-  	       ChoosePokemozMsg
-  	       PokemozCanvas
-  	    )
-        td(bg:white glue:new
-  	       ChooseNameMsg
-  	       NameText
-  	       SachaCanvas
-  	       ChoiceLabel
-  	       StartGameBtn
-  	    )
-      )
-   )
+		   NewGameMsg
+		   lr(
+		      bg:white
+		      glue:new
+		      td(bg:white glue:new
+			 ChoosePokemozMsg
+			 PokemozCanvas
+			)
+		      td(bg:white glue:new
+			 ChooseNameMsg
+			 NameText
+			 SachaCanvas
+			 ChoiceLabel
+			 StartGameBtn
+			)
+		      )
+		  )
+   
+   proc {CheckResult}
+      NameVarText PokemozVarText
+   in
+      {NameTextHandle get(1:NameVarText)}
+      {ChoiceLabelHandle get(1:PokemozVarText)}
+      if NameVarText==DefaultChosenName orelse PokemozVarText==DefaultChosenPokemozLabel then
+	 {StartGameBtnHandle set(state:disabled)}
+      else
+	 {StartGameBtnHandle set(state:normal)}
+      end
+   end
 
    proc {SetChoosenPokemonText X Y} Name in
      if Y < 180     then Name = bulbasoz
@@ -68,26 +82,20 @@ define
      else                Name = oztirtle
      end
      {ChoiceLabelHandle set(Name)}
+     {CheckResult}
    end
 
    proc {DisplayPokemoz}
-     {PokemozCanvasHandle create(image 75  0   anchor:nw image:{GetImage pokemoz_bulbasaur})}
+     {PokemozCanvasHandle create(image 75  0   anchor:nw image:{GetImage pokemoz_bulbasoz})}
      {PokemozCanvasHandle create(text  150 160 anchor:center text:"Bulbasoz - Grass" justify:center)}
-     {PokemozCanvasHandle create(image 75  180 anchor:nw image:{GetImage pokemoz_charmander})}
+     {PokemozCanvasHandle create(image 75  180 anchor:nw image:{GetImage pokemoz_charmandoz})}
      {PokemozCanvasHandle create(text  150 340 anchor:center text:"Charmandoz - Fire" justify:center)}
-     {PokemozCanvasHandle create(image 75  360 anchor:nw image:{GetImage pokemoz_squirtle})}
+     {PokemozCanvasHandle create(image 75  360 anchor:nw image:{GetImage pokemoz_oztirtle})}
      {PokemozCanvasHandle create(text  150 520 anchor:center text:"Ozirtle - Water" justify:center)}
    end
 
    proc {DisplaySachaImage}
      {SachaCanvasHandle   create(image 110 50  anchor:nw image:{GetImage sacha_large})}
-   end
-
-   fun {CheckResult Name Pokemoz}
-      if Name==DefaultChosenName orelse Pokemoz==DefaultChosenPokemozLabel then false
-      else
-	 true
-      end
    end
 
    proc {GetUserChoice Name PokemozName}
@@ -96,14 +104,10 @@ define
       {PokemozCanvasHandle bind(event:"<1>" action:SetChoosenPokemonText args:[int(x) int(y)])}
       {DisplaySachaImage}
       {DisplayPokemoz}
+      {NameTextHandle set(DefaultChosenName)}
       {Window show(wait:true modal:true)}
-
-      if {CheckResult PlayerName {String.toAtom ChosenPokemoz}} then
-	 Name = PlayerName
-	 PokemozName = {String.toAtom ChosenPokemoz}
-      else
-	 {Window close}
-	 {GetUserChoice Name PokemozName}
-      end
+      
+      Name = PlayerName
+      PokemozName = {String.toAtom ChosenPokemoz}
    end
 end
