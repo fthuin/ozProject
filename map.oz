@@ -7,6 +7,7 @@ export
    DrawMap
    DrawPlayerAtPosition
    DrawHospitalAtPosition
+   DrawPikachuAtPosition
    MovePlayer
    IsRoad
 define
@@ -146,15 +147,27 @@ define
       {Lib.debug map_drawn}
    end
 
+
+   proc {DrawImageAtPosition Image Pos}
+     {MapCanvasHandle create(image {XCoord Pos.x} {YCoord Pos.y} image:{GetImage Image} anchor:nw)}
+   end
+
+
    proc {DrawPlayerAtPosition Pos}
-      {MapCanvasHandle create(image {XCoord Pos.x} {YCoord Pos.y} image:{GetImage sacha_down3} anchor:nw handle:PlayerHandle)}
+      {MapCanvasHandle create(image {XCoord Pos.x} {YCoord Pos.y} handle:PlayerHandle image:{GetImage sacha_down3} anchor:nw)}
       {Lib.debug player_positioned_at(Pos)}
    end
 
    proc {DrawHospitalAtPosition Pos}
-     {MapCanvasHandle create(image {XCoord Pos.x} {YCoord Pos.y} image:{GetImage various_hospital} anchor:nw)}
+     {DrawImageAtPosition various_hospital Pos}
      {Lib.debug hospital_positioned_at(Pos)}
    end
+
+   proc {DrawPikachuAtPosition Pos}
+     {DrawImageAtPosition various_pikachu Pos}
+     {Lib.debug pikachu_positioned_at(Pos)}
+   end
+
 
    proc {MovePlayer Direction}
       IMAGE_STEPS    = 4

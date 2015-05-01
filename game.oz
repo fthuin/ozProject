@@ -34,7 +34,6 @@ define
   MapWidth    = {Width TestMap.1}
   VictoryPosition  = pos(x:MapWidth-1 y:0)
   HospitalPosition = pos(x:(MapWidth div 2) y:(MapHeight div 2))
-  {Lib.debug HospitalPosition}
 
   % Setup intial game state
   InstructionsStream
@@ -51,6 +50,7 @@ define
     GameState = game_state(turn:0 player:Player trainers:Characters.trainers)
     {Map.init TestMap InstructionsPort Speed DELAY}
     {Map.drawMap}
+    {Map.drawPikachuAtPosition VictoryPosition}
     {Map.drawPlayerAtPosition StartingPos}
     {Map.drawHospitalAtPosition HospitalPosition}
     {Interface.init GameState}

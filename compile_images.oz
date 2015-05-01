@@ -80,6 +80,7 @@ define
 
    % Add various
    {AddPhoto various hospital}
+   {AddPhoto various pikachu}
 
    % Save library
    {QTk.saveImageLibrary Library "ImageLibrary.ozf"}
