@@ -91,18 +91,7 @@ define
       {SetYPos Handle {GetYPos Handle}+Inc}
    end
 
-   % Bind keys
-   proc {BindKeyboardActions}
-      {MapWindow bind(event:"<Up>"    action:proc{$} {Send InstructionsPort up}     end)}
-      {MapWindow bind(event:"<Left>"  action:proc{$} {Send InstructionsPort left}   end)}
-      {MapWindow bind(event:"<Down>"  action:proc{$} {Send InstructionsPort down}   end)}
-      {MapWindow bind(event:"<Right>" action:proc{$} {Send InstructionsPort right}  end)}
-      {MapWindow bind(event:"<space>" action:proc{$} {Send InstructionsPort finish} end)}
-      {Lib.debug keyboard_actions_bound}
-   end
-
    % Public methods
-
    proc {Init M P S D}
       Map               = M
       Speed             = S
@@ -152,7 +141,7 @@ define
       {CreateMapCanvas}
       {Draw}
       {MapWindow show}
-      {BindKeyboardActions}
+      {Lib.bindKeyboardActions MapWindow InstructionsPort}
       {Lib.debug map_drawn}
    end
 

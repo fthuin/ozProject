@@ -185,12 +185,13 @@ define
      {ClearPanel Handles.panel3handles}
    end
 
-   proc {Init GameState}
+   proc {Init GameState InstructionsPort}
      Player1   = {CreatePlayerInterface Player1Handles}
      Player2   = {CreatePlayerInterface Player2Handles}
      Center    = {CreateCenterArea}
      Interface = lr(title:"My Pokemoz" resizable:resizable(width:false height:false) background:black Player1 Center Player2)
      Window    = {QTk.build Interface}
+     {Lib.bindKeyboardActions Window InstructionsPort}
    in
      {Window show}
      {Window set(geometry:geometry(x:50 y:500 width:1037 height:217))}

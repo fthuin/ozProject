@@ -77,7 +77,7 @@ define
     {MapMod.drawJamesAtPosition    JamesPosition}
     {MapMod.drawPlayerAtPosition   StartingPos}
     {MapMod.drawHospitalAtPosition HospitalPosition}
-    {Interface.init GameState}
+    {Interface.init GameState InstructionsPort}
     {FightMod.setInterface Interface}
   end
 
