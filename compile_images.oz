@@ -64,6 +64,7 @@ define
    {AddPhoto characters brock}
    {AddPhoto characters james}
    {AddPhoto characters misty}
+
    {AddPhoto characters player}
    {AddPhoto characters wild}
 

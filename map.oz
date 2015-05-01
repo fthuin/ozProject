@@ -8,6 +8,9 @@ export
    DrawPlayerAtPosition
    DrawHospitalAtPosition
    DrawPikachuAtPosition
+   DrawBrockAtPosition
+   DrawMistyAtPosition
+   DrawJamesAtPosition
    MovePlayer
    IsRoad
 define
@@ -30,8 +33,12 @@ define
    MapHeight
    MapWidth
 
+   % Handles
    MapCanvasHandle
    PlayerHandle
+   BrockHandle
+   MistyHandle
+   JamesHandle
    MapWindow
 
    % Private methods
@@ -147,24 +154,37 @@ define
       {Lib.debug map_drawn}
    end
 
-
-   proc {DrawImageAtPosition Image Pos}
-     {MapCanvasHandle create(image {XCoord Pos.x} {YCoord Pos.y} image:{GetImage Image} anchor:nw)}
+   proc {DrawImageAtPosition Image Pos Handle}
+     {MapCanvasHandle create(image {XCoord Pos.x} {YCoord Pos.y} handle:Handle image:{GetImage Image} anchor:nw)}
    end
 
-
    proc {DrawPlayerAtPosition Pos}
-      {MapCanvasHandle create(image {XCoord Pos.x} {YCoord Pos.y} handle:PlayerHandle image:{GetImage sacha_down3} anchor:nw)}
+      {DrawImageAtPosition sacha_down3 Pos PlayerHandle}
       {Lib.debug player_positioned_at(Pos)}
    end
 
+   proc {DrawBrockAtPosition Pos}
+     {DrawImageAtPosition characters_brock_small Pos BrockHandle}
+     {Lib.debug brock_positioned_at(Pos)}
+   end
+
+   proc {DrawMistyAtPosition Pos}
+     {DrawImageAtPosition characters_misty_small Pos MistyHandle}
+     {Lib.debug misty_positioned_at(Pos)}
+   end
+
+   proc {DrawJamesAtPosition Pos}
+     {DrawImageAtPosition characters_james_small Pos JamesHandle}
+     {Lib.debug james_positioned_at(Pos)}
+   end
+
    proc {DrawHospitalAtPosition Pos}
-     {DrawImageAtPosition various_hospital Pos}
+     {DrawImageAtPosition various_hospital Pos _}
      {Lib.debug hospital_positioned_at(Pos)}
    end
 
    proc {DrawPikachuAtPosition Pos}
-     {DrawImageAtPosition various_pikachu Pos}
+     {DrawImageAtPosition various_pikachu Pos _}
      {Lib.debug pikachu_positioned_at(Pos)}
    end
 

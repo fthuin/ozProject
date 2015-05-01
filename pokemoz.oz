@@ -1,4 +1,6 @@
 functor
+import
+  Lib at 'lib.ozf'
 export
   MaxHealth
   SetMaxHealth
@@ -13,6 +15,9 @@ export
   Water
   Fire
   Ground
+  Poison
+  Electric
+  Flying
 define
   MinLevel  = 5
   MaxLevel  = 10
@@ -24,116 +29,6 @@ define
   Electric  = electric
   Flying    = flying
 
-  fun {New Name Type Level}
-    pokemoz(name:   Name
-            type:   Type
-            level:  Level
-            health: {PokemozMod.maxHealth Level}
-            xp:     {PokemozMod.baseXpForLevel Level}
-    )
-  end
-
-  fun {WildPokemonLvl Turn}
-     ComputedLevel = 4 + {Lib.rand ((Turn div 10)+1)}
-  in
-     if ComputedLevel > PokemozMod.maxLevel then PokemozMod.maxLevel
-     else ComputedLevel
-     end
-  end
-
-
-  fun {MaxHealth Level}
-     Level * 4
-  end
-
-  fun {GrassDamage OtherType}
-    case OtherType
-    of Grass  then 2
-    [] Water  then 3
-    [] Fire   then 1
-    [] Ground then 3
-    [] Poison then 1
-    [] Electric  then 2
-    [] Flying    then 1
-    end
-  end
-
-  fun {WaterDamage OtherType}
-    case OtherType
-    of Grass  then 1
-    [] Water  then 2
-    [] Fire   then 3
-    [] Ground then 3
-    [] Poison then 2
-    [] Electric  then 2
-    [] Flying    then 2
-    end
-  end
-
-  fun {FireDamage OtherType}
-    case OtherType
-    of Grass  then 3
-    [] Water  then 1
-    [] Fire   then 2
-    [] Ground then 2
-    [] Poison then 2
-    [] Electric  then 2
-    [] Flying    then 2
-    end
-  end
-
-  fun {GroundDamage OtherType}
-    case OtherType
-    of Grass  then 1
-    [] Water  then 2
-    [] Fire   then 3
-    [] Ground then 2
-    [] Poison then 3
-    [] Electric  then 3
-    [] Flying    then 0
-    end
-  end
-
-  fun {PoisonDamage OtherType}
-    case OtherType
-    of Grass  then 3
-    [] Water  then 2
-    [] Fire   then 2
-    [] Ground then 1
-    [] Poison then 2
-    [] Electric  then 2
-    [] Flying    then 2
-    end
-  end
-
-  fun {ElectricDamage OtherType}
-    case OtherType
-    of Grass     then 1
-    [] Water     then 3
-    [] Fire      then 2
-    [] Ground    then 0
-    [] Poison    then 2
-    [] Electric  then 1
-    [] Flying    then 3
-    end
-  end
-
-  fun {Damage AType DType}
-     if AType==DType then 2
-     else
-        case AType#DType
-        of grass#water  then 3
-        [] grass#fire   then 1
-        [] grass#ground then 1
-        [] grass#poison then 1
-        [] fire#grass   then 3
-        [] fire#water   then 1
-        [] water#fire   then 3
-        [] water#grass  then 1
-        end
-     end
-  end
-
   fun {BaseXpForLevel Level}
     case Level
     of 5  then 0
@@ -142,6 +37,123 @@ define
     [] 8  then 20
     [] 9  then 30
     [] 10 then 50
+    end
+  end
+
+  fun {MaxHealth Level}
+     Level * 4
+  end
+
+  fun {New Name Type Level}
+    pokemoz(name:   Name
+            type:   Type
+            level:  Level
+            health: {MaxHealth Level}
+            xp:     {BaseXpForLevel Level})
+  end
+
+  fun {WildPokemonLvl Turn}
+     ComputedLevel = 4 + {Lib.rand ((Turn div 10)+1)}
+  in
+     if ComputedLevel > MaxLevel then MaxLevel
+     else ComputedLevel
+     end
+  end
+
+  fun {GrassDamage OtherType}
+    case OtherType
+    of grass  then 2
+    [] water  then 3
+    [] fire   then 1
+    [] ground then 3
+    [] poison then 1
+    [] electric  then 2
+    [] flying    then 1
+    end
+  end
+
+  fun {WaterDamage OtherType}
+    case OtherType
+    of grass  then 1
+    [] water  then 2
+    [] fire   then 3
+    [] ground then 3
+    [] poison then 2
+    [] electric  then 2
+    [] flying    then 2
+    end
+  end
+
+  fun {FireDamage OtherType}
+    case OtherType
+    of grass  then 3
+    [] water  then 1
+    [] fire   then 2
+    [] ground then 2
+    [] poison then 2
+    [] electric  then 2
+    [] flying    then 2
+    end
+  end
+
+  fun {GroundDamage OtherType}
+    case OtherType
+    of grass  then 1
+    [] water  then 2
+    [] fire   then 3
+    [] ground then 2
+    [] poison then 3
+    [] electric  then 3
+    [] flying    then 0
+    end
+  end
+
+  fun {PoisonDamage OtherType}
+    case OtherType
+    of grass  then 3
+    [] water  then 2
+    [] fire   then 2
+    [] ground then 1
+    [] poison then 2
+    [] electric  then 2
+    [] flying    then 2
+    end
+  end
+
+  fun {ElectricDamage OtherType}
+    case OtherType
+    of grass     then 1
+    [] water     then 3
+    [] fire      then 2
+    [] ground    then 0
+    [] poison    then 2
+    [] electric  then 1
+    [] flying    then 3
+    end
+  end
+
+  fun {FlyingDamage OtherType}
+    case OtherType
+    of grass     then 3
+    [] water     then 2
+    [] fire      then 2
+    [] ground    then 2
+    [] poison    then 2
+    [] electric  then 1
+    [] flying    then 2
+    end
+  end
+
+
+  fun {Damage AType DType}
+    case AType
+    of grass     then {GrassDamage    DType}
+    [] water     then {WaterDamage    DType}
+    [] fire      then {FireDamage     DType}
+    [] ground    then {GroundDamage   DType}
+    [] poison    then {PoisonDamage   DType}
+    [] electric  then {ElectricDamage DType}
+    [] flying    then {FlyingDamage   DType}
     end
   end
 
