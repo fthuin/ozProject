@@ -46,7 +46,7 @@ define
      Level * 4
   end
 
-  fun {GrassDamage OtherType}
+  fun {GrassDamage OtherType}
     case OtherType
     of Grass  then 2
     [] Water  then 3
@@ -58,7 +58,7 @@ define
     end
   end
 
-  fun {WaterDamage OtherType}
+  fun {WaterDamage OtherType}
     case OtherType
     of Grass  then 1
     [] Water  then 2
@@ -70,7 +70,7 @@ define
     end
   end
 
-  fun {FireDamage OtherType}
+  fun {FireDamage OtherType}
     case OtherType
     of Grass  then 3
     [] Water  then 1
@@ -82,7 +82,7 @@ define
     end
   end
 
-  fun {GroundDamage OtherType}
+  fun {GroundDamage OtherType}
     case OtherType
     of Grass  then 1
     [] Water  then 2
@@ -94,7 +94,7 @@ define
     end
   end
 
-  fun {PoisonDamage OtherType}
+  fun {PoisonDamage OtherType}
     case OtherType
     of Grass  then 3
     [] Water  then 2
@@ -106,7 +106,7 @@ define
     end
   end
 
-  fun {ElectricDamage OtherType}
+  fun {ElectricDamage OtherType}
     case OtherType
     of Grass     then 1
     [] Water     then 3
