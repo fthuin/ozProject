@@ -3,7 +3,7 @@ import
   Application
   System
   Lib           at 'lib.ozf'
-  Characters    at 'characters.ozf'
+  CharactersMod at 'characters.ozf'
   Map           at 'map.ozf'
   Interface     at 'interface.ozf'
   FightMod      at 'fight.ozf'
@@ -22,7 +22,7 @@ define
                 r(0 0 0 1 1 1 1)
                 r(0 0 0 1 1 0 0)
                 r(0 0 0 0 0 0 0))
-  WildPokemozProba = 50
+  WildPokemozProba = 15
   Speed = 8
   DELAY = 200
 
@@ -35,13 +35,22 @@ define
   {GameIntro.getUserChoice PlayerName PokemozName}*/
 
   % Save some map info
-  MapHeight   = {Width TestMap}
-  MapWidth    = {Width TestMap.1}
+  MapHeight        = {Width TestMap}
+  MapWidth         = {Width TestMap.1}
+
+  % Compute elements starting position
   VictoryPosition  = pos(x:MapWidth-1 y:0)
   HospitalPosition = pos(x:(MapWidth div 2) y:(MapHeight div 2))
   BrockPosition    = pos(x:VictoryPosition.x-1 y:VictoryPosition.y+1)
   MistyPosition    = pos(x:HospitalPosition.x-2 y:HospitalPosition.y-1)
   JamesPosition    = pos(x:2 y:(MapHeight-2))
+
+  % Compute enemy trainers
+  Trainers = [
+    {PlayerMod.updatePosition CharactersMod.brock BrockPosition}
+    {PlayerMod.updatePosition CharactersMod.misty MistyPosition}
+    {PlayerMod.updatePosition CharactersMod.james JamesPosition}
+  ]
 
   % Setup intial game state
   InstructionsStream
@@ -50,10 +59,10 @@ define
   proc {InitGame}
     StartingPos      = pos(x:MapWidth-1 y:MapHeight-1)
     Player           = player(name:PlayerName image:characters_player position:StartingPos selected_pokemoz:1
-                              pokemoz_list:[Characters.basePokemoz.PokemozName])
+                              pokemoz_list:[CharactersMod.basePokemoz.PokemozName])
     InstructionsPort = {NewPort InstructionsStream}
   in
-    GameState = game_state(turn:0 player:Player trainers:Characters.trainers)
+    GameState = game_state(turn:0 player:Player trainers:Trainers)
     {Map.init TestMap InstructionsPort Speed DELAY}
     {Map.drawMap}
     {Map.drawPikachuAtPosition  VictoryPosition}
@@ -66,18 +75,37 @@ define
     {FightMod.setInterface Interface}
   end
 
+  fun {PositionIsFree GameState Position}
+    fun {PositionIsFreeRec Trainers}
+      case Trainers
+      of nil then true
+      [] Trainer|T then
+        if Trainer.position == Position then false
+        else {PositionIsFreeRec T} end
+      end
+    end
+  in
+    {PositionIsFreeRec GameState.trainers}
+  end
+
   fun {PlayerCanMoveInDirection GameState Direction}
-    case Direction
-    of up    then GameState.player.position.y \= 0
-    [] right then GameState.player.position.x \= MapWidth-1
-    [] down  then GameState.player.position.y \= MapHeight-1
-    [] left  then GameState.player.position.x \= 0
+    NewPosition = {Lib.positionInDirection GameState.player.position Direction}
+  in
+    if {PositionIsFree GameState NewPosition} then
+      case Direction
+      of up    then GameState.player.position.y \= 0
+      [] right then GameState.player.position.x \= MapWidth-1
+      [] down  then GameState.player.position.y \= MapHeight-1
+      [] left  then GameState.player.position.x \= 0
+      end
+    else % Position was not free.
+      false
     end
   end
 
   fun {MovePlayer GameState Direction}
     {Map.movePlayer Direction}
-    {GameStateMod.movePlayer GameState Direction}
+    {GameStateMod.updatePlayer GameState {PlayerMod.updatePositionInDirection GameState.player Direction}}
   end
 
   fun {TestWildPokemozMeeting GameState}
@@ -86,8 +114,8 @@ define
      else
        {Lib.debug player_on_grass}
        if {Lib.rand 100} >= WildPokemozProba then
-         {Lib.debug player_meet_wild_pokemon} true
-       else false
+         {Lib.debug player_meet_wild_pokemon} false
+       else true
        end
      end
   end
@@ -111,7 +139,7 @@ define
   end
 
   fun {MeetWildPokemoz GameState}
-    WildPokemoz  = {Characters.summonWildPokemon GameState}
+    WildPokemoz  = {CharactersMod.summonWildPokemon GameState}
     WildPlayer   = player(name:nil image:characters_wild position:nil pokemoz_list:[WildPokemoz] selected_pokemoz:1)
     {Interface.updatePlayer2 WildPlayer}
     WantsToFight = {Interface.askQuestion "You meet a wild pokemoz." "Run!" "Fight!"}
