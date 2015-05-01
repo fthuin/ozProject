@@ -91,15 +91,19 @@ define
   fun {PlayerCanMoveInDirection GameState Direction}
     NewPosition = {Lib.positionInDirection GameState.player.position Direction}
   in
-    if {PositionIsFree GameState NewPosition} then
-      case Direction
-      of up    then GameState.player.position.y \= 0
-      [] right then GameState.player.position.x \= MapWidth-1
-      [] down  then GameState.player.position.y \= MapHeight-1
-      [] left  then GameState.player.position.x \= 0
+    if GameState.player.position == HospitalPosition andthen Direction\=down then
+      false % Can only exit hospital by going down...
+    else
+      if {PositionIsFree GameState NewPosition} then
+        case Direction
+        of up    then GameState.player.position.y \= 0
+        [] right then GameState.player.position.x \= MapWidth-1
+        [] down  then GameState.player.position.y \= MapHeight-1
+        [] left  then GameState.player.position.x \= 0
+        end
+      else % Position was not free.
+        false
       end
-    else % Position was not free.
-      false
     end
   end
 
