@@ -25,22 +25,17 @@ define
   NO = "No"
   YES = "Yes"
 
-   %% Game parameters
-   Map MapPath
-   WildPokemozProba
-   Speed
-   AutoFight
-   DELAY
+  % Get Parameters
+  MapPath WildPokemozProba Speed AutoFight Delay
+  {Lib.getArgs MapPath WildPokemozProba Speed AutoFight Delay}
+  {Lib.debug arguments_parsed}
 
-   {Lib.debug start_args}
-   {Lib.getArgs MapPath WildPokemozProba Speed AutoFight DELAY}
-   {Lib.debug args_recuperes}
-   Map = {MapMod.loadMapFromFile MapPath}
+  Map = {MapMod.loadMapFromFile MapPath}
+  {Lib.debug map_loaded}
 
   % Intro - Ask player for name and starting pokemoz
   PlayerName  = "Greg"
   PokemozName = bulbasoz
-
   /*PlayerName
   PokemozName
   {GameIntro.getUserChoice PlayerName PokemozName}*/
@@ -74,7 +69,7 @@ define
     InstructionsPort = {NewPort InstructionsStream}
   in
     GameState = game_state(turn:0 player:Player trainers:Trainers)
-    {MapMod.init Map InstructionsPort Speed DELAY}
+    {MapMod.init Map InstructionsPort Speed Delay}
     {MapMod.drawMap}
     {MapMod.drawPikachuAtPosition  VictoryPosition}
     {MapMod.drawBrockAtPosition    BrockPosition}
