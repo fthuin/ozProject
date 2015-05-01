@@ -5,11 +5,40 @@ export
   DealDamage
   Evolve
   BaseXpForLevel
+  New
+  WildPokemonLvl
   MinLevel
   MaxLevel
+  Grass
+  Water
+  Fire
+  Ground
 define
   MinLevel  = 5
   MaxLevel  = 10
+  Grass     = grass
+  Water     = water
+  Fire      = fire
+  Ground    = ground
+  Ground    = poison
+
+  fun {New Name Type Level}
+    pokemoz(name:   Name
+            type:   Type
+            level:  Level
+            health: {PokemozMod.maxHealth Level}
+            xp:     {PokemozMod.baseXpForLevel Level}
+    )
+  end
+
+  fun {WildPokemonLvl Turn}
+     ComputedLevel = 4 + {Lib.rand ((Turn div 10)+1)}
+  in
+     if ComputedLevel > PokemozMod.maxLevel then PokemozMod.maxLevel
+     else ComputedLevel
+     end
+  end
+
 
   fun {MaxHealth Level}
      Level * 4

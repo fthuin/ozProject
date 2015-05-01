@@ -55,18 +55,19 @@ define
    {AddPhoto pokemoz poliwag}
    {AddPhoto pokemoz ponyta}
    {AddPhoto pokemoz vulpix}
+   {AddPhoto pokemoz onix}
+   {AddPhoto pokemoz geodude}
+   {AddPhoto pokemoz koffing}
 
    % Add characters
    {AddPhoto characters brock}
    {AddPhoto characters james}
-   {AddPhoto characters may}
    {AddPhoto characters misty}
    {AddPhoto characters player}
    {AddPhoto characters wild}
 
    {AddPhoto characters brock_small}
    {AddPhoto characters james_small}
-   {AddPhoto characters may_small}
    {AddPhoto characters misty_small}
 
    % Add types
@@ -77,6 +78,7 @@ define
    {AddPhoto types ground}
    {AddPhoto types normal}
    {AddPhoto types water}
+   {AddPhoto types poison}
 
    % Add various
    {AddPhoto various hospital}
