@@ -26,14 +26,7 @@ define
    ROAD  = 1
 
    % Params
-   Map
-   Speed
-   DelayParam
-   InstructionsPort
-
-   % Local variables
-   MapHeight
-   MapWidth
+   TurnDuration
 
    % Handles
    MapCanvasHandle
@@ -41,16 +34,11 @@ define
    BrockHandle
    MistyHandle
    JamesHandle
-   MapWindow
 
    % Private methods
 
    fun {GetImage Name}
       {ImageLibrary get(name:Name image:$)}
-   end
-
-   fun {TurnDuration}
-      (10-Speed)*DelayParam
    end
 
    % Coordinates from position helpers
@@ -92,21 +80,17 @@ define
    end
 
    % Public methods
-   proc {Init M P S D}
-      Map               = M
-      Speed             = S
-      DelayParam        = D
-      InstructionsPort  = P
+   proc {Init Placeholder Map Speed DelayParam}
       MapHeight         = {Width Map}
       MapWidth          = {Width Map.1}
+      TurnDuration      = (10-Speed)*DelayParam
+      Canvas            = canvas(width:MapWidth*TILE_SIZE height:MapHeight*TILE_SIZE handle:MapCanvasHandle)
+   in
+      {Placeholder set(Canvas)}
+      {DrawMap Map}
    end
 
-   proc {DrawMap}
-      proc {CreateMapCanvas} MapCanvas in
-	       MapCanvas = canvas(width:MapWidth*TILE_SIZE height:MapHeight*TILE_SIZE handle:MapCanvasHandle)
-         MapWindow = {QTk.build lr(MapCanvas)}
-      end
-
+   proc {DrawMap Map}
       fun {AddTileAt Type X Y} ImageName in
         ImageName = if Type==GRASS then textures_grass elseif Type==ROAD then textures_road end
         create(image {XCoord X} {YCoord Y} anchor:nw image:{GetImage ImageName})
@@ -127,6 +111,7 @@ define
 
       proc {Draw}
         proc {RecDraw RowsList RowNumber}
+          {Lib.debug lol}
           case RowsList
           of nil then skip
           [] Row|RemainingRows then
@@ -135,14 +120,11 @@ define
           end
         end
       in
+        {Lib.debug lol}
         {RecDraw {Record.toList Map} 0}
       end
    in
-      {CreateMapCanvas}
       {Draw}
-      {MapWindow show}
-      {MapWindow set(geometry:geometry(x:0 y:0 width:1038 height:600))}
-      {Lib.bindKeyboardActions MapWindow InstructionsPort}
       {Lib.debug map_drawn}
    end
 

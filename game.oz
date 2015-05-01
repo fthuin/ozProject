@@ -2,6 +2,7 @@ functor
 import
   Application
   System
+  Module
   Lib           at 'lib.ozf'
   CharactersMod at 'characters.ozf'
   MapMod        at 'map.ozf'
@@ -13,6 +14,7 @@ import
   PokemozMod    at 'pokemoz.ozf'
 define
   {System.show game_started}
+  [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
 
   % Messages
   UNABLE_TO_FIGHT = "You meet a wild pokemoz but cannot fight since all your pokemons are injured. Visit the hospital!"
@@ -60,25 +62,45 @@ define
 
   % Setup intial game state
   InstructionsStream
-  GameState
 
-  proc {InitGame}
+  proc {BindKeyboardActions Window}
+     {Window bind(event:"<Up>"    action:proc{$} {Send InstructionsStream up}     end)}
+     {Window bind(event:"<Left>"  action:proc{$} {Send InstructionsStream left}   end)}
+     {Window bind(event:"<Down>"  action:proc{$} {Send InstructionsStream down}   end)}
+     {Window bind(event:"<Right>" action:proc{$} {Send InstructionsStream right}  end)}
+     {Window bind(event:"<space>" action:proc{$} {Send InstructionsStream finish} end)}
+  end
+
+  fun {InitGame}
     StartingPos      = pos(x:MapWidth-1 y:MapHeight-1)
     Player           = player(name:PlayerName image:characters_player position:StartingPos selected_pokemoz:1
                               pokemoz_list:[CharactersMod.basePokemoz.PokemozName])
+    GameState        = game_state(turn:0 player:Player trainers:Trainers)
     InstructionsPort = {NewPort InstructionsStream}
+    MapPlaceHolder
+    InterfacePlaceHolder
+    Window = {QTk.build td(placeholder(glue:n handle:MapPlaceHolder       background:red   width:1100 height:600)
+                           placeholder(glue:s handle:InterfacePlaceHolder background:green width:1100 height:250))}
   in
-    GameState = game_state(turn:0 player:Player trainers:Trainers)
-    {MapMod.init Map InstructionsPort Speed Delay}
-    {MapMod.drawMap}
+    {Window show}
+    {Window set(geometry:geometry(width:1 height:1))}
+    {Lib.debug here}
+    % Init map
+    {MapMod.init MapPlaceHolder Map Speed Delay}
+    {Lib.debug here}
     {MapMod.drawPikachuAtPosition  VictoryPosition}
     {MapMod.drawBrockAtPosition    BrockPosition}
     {MapMod.drawMistyAtPosition    MistyPosition}
     {MapMod.drawJamesAtPosition    JamesPosition}
     {MapMod.drawPlayerAtPosition   StartingPos}
     {MapMod.drawHospitalAtPosition HospitalPosition}
+
+    % Init interface
     {Interface.init GameState InstructionsPort}
     {FightMod.setInterface Interface}
+    {BindKeyboardActions Window}
+    {Window set(geometry:geometry(width:1100 height:850))}
+    GameState
   end
 
   fun {PositionIsFree GameState Position}
@@ -237,6 +259,6 @@ define
   end
 
   % Startup
-  {InitGame}
-  {GameLoop InstructionsStream GameState}
+
+  {GameLoop InstructionsStream {InitGame}}
 end

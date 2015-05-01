@@ -199,7 +199,6 @@ define
      Interface = lr(title:"My Pokemoz" resizable:resizable(width:false height:false) background:black
                     Player1Placeholder CenterPlaceholder Player2Placeholder)
      Window    = {QTk.build Interface}
-     {Lib.bindKeyboardActions Window InstructionsPort}
    in
      {Window show}
      {Window set(geometry:geometry(x:0 y:600 width:1 height:1))}
