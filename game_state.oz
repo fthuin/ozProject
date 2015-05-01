@@ -5,7 +5,6 @@ export
   UpdatePlayer
   IncrementTurn
   HealPokemoz
-  CapturePokemoz
 define
   fun {UpdatePlayer GameState NewPlayer}
     case GameState

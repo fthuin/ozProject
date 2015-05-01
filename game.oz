@@ -22,7 +22,7 @@ define
                 r(0 0 0 1 1 1 1)
                 r(0 0 0 1 1 0 0)
                 r(0 0 0 0 0 0 0))
-  WildPokemozProba = 15
+  WildPokemozProba = 50
   Speed = 8
   DELAY = 200
 
@@ -146,37 +146,52 @@ define
     WildPokemoz  = {CharactersMod.summonWildPokemon GameState}
     WildPlayer   = player(name:nil image:characters_wild position:nil pokemoz_list:[WildPokemoz] selected_pokemoz:1)
     {Interface.updatePlayer2 WildPlayer}
-    WantsToFight = {Interface.askQuestion "You meet a wild pokemoz." "Run!" "Fight!"}
   in
-    if WantsToFight==1 then EndAttackingPlayer AfterFightState FightResult in
-      {Lib.debug fight_started_with_wild_pokemoz(WildPokemoz)}
-      FightResult      = {FightMod.fight GameState.player WildPlayer EndAttackingPlayer _}
-      AfterFightState  = {GameStateMod.updatePlayer GameState EndAttackingPlayer}
-
-      if FightResult==victory andthen {PokemozCount AfterFightState.player} < 3 then
-        WantsToCapture = {Interface.askQuestion "Capture defeated pokemoz?" "No"  "Yes"}
-      in
-        if WantsToCapture==1 then
-          NewPlayer = {PlayerMod.capturePokemoz AfterFightState.player {PokemozMod.setHealth WildPokemoz 0}}
-        in
-          {Interface.clearPlayer2}
-          {Lib.debug pokemoz_captured(NewPlayer.pokemoz_list)}
-          {Interface.updatePlayer1 NewPlayer}
-          {Interface.selectPlayer1Panel {PokemozCount NewPlayer}}
-          {GameStateMod.updatePlayer AfterFightState NewPlayer}
-        else
-          {Interface.clearPlayer2}
-          AfterFightState
-        end
-      else
-        {Interface.clearPlayer2}
-        AfterFightState
-      end
-    else % Player run from fight. No change in GameState.
-      {Lib.debug player_run_from_fight}
+    if {PokemozMod.allPokemozAreDead GameState.player.pokemoz_list} then % Cannot fight
+      {Lib.debug player_cannot_fight}
+      {Interface.writeMessage "You meet a wild pokemoz but cannot fight. All your pokemoz are injured. Visit the hospital"}
       {Interface.clearPlayer2}
       GameState
-    end
+    else % Can fight
+      WantsToFight = {Interface.askQuestion "You meet a wild pokemoz." "Run!" "Fight!"}
+    in
+      if WantsToFight==1 then % Wants to fight
+        EndAttackingPlayer AfterFightState FightResult
+      in
+        {Lib.debug fight_started_with_wild_pokemoz(WildPokemoz)}
+        FightResult      = {FightMod.fight GameState.player WildPlayer EndAttackingPlayer _}
+        AfterFightState  = {GameStateMod.updatePlayer GameState EndAttackingPlayer}
+
+        if FightResult==victory andthen {PokemozCount AfterFightState.player} < 3 then % Can capture
+          WantsToCapture = {Interface.askQuestion "Capture defeated pokemoz?" "No"  "Yes"}
+        in
+          if WantsToCapture==1 then
+            NewPlayer = {PlayerMod.capturePokemoz AfterFightState.player {PokemozMod.setHealth WildPokemoz 0}}
+          in
+            {Interface.clearPlayer2}
+            {Lib.debug pokemoz_captured(NewPlayer.pokemoz_list)}
+            {Interface.updatePlayer1 NewPlayer}
+            {Interface.selectPlayer1Panel {PokemozCount NewPlayer}}
+            {GameStateMod.updatePlayer AfterFightState NewPlayer}
+          else
+            {Interface.clearPlayer2}
+            AfterFightState
+          end
+        elseif FightResult==defeat then
+          {Interface.writeMessage "You lost this fight! You should visit the hospital to heal your pokemons."}
+          {Interface.clearPlayer2}
+          AfterFightState
+        else % Cannot capture
+          {Interface.writeMessage "Congratulations on winning this fight! You cannot capture this pokemon since your already own 3 pokemons"}
+          {Interface.clearPlayer2}
+          AfterFightState
+        end % Can capture
+      else % Dont want to fight - Player run from fight. No change in GameState.
+        {Lib.debug player_run_from_fight}
+        {Interface.clearPlayer2}
+        GameState
+      end % WantsToFight
+    end % Can fight
   end
 
 

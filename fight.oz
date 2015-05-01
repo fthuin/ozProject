@@ -16,7 +16,7 @@ define
   fun {IsAttackSuccess AttackerPokemoz DefenderPokemoz}
      SuccessProba = (6 + AttackerPokemoz.level - DefenderPokemoz.level) * 9
   in
-     {Lib.rand 100} >= SuccessProba
+     {Lib.rand 100} =< SuccessProba
   end
 
   % Return resulting defender after an attack.
@@ -34,13 +34,6 @@ define
     else % Current attacker is original defender.
        EndAttacker = CurrentD
        EndDefender = CurrentA
-    end
-  end
-
-  fun {AllPokemozAreDead PokemozList}
-    case PokemozList
-    of nil then true
-    [] H|T then if H.health==0 then {AllPokemozAreDead T} else false end
     end
   end
 
@@ -65,7 +58,7 @@ define
     in
       {UpdateInterface EndDefendingPlayer}
       % Fight is over
-      if {AllPokemozAreDead EndDefendingPlayer.pokemoz_list} then AfterEvolutionAttackingPlayer in
+      if {PokemozMod.allPokemozAreDead EndDefendingPlayer.pokemoz_list} then AfterEvolutionAttackingPlayer in
         {Lib.debug fight_is_over(winner:CurrentAttackingPlayer looser:EndDefendingPlayer)}
         AfterEvolutionAttackingPlayer = {PlayerMod.evolveSelectedPokemoz CurrentAttackingPlayer DefendingPokemoz}
         {AssignEndingStates Round AfterEvolutionAttackingPlayer EndDefendingPlayer EndAttacker EndDefender}

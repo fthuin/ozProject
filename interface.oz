@@ -8,6 +8,7 @@ export
   UpdatePlayer1
   UpdatePlayer2
   AskQuestion
+  WriteMessage
   ClearPlayer2
   SelectPlayer1Panel
 define
@@ -99,7 +100,7 @@ define
         pady:20
         glue:nesw
         background:white
-        label(justify:center handle:LabelH background:white height:2 wraplength:100)
+        label(justify:center handle:LabelH background:white height:6 width:20 wraplength:160)
         lr(background:white
           button(handle:Button0H width:10)
           button(handle:Button1H width:10)
@@ -230,5 +231,19 @@ define
     {CenterAreaHandles.button1 set(state:normal text:Btn1Text action:HitBtn1)}
     if Answer==1 then {Cleanup} 1 else {Cleanup} 0 end
   end
+
+  proc {WriteMessage Message}
+    Answer
+    proc {HitBtn0} Answer=0 end
+    proc {Cleanup}
+      {CenterAreaHandles.label   set(text:nil)}
+      {CenterAreaHandles.button0 set(state:disabled text:nil)}
+    end
+  in
+    {CenterAreaHandles.label   set(text:Message)}
+    {CenterAreaHandles.button0 set(state:normal text:"Got it!" action:HitBtn0)}
+    if Answer==1 then {Cleanup} else {Cleanup} end
+  end
+
 
 end
