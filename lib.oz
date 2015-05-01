@@ -1,12 +1,15 @@
 functor
 import
-  System
-  OS
+   Application
+   Property
+   System
+   OS
 export
-  Debug
-  Rand
-  ReplaceNthInList
-  PositionInDirection
+   Debug
+   Rand
+   ReplaceNthInList
+   PositionInDirection
+   GetArgs
 define
   proc {Debug Msg}
      {System.show Msg}
@@ -33,5 +36,43 @@ define
     [] left  then pos(x:Pos.x-1 y:Pos.y)
     end
   end
+
+   proc {GetArgs Map Probability Speed AutoFight DELAY}
+      %% Default values
+      MAP = 'Map.txt'
+      PROBABILITY = 15
+      SPEED = 8
+      AUTOFIGHT = false
+      Args Say
+   in
+      Args = {Application.getArgs
+	      record(
+		 map(single char:&m type:atom default:MAP)
+		 probability(single char:&p type:int default:PROBABILITY)
+		 speed(single char:&s type:int default:SPEED)
+		 autofight(single char:&a type:bool default:AUTOFIGHT)
+		 help(single char:[&? &h] default:false)
+		 )}
+
+      %% Help message
+      Say = System.showInfo
+      if Args.help then
+	 {Say "Usage: "#{Property.get 'application.url'}#" [option]"}
+	 {Say "Options:"}
+	 {Say "  -m, --map FILE\tFile containing the map (default "#MAP#")"}
+	 {Say "  -p, --probability INT\tProbability to find a wild pokemoz in tall grass"}
+	 {Say "  -s, --speed INT\tThe speed of your pokemoz trainer in a range from 0 to 10"}
+	 {Say "  -a, --autofight INT\tInitial number of bullets"}
+	 {Say "  -h, -?, --help\tThis help"}
+	 {Application.exit 0}
+      end
+
+      Map = Args.map
+      Probability = Args.probability
+      Speed = Args.speed
+      AutoFight = Args.autofight
+      DELAY = 200
+      %% TODO : Vérifier la qualité des arguments
+   end
 
 end

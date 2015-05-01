@@ -12,18 +12,23 @@ import
   PlayerMod     at 'player.ozf'
   PokemozMod    at 'pokemoz.ozf'
 define
-  {System.show game_started}
+   {System.show game_started}
 
-  % Temporary game parameters
-   TestMap
-   {Map.loadMapFromFile 'Map.txt' TestMap}
-  WildPokemozProba = 15
-  Speed = 8
-  DELAY = 200
+   %% Temporary game parameters
+   TestMap MapPath
+   WildPokemozProba
+   Speed
+   AutoFight
+   DELAY
 
-  % Intro - Ask player for name and starting pokemoz
-  PlayerName  = "Greg"
-  PokemozName = bulbasoz
+   {Lib.debug start_args}
+   {Lib.getArgs MapPath WildPokemozProba Speed AutoFight DELAY}
+   {Lib.debug args_recuperes}
+   {Map.loadMapFromFile MapPath TestMap}
+
+   %% Intro - Ask player for name and starting pokemoz
+   PlayerName  = "Greg"
+   PokemozName = bulbasoz
 
   /*PlayerName
   PokemozName
