@@ -1,5 +1,6 @@
 functor
 import
+   Pickle
    Module
    Lib at 'lib.ozf'
 export
@@ -13,6 +14,7 @@ export
    DrawJamesAtPosition
    MovePlayer
    IsRoad
+   LoadMapFromFile
 define
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
    ImageLibrary = {QTk.loadImageLibrary "ImageLibrary.ozf"}
@@ -224,6 +226,10 @@ define
 
     fun {IsRoad Position}
       Map.(Position.y+1).(Position.x+1) == ROAD
+    end
+
+    fun {LoadMapFromFile Path}
+       {Pickle.load Path}
     end
 
 end

@@ -12,6 +12,7 @@ export
   HealPokemoz
   EvolveSelectedPokemoz
   CapturePokemoz
+  GetWildPlayer
 define
   fun {UpdatePokemoz Player NewPokemoz Index}
     case Player
@@ -79,5 +80,10 @@ define
     then player(name:Name image:Img position:Pos pokemoz_list:{Append PokemozList [NewPokemoz]} selected_pokemoz:SP)
     end
   end
+
+  fun {GetWildPlayer WildPokemoz}
+    player(name:nil image:characters_wild position:nil pokemoz_list:[WildPokemoz] selected_pokemoz:1)
+  end
+
 
 end

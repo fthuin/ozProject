@@ -1,7 +1,6 @@
 functor
 import
    Module
-   Lib at 'lib.ozf'
 export
    GetUserChoice
 define
