@@ -34,6 +34,9 @@ define
   MapWidth    = {Width TestMap.1}
   VictoryPosition  = pos(x:MapWidth-1 y:0)
   HospitalPosition = pos(x:(MapWidth div 2) y:(MapHeight div 2))
+  BrockPosition    = pos(x:VictoryPosition.x-1 y:VictoryPosition.y+1)
+  MistyPosition    = pos(x:HospitalPosition.x-2 y:HospitalPosition.y-1)
+  JamesPosition    = pos(x:2 y:(MapHeight-2))
 
   % Setup intial game state
   InstructionsStream
@@ -50,8 +53,11 @@ define
     GameState = game_state(turn:0 player:Player trainers:Characters.trainers)
     {Map.init TestMap InstructionsPort Speed DELAY}
     {Map.drawMap}
-    {Map.drawPikachuAtPosition VictoryPosition}
-    {Map.drawPlayerAtPosition StartingPos}
+    {Map.drawPikachuAtPosition  VictoryPosition}
+    {Map.drawBrockAtPosition    BrockPosition}
+    {Map.drawMistyAtPosition    MistyPosition}
+    {Map.drawJamesAtPosition    JamesPosition}
+    {Map.drawPlayerAtPosition   StartingPos}
     {Map.drawHospitalAtPosition HospitalPosition}
     {Interface.init GameState}
     {FightMod.setInterface Interface}
