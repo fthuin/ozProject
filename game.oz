@@ -6,7 +6,7 @@ import
   Characters    at 'characters.ozf'
   Map           at 'map.ozf'
   Interface     at 'interface.ozf'
-  Fight         at 'fight.ozf'
+  FightMod      at 'fight.ozf'
   GameIntro     at 'gameIntro.ozf'
   GameStateMod  at 'game_state.ozf'
 define
@@ -54,7 +54,7 @@ define
     {Map.drawPlayerAtPosition StartingPos}
     {Map.drawHospitalAtPosition HospitalPosition}
     {Interface.init GameState}
-    {Fight.setInterface Interface}
+    {FightMod.setInterface Interface}
   end
 
   fun {PlayerCanMoveInDirection GameState Direction}
@@ -114,13 +114,19 @@ define
       if {CheckHospitalCondition AfterMoveState} then
         AfterFightState = {HealPokemoz AfterMoveState}
       elseif {TestWildPokemozMeeting AfterMoveState} then
-        Answer = {Interface.askQuestion "Do you wanna fight?" "Yes" "No"}
+        WildPokemoz = {Characters.summonWildPokemon AfterMoveState}
+        WildPlayer  = player(name:nil image:characters_wild position:nil pokemoz_list:[WildPokemoz] selected_pokemoz:1)
+        {Interface.updatePlayer2 WildPlayer}
+        WantsToFight = {Interface.askQuestion "Do you wanna fight?" "No"  "Yes"}
+        EndAttackingPlayer
       in
-        if Answer==1 then
-          {Lib.debug player_wants_to_fight}
-          AfterFightState = {Fight.fightWildPokemoz AfterMoveState}
+        if WantsToFight==1 then
+          {Lib.debug fight_started_with_wild_pokemoz(WildPokemoz)}
+          {FightMod.fight AfterMoveState.player WildPlayer EndAttackingPlayer _}
+          AfterFightState = {GameStateMod.updatePlayer AfterMoveState EndAttackingPlayer}
         else
           {Lib.debug player_run_from_fight}
+          {Interface.clearPlayer2}
           AfterFightState = AfterMoveState
         end
 

@@ -4,7 +4,13 @@ export
   SetMaxHealth
   DealDamage
   Evolve
+  BaseXpForLevel
+  MinLevel
+  MaxLevel
 define
+  MinLevel  = 5
+  MaxLevel  = 10
+
   fun {MaxHealth Level}
      Level * 4
   end
@@ -21,6 +27,17 @@ define
         [] water#grass  then 1
         end
      end
+  end
+
+  fun {BaseXpForLevel Level}
+    case Level
+    of 5  then 0
+    [] 6  then 5
+    [] 7  then 12
+    [] 8  then 20
+    [] 9  then 30
+    [] 10 then 50
+    end
   end
 
   fun {LevelForXp Xp}

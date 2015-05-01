@@ -91,17 +91,17 @@ define
    end
 
    fun {CreateCenterArea}
-     LabelH Button1H Button2H
+     LabelH Button0H Button1H
    in
-     CenterAreaHandles = handles(label:LabelH button1:Button1H button2:Button2H)
+     CenterAreaHandles = handles(label:LabelH button0:Button0H button1:Button1H)
      td(
         pady:20
         glue:nesw
         background:white
         label(justify:center handle:LabelH background:white height:2 wraplength:100)
         lr(background:white
+          button(handle:Button0H width:10)
           button(handle:Button1H width:10)
-          button(handle:Button2H width:10)
         )
      )
    end
@@ -210,15 +210,20 @@ define
     {ClearPlayerInterface Player2Handles}
   end
 
-  fun {AskQuestion QuestionText Button1Text Button2Text}
+  fun {AskQuestion QuestionText Btn0Text Btn1Text}
     Answer
+    proc {HitBtn0} Answer=0 end
     proc {HitBtn1} Answer=1 end
-    proc {HitBtn2} Answer=2 end
+    proc {Cleanup}
+      {CenterAreaHandles.label   set(text:nil)}
+      {CenterAreaHandles.button0 set(state:disabled text:nil)}
+      {CenterAreaHandles.button1 set(state:disabled text:nil)}
+    end
   in
     {CenterAreaHandles.label   set(text:QuestionText)}
-    {CenterAreaHandles.button1 set(state:normal text:Button1Text action:HitBtn1)}
-    {CenterAreaHandles.button2 set(state:normal text:Button2Text action:HitBtn2)}
-    if Answer==1 then 1 else 2 end
+    {CenterAreaHandles.button0 set(state:normal text:Btn0Text action:HitBtn0)}
+    {CenterAreaHandles.button1 set(state:normal text:Btn1Text action:HitBtn1)}
+    if Answer==1 then {Cleanup} 1 else {Cleanup} 0 end
   end
 
 end

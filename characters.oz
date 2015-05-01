@@ -1,6 +1,7 @@
 functor
 import
-  Lib at 'lib.ozf'
+  PokemozMod at 'pokemoz.ozf'
+  Lib        at 'lib.ozf'
 export
   BasePokemoz
   SummonWildPokemon
@@ -10,22 +11,18 @@ define
   WATER = water
   FIRE  = fire
 
-  % Base pokemoz
-  POKEMOZ_MIN_LEVEL  = 5
-  POKEMOZ_MAX_LEVEL  = 10
-  POKEMOZ_BASE_XP    = 0
-
   fun {NewPokemon Name Type Level}
-    pokemoz(name:Name
-            type:Type
-            level:Level
-            health:20
-            xp:POKEMOZ_BASE_XP)
+    pokemoz(name:   Name
+            type:   Type
+            level:  Level
+            health: {PokemozMod.maxHealth Level}
+            xp:     {PokemozMod.baseXpForLevel Level}
+    )
   end
 
-  Bulbasoz   = {NewPokemon bulbasoz   GRASS POKEMOZ_MIN_LEVEL}
-  Oztirtle   = {NewPokemon oztirtle   WATER POKEMOZ_MIN_LEVEL}
-  Charmandoz = {NewPokemon charmandoz FIRE  POKEMOZ_MIN_LEVEL}
+  Bulbasoz   = {NewPokemon bulbasoz   GRASS PokemozMod.minLevel}
+  Oztirtle   = {NewPokemon oztirtle   WATER PokemozMod.minLevel}
+  Charmandoz = {NewPokemon charmandoz FIRE  PokemozMod.minLevel}
 
 
   WildPokemozBreedsList = [
@@ -47,7 +44,7 @@ define
   fun {GenerateWildPokemozLevel Turn}
      ComputedLevel = 4 + {Lib.rand ((Turn div 10)+1)}
   in
-     if ComputedLevel > POKEMOZ_MAX_LEVEL then POKEMOZ_MAX_LEVEL
+     if ComputedLevel > PokemozMod.maxLevel then PokemozMod.maxLevel
      else ComputedLevel
      end
   end

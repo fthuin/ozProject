@@ -6,7 +6,7 @@ import
   PlayerMod  at 'player.ozf'
   GameState  at 'game_state.ozf'
 export
-  FightWildPokemoz
+  Fight
   SetInterface
 define
   Interface
@@ -87,15 +87,4 @@ define
      {RecFight AttackingPlayer DefendingPlayer 0}
   end
 
-  % Public
-  fun {FightWildPokemoz InitialState}
-    WildPokemoz = {Characters.summonWildPokemon InitialState}
-    WildPlayer  = player(name:nil image:characters_wild position:nil pokemoz_list:[WildPokemoz] selected_pokemoz:1)
-    EndAttackingPlayer
-  in
-    {Lib.debug fight_started_with_wild_pokemoz(WildPokemoz)}
-    {Interface.updatePlayer2 WildPlayer}
-    {Fight InitialState.player WildPlayer EndAttackingPlayer _}
-    {GameState.updatePlayer InitialState EndAttackingPlayer}
-  end
 end
