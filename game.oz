@@ -25,8 +25,8 @@ define
   DELAY = 200
 
   % Intro - Ask player for name and starting pokemoz
-  %PlayerName = "Greg"
-  %PokemozName = bulbasoz
+  PlayerName% = "Greg"
+  PokemozName% = bulbasoz
   {GameIntro.getUserChoice PlayerName PokemozName}
 
   % Save some map info
