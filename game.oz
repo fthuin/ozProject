@@ -114,7 +114,16 @@ define
       if {CheckHospitalCondition AfterMoveState} then
         AfterFightState = {HealPokemoz AfterMoveState}
       elseif {TestWildPokemozMeeting AfterMoveState} then
-        AfterFightState = {Fight.fightWildPokemoz AfterMoveState}
+        Answer = {Interface.askQuestion "Do you wanna fight?" "Yes" "No"}
+      in
+        if Answer==1 then
+          {Lib.debug player_wants_to_fight}
+          AfterFightState = {Fight.fightWildPokemoz AfterMoveState}
+        else
+          {Lib.debug player_run_from_fight}
+          AfterFightState = AfterMoveState
+        end
+
       else
         AfterFightState = AfterMoveState
       end

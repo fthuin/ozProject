@@ -210,35 +210,15 @@ define
     {ClearPlayerInterface Player2Handles}
   end
 
-
-  % Used to ask question to the player.
-  % We use the central area for that.
-  % All the handles are in this variable: CenterAreaHandles
-  % It a record like this: handles(label:LabelH button1:Button1H button2:Button2H)
-  % Must set the text on both buttons, and get the answer (1 or 2 depending of the buttons selected)
   fun {AskQuestion QuestionText Button1Text Button2Text}
-     AskQuestionStream AskQuestionPort
-     {NewPort AskQuestionStream AskQuestionPort}
-     Answer
-     proc {AskQuestionServer Stream}
-	      case Stream
-        of fight|T then Answer=1
-	      [] run|T then Answer=2
-	      [] _|T then {AskQuestionServer T}
-	      end
-     end
+    Answer
+    proc {HitBtn1} Answer=1 end
+    proc {HitBtn2} Answer=2 end
   in
-     case CenterAreaHandles
-     of handles(label:LabelH button1:Button1H button2:Button2H) then
-        {LabelH set("Wow ! Do you think you can handle a fight ?")}
-        {Button1H set(text:"Fight")}
-        {Button1H set(state:normal)}
-        {Button1H set(action:proc{$} {Send AskQuestionPort fight} end)}
-        {Button2H set(text:"Run")}
-        {Button2H set(state:normal)}
-        {Button2H set(action:proc{$} {Send AskQuestionPort run} end)}
-        thread {AskQuestionServer AskQuestionStream} end
-        Answer
-     end
+    {CenterAreaHandles.label   set(text:QuestionText)}
+    {CenterAreaHandles.button1 set(state:normal text:Button1Text action:HitBtn1)}
+    {CenterAreaHandles.button2 set(state:normal text:Button2Text action:HitBtn2)}
+    if Answer==1 then 1 else 2 end
   end
+
 end
