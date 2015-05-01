@@ -15,13 +15,8 @@ define
   {System.show game_started}
 
   % Temporary game parameters
-  TestMap = map(r(1 1 1 0 0 0 0)
-                r(1 1 1 0 0 1 1)
-                r(1 1 1 0 0 1 1)
-                r(0 0 0 0 0 1 1)
-                r(0 0 0 1 1 1 1)
-                r(0 0 0 1 1 0 0)
-                r(0 0 0 0 0 0 0))
+   TestMap
+   {Map.loadMapFromFile 'Map.txt' TestMap}
   WildPokemozProba = 15
   Speed = 8
   DELAY = 200

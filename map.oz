@@ -14,6 +14,7 @@ export
    DrawJamesAtPosition
    MovePlayer
    IsRoad
+   LoadMapFromFile
 define
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
    ImageLibrary = {QTk.loadImageLibrary "ImageLibrary.ozf"}
