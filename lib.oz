@@ -67,7 +67,7 @@ define
         {Say "  -m, --map FILE\tFile containing the map (default "#MAP#")"}
         {Say "  -p, --probability INT\tProbability to find a wild pokemoz in tall grass"}
         {Say "  -s, --speed INT\tThe speed of your pokemoz trainer in a range from 0 to 10"}
-        {Say "  -a, --autofight INT\tInitial number of bullets"}
+        {Say "  -a, --autofight BOOL\tChoice weither the game is automatic or not"}
         {Say "  -h, -?, --help\tThis help"}
         {Application.exit 0}
       end
