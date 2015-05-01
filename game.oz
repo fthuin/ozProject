@@ -9,6 +9,8 @@ import
   FightMod      at 'fight.ozf'
   GameIntro     at 'gameIntro.ozf'
   GameStateMod  at 'game_state.ozf'
+  PlayerMod     at 'player.ozf'
+  PokemozMod    at 'pokemoz.ozf'
 define
   {System.show game_started}
 
@@ -25,9 +27,12 @@ define
   DELAY = 200
 
   % Intro - Ask player for name and starting pokemoz
-  PlayerName% = "Greg"
-  PokemozName% = bulbasoz
-  {GameIntro.getUserChoice PlayerName PokemozName}
+  PlayerName  = "Greg"
+  PokemozName = bulbasoz
+
+  /*PlayerName
+  PokemozName
+  {GameIntro.getUserChoice PlayerName PokemozName}*/
 
   % Save some map info
   MapHeight   = {Width TestMap}
@@ -45,9 +50,7 @@ define
   proc {InitGame}
     StartingPos      = pos(x:MapWidth-1 y:MapHeight-1)
     Player           = player(name:PlayerName image:characters_player position:StartingPos selected_pokemoz:1
-                              pokemoz_list:[Characters.basePokemoz.PokemozName
-                                            Characters.basePokemoz.charmandoz
-                                            Characters.basePokemoz.oztirtle])
+                              pokemoz_list:[Characters.basePokemoz.PokemozName])
     InstructionsPort = {NewPort InstructionsStream}
   in
     GameState = game_state(turn:0 player:Player trainers:Characters.trainers)
@@ -103,6 +106,48 @@ define
     NewState
   end
 
+  fun {PokemozCount Player}
+    {Length Player.pokemoz_list}
+  end
+
+  fun {MeetWildPokemoz GameState}
+    WildPokemoz  = {Characters.summonWildPokemon GameState}
+    WildPlayer   = player(name:nil image:characters_wild position:nil pokemoz_list:[WildPokemoz] selected_pokemoz:1)
+    {Interface.updatePlayer2 WildPlayer}
+    WantsToFight = {Interface.askQuestion "You meet a wild pokemoz." "Run!" "Fight!"}
+  in
+    if WantsToFight==1 then EndAttackingPlayer AfterFightState FightResult in
+      {Lib.debug fight_started_with_wild_pokemoz(WildPokemoz)}
+      FightResult      = {FightMod.fight GameState.player WildPlayer EndAttackingPlayer _}
+      AfterFightState  = {GameStateMod.updatePlayer GameState EndAttackingPlayer}
+
+      if FightResult==victory andthen {PokemozCount AfterFightState.player} < 3 then
+        WantsToCapture = {Interface.askQuestion "Capture defeated pokemoz?" "No"  "Yes"}
+      in
+        if WantsToCapture==1 then
+          NewPlayer = {PlayerMod.capturePokemoz AfterFightState.player {PokemozMod.setHealth WildPokemoz 0}}
+        in
+          {Interface.clearPlayer2}
+          {Lib.debug pokemoz_captured(NewPlayer.pokemoz_list)}
+          {Interface.updatePlayer1 NewPlayer}
+          {Interface.selectPlayer1Panel {PokemozCount NewPlayer}}
+          {GameStateMod.updatePlayer AfterFightState NewPlayer}
+        else
+          {Interface.clearPlayer2}
+          AfterFightState
+        end
+      else
+        {Interface.clearPlayer2}
+        AfterFightState
+      end
+    else % Player run from fight. No change in GameState.
+      {Lib.debug player_run_from_fight}
+      {Interface.clearPlayer2}
+      GameState
+    end
+  end
+
+
   proc {GameLoop InstructionsStream GameState}
     case InstructionsStream
     of Instruction|T then AfterMoveState AfterFightState in
@@ -120,22 +165,7 @@ define
       if {CheckHospitalCondition AfterMoveState} then
         AfterFightState = {HealPokemoz AfterMoveState}
       elseif {TestWildPokemozMeeting AfterMoveState} then
-        WildPokemoz = {Characters.summonWildPokemon AfterMoveState}
-        WildPlayer  = player(name:nil image:characters_wild position:nil pokemoz_list:[WildPokemoz] selected_pokemoz:1)
-        {Interface.updatePlayer2 WildPlayer}
-        WantsToFight = {Interface.askQuestion "Do you wanna fight?" "No"  "Yes"}
-        EndAttackingPlayer
-      in
-        if WantsToFight==1 then
-          {Lib.debug fight_started_with_wild_pokemoz(WildPokemoz)}
-          {FightMod.fight AfterMoveState.player WildPlayer EndAttackingPlayer _}
-          AfterFightState = {GameStateMod.updatePlayer AfterMoveState EndAttackingPlayer}
-        else
-          {Lib.debug player_run_from_fight}
-          {Interface.clearPlayer2}
-          AfterFightState = AfterMoveState
-        end
-
+        AfterFightState = {MeetWildPokemoz AfterMoveState}
       else
         AfterFightState = AfterMoveState
       end

@@ -9,6 +9,7 @@ export
   UpdatePlayer2
   AskQuestion
   ClearPlayer2
+  SelectPlayer1Panel
 define
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
    ImageLibrary = {QTk.loadImageLibrary "ImageLibrary.ozf"}
@@ -208,6 +209,10 @@ define
 
   proc {ClearPlayer2}
     {ClearPlayerInterface Player2Handles}
+  end
+
+  proc {SelectPlayer1Panel Index}
+    {Player1Handles.panel selectPanel(Player1Handles.{VirtualString.toAtom panel#Index#handles}.top_level)}
   end
 
   fun {AskQuestion QuestionText Btn0Text Btn1Text}
