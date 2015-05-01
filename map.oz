@@ -228,8 +228,8 @@ define
       Map.(Position.y+1).(Position.x+1) == ROAD
     end
 
-    proc {LoadMapFromFile Path Map}
-       Map = {Pickle.load Path}
+    fun {LoadMapFromFile Path}
+       {Pickle.load Path}
     end
 
 end

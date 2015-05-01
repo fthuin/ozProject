@@ -10,6 +10,7 @@ export
   BaseXpForLevel
   New
   WildPokemonLvl
+  AllPokemozAreDead
   MinLevel
   MaxLevel
   Grass
@@ -196,6 +197,13 @@ define
       NewLevel = {LevelForXp NewXp}
       NewHp    = if NewLevel==Level then Health else {MaxHealth NewLevel} end
     in pokemoz(name:Name type:Type level:NewLevel health:NewHp xp:NewXp)
+    end
+  end
+
+  fun {AllPokemozAreDead PokemozList}
+    case PokemozList
+    of nil then true
+    [] H|T then if H.health==0 then {AllPokemozAreDead T} else false end
     end
   end
 
