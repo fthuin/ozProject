@@ -7,6 +7,10 @@ define
    [QTk]={Module.link ["x-oz://system/wp/QTk.ozf"]}
    ImageLibrary = {QTk.loadImageLibrary "ImageLibrary.ozf"}
 
+   DefaultChosenPokemozLabel = "none"
+   DefaultChosenName = ""
+   
+
    fun {GetImage Name}
       {ImageLibrary get(name:Name image:$)}
    end
@@ -32,9 +36,9 @@ define
    NewGameMsg       = {Title "New game"}
    ChooseNameMsg    = {Subtitle "Choose your name"}
    ChoosePokemozMsg = {Subtitle "Choose your starting Pokemoz"}
-   NameText         = text(glue:n width:15 height:2 return:PlayerName borderwidth:0 highlightthickness:0)
+   NameText         = text(init:DefaultChosenName glue:n width:15 height:2 return:PlayerName borderwidth:0 highlightthickness:0)
 
-   ChoiceLabel   = lr(label(init:"ChosenPokemoz :" bg:white) label(init:"none" handle:ChoiceLabelHandle bg:white return:ChosenPokemoz))
+   ChoiceLabel   = lr(label(init:"ChosenPokemoz :" bg:white) label(init:DefaultChosenPokemozLabel handle:ChoiceLabelHandle bg:white return:ChosenPokemoz))
    StartGameBtn  = button(text:"Start game !" padx:150 pady:20 glue:new bg:white action:toplevel#close)
    SachaCanvas   = canvas(handle:SachaCanvasHandle   width:400 height:350 bg:white borderwidth:0 highlightthickness:0)
    PokemozCanvas = canvas(handle:PokemozCanvasHandle width:300 height:600 bg:white borderwidth:0 highlightthickness:0)
@@ -79,16 +83,27 @@ define
      {SachaCanvasHandle   create(image 110 50  anchor:nw image:{GetImage sacha_large})}
    end
 
+   fun {CheckResult Name Pokemoz}
+      if Name==DefaultChosenName orelse Pokemoz==DefaultChosenPokemozLabel then false
+      else
+	 true
+      end
+   end
 
    proc {GetUserChoice Name PokemozName}
-     Window = {QTk.build MainLayout}
+      Window = {QTk.build MainLayout}
    in
-     {PokemozCanvasHandle bind(event:"<1>" action:SetChoosenPokemonText args:[int(x) int(y)])}
-     {DisplaySachaImage}
-     {DisplayPokemoz}
-     {Window show(wait:true modal:true)}
+      {PokemozCanvasHandle bind(event:"<1>" action:SetChoosenPokemonText args:[int(x) int(y)])}
+      {DisplaySachaImage}
+      {DisplayPokemoz}
+      {Window show(wait:true modal:true)}
 
-     Name = PlayerName
-     PokemozName = {String.toAtom ChosenPokemoz}
+      if {CheckResult PlayerName {String.toAtom ChosenPokemoz}} then
+	 Name = PlayerName
+	 PokemozName = {String.toAtom ChosenPokemoz}
+      else
+	 {Window close}
+	 {GetUserChoice Name PokemozName}
+      end
    end
 end
