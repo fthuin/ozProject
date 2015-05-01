@@ -1,5 +1,6 @@
 functor
 import
+   Pickle
    Module
    Lib at 'lib.ozf'
 export
@@ -224,6 +225,10 @@ define
 
     fun {IsRoad Position}
       Map.(Position.y+1).(Position.x+1) == ROAD
+    end
+
+    proc {LoadMapFromFile Path Map}
+       Map = {Pickle.load Path}
     end
 
 end
