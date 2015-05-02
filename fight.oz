@@ -47,44 +47,45 @@ define
   end
 
   fun {Fight AttackingPlayer DefendingPlayer EndAttacker EndDefender}
-    proc {UpdateInterface Player}
-      if Player.image == characters_player then
-        {InterfaceMod.updatePlayer1 Player}
-      else
-        {InterfaceMod.updatePlayer2 Player}
+    fun {RecFight CAttPlayer CDefPlayer Round}
+      proc {UpdateInterface PlayerA PlayerB}
+        if PlayerA.image == characters_player then
+          {InterfaceMod.updatePlayer1 PlayerA}
+          {InterfaceMod.updatePlayer2 PlayerB}
+        else
+          {InterfaceMod.updatePlayer1 PlayerB}
+          {InterfaceMod.updatePlayer2 PlayerA}
+        end
       end
-    end
-
-    fun {RecFight CurrentAttackingPlayer CurrentDefendingPlayer Round}
-      AttackingPokemoz    = {List.nth CurrentAttackingPlayer.pokemoz_list CurrentAttackingPlayer.selected_pokemoz}
-      DefendingPokemoz    = {List.nth CurrentDefendingPlayer.pokemoz_list CurrentDefendingPlayer.selected_pokemoz}
+      AttackingPokemoz    = {List.nth CAttPlayer.pokemoz_list CAttPlayer.selected_pokemoz}
+      DefendingPokemoz    = {List.nth CDefPlayer.pokemoz_list CDefPlayer.selected_pokemoz}
       EndDefendingPokemoz = {Attack AttackingPokemoz DefendingPokemoz}
-      EndDefendingPlayer  = {PlayerMod.updateCurrentPokemoz CurrentDefendingPlayer EndDefendingPokemoz}
+      EndDefendingPlayer  = {PlayerMod.updateCurrentPokemoz CDefPlayer EndDefendingPokemoz}
     in
-      {UpdateInterface EndDefendingPlayer}
+      if (Round mod 3) == 0 then {UpdateInterface CAttPlayer EndDefendingPlayer} end % Only update every 3 turns to speed up..
       % Fight is over
-      if {PokemozMod.allPokemozAreDead EndDefendingPlayer.pokemoz_list} then AfterEvolutionAttackingPlayer in
-        {Lib.debug fight_is_over(winner:CurrentAttackingPlayer looser:EndDefendingPlayer)}
-        AfterEvolutionAttackingPlayer = {PlayerMod.evolveSelectedPokemoz CurrentAttackingPlayer DefendingPokemoz}
-        {AssignEndingStates Round AfterEvolutionAttackingPlayer EndDefendingPlayer EndAttacker EndDefender}
-        {UpdateInterface AfterEvolutionAttackingPlayer}
+      if {PokemozMod.allPokemozAreDead EndDefendingPlayer.pokemoz_list} then AfterEvoAttPlayer in
+        {Lib.debug fight_is_over(winner:CAttPlayer looser:EndDefendingPlayer)}
+        AfterEvoAttPlayer = {PlayerMod.evolveSelectedPokemoz CAttPlayer DefendingPokemoz}
+        {AssignEndingStates Round AfterEvoAttPlayer EndDefendingPlayer EndAttacker EndDefender}
+        {UpdateInterface AfterEvoAttPlayer EndDefendingPlayer}
         if (Round mod 2) == 0 then victory else defeat end
       % Fight continue to next round
       else FinalDefender in
-        {UpdateInterface EndDefendingPlayer}
         if {SelectedPokemonIsDead EndDefendingPlayer} then
+          {UpdateInterface CAttPlayer EndDefendingPlayer}
           if AutoFight then
             FinalDefender = {PlayerMod.switchToNextPokemoz EndDefendingPlayer}
           else
             ChoosenIndex = {InterfaceMod.choosePokemonToFight EndDefendingPlayer DEAD_CHOOSE_NEXT} in
             FinalDefender = {PlayerMod.updatePokemozSelection EndDefendingPlayer ChoosenIndex}
           end
-          {UpdateInterface EndDefendingPlayer}
+          {UpdateInterface CAttPlayer EndDefendingPlayer}
           {Lib.debug defender_pokemon_is_dead}
         else
           FinalDefender = EndDefendingPlayer
         end
-        {RecFight FinalDefender CurrentAttackingPlayer Round+1} % Switch attack turn
+        {RecFight FinalDefender CAttPlayer Round+1} % Switch attack turn
       end
     end
 
