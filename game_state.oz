@@ -4,7 +4,7 @@ import
 export
   UpdatePlayer
   IncrementTurn
-  HealPokemoz
+  HealPlayerPokemoz
 define
   fun {UpdatePlayer GameState NewPlayer}
     case GameState
@@ -20,7 +20,7 @@ define
     end
   end
 
-  fun {HealPokemoz GameState}
+  fun {HealPlayerPokemoz GameState}
     case GameState
     of   game_state(turn:Turn player:Player trainers:Trainers)
     then game_state(turn:Turn player:{PlayerMod.healPokemoz Player} trainers:Trainers)
