@@ -25,9 +25,6 @@ define
    GRASS = 0
    ROAD  = 1
 
-   % Params
-   TurnDuration
-
    % Handles
    MapCanvasHandle
    PlayerHandle
@@ -80,10 +77,9 @@ define
    end
 
    % Public methods
-   proc {Init Placeholder Map Speed DelayParam}
+   proc {Init Placeholder Map}
       MapHeight         = {Width Map}
       MapWidth          = {Width Map.1}
-      TurnDuration      = (10-Speed)*DelayParam
       Canvas            = canvas(width:MapWidth*TILE_SIZE height:MapHeight*TILE_SIZE handle:MapCanvasHandle)
    in
       {Placeholder set(Canvas)}
@@ -111,7 +107,6 @@ define
 
       proc {Draw}
         proc {RecDraw RowsList RowNumber}
-          {Lib.debug lol}
           case RowsList
           of nil then skip
           [] Row|RemainingRows then
@@ -120,7 +115,6 @@ define
           end
         end
       in
-        {Lib.debug lol}
         {RecDraw {Record.toList Map} 0}
       end
    in
@@ -163,10 +157,10 @@ define
    end
 
 
-   proc {MovePlayer Direction}
+   proc {MovePlayer Direction TurnDuration}
       IMAGE_STEPS    = 4
       STEPS_BY_MOVE  = 8
-      STEP_DURATION  = {TurnDuration} div STEPS_BY_MOVE
+      STEP_DURATION  = TurnDuration div STEPS_BY_MOVE
       STEP_INCREMENT = TILE_SIZE div STEPS_BY_MOVE
 
       proc {MoveImageOneStep}
@@ -196,7 +190,7 @@ define
       {Anim 0}
     end
 
-    fun {IsRoad Position}
+    fun {IsRoad Map Position}
       Map.(Position.y+1).(Position.x+1) == ROAD
     end
 

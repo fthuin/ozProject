@@ -32,6 +32,8 @@ define
   {Lib.getArgs MapPath WildPokemozProba Speed AutoFight Delay}
   {Lib.debug arguments_parsed}
 
+  TurnDuration = (10-Speed)*Delay
+
   Map = {MapMod.loadMapFromFile MapPath}
   {Lib.debug map_loaded}
 
@@ -63,12 +65,12 @@ define
   % Setup intial game state
   InstructionsStream
 
-  proc {BindKeyboardActions Window}
-     {Window bind(event:"<Up>"    action:proc{$} {Send InstructionsStream up}     end)}
-     {Window bind(event:"<Left>"  action:proc{$} {Send InstructionsStream left}   end)}
-     {Window bind(event:"<Down>"  action:proc{$} {Send InstructionsStream down}   end)}
-     {Window bind(event:"<Right>" action:proc{$} {Send InstructionsStream right}  end)}
-     {Window bind(event:"<space>" action:proc{$} {Send InstructionsStream finish} end)}
+  proc {BindKeyboardActions Window Port}
+     {Window bind(event:"<Up>"    action:proc{$} {Send Port up}     end)}
+     {Window bind(event:"<Left>"  action:proc{$} {Send Port left}   end)}
+     {Window bind(event:"<Down>"  action:proc{$} {Send Port down}   end)}
+     {Window bind(event:"<Right>" action:proc{$} {Send Port right}  end)}
+     {Window bind(event:"<space>" action:proc{$} {Send Port finish} end)}
   end
 
   fun {InitGame}
@@ -79,15 +81,14 @@ define
     InstructionsPort = {NewPort InstructionsStream}
     MapPlaceHolder
     InterfacePlaceHolder
-    Window = {QTk.build td(placeholder(glue:n handle:MapPlaceHolder       background:red   width:1100 height:600)
-                           placeholder(glue:s handle:InterfacePlaceHolder background:green width:1100 height:250))}
+    Window = {QTk.build td(td(pady:20 padx:20 % Cannot set padding on top-level, so set 1 useless td.
+                            placeholder(glue:n handle:MapPlaceHolder       width:1100 height:560)
+                            placeholder(glue:n handle:InterfacePlaceHolder width:1100 height:220)))}
   in
     {Window show}
     {Window set(geometry:geometry(width:1 height:1))}
-    {Lib.debug here}
     % Init map
-    {MapMod.init MapPlaceHolder Map Speed Delay}
-    {Lib.debug here}
+    {MapMod.init MapPlaceHolder Map}
     {MapMod.drawPikachuAtPosition  VictoryPosition}
     {MapMod.drawBrockAtPosition    BrockPosition}
     {MapMod.drawMistyAtPosition    MistyPosition}
@@ -96,10 +97,10 @@ define
     {MapMod.drawHospitalAtPosition HospitalPosition}
 
     % Init interface
-    {Interface.init GameState InstructionsPort}
+    {Interface.init InterfacePlaceHolder GameState}
     {FightMod.setInterface Interface}
-    {BindKeyboardActions Window}
-    {Window set(geometry:geometry(width:1100 height:850))}
+    {BindKeyboardActions Window InstructionsPort}
+    {Window set(geometry:geometry(width:1100 height:810))}
     GameState
   end
 
@@ -136,12 +137,12 @@ define
   end
 
   fun {MovePlayer GameState Direction}
-    {MapMod.movePlayer Direction}
+    {MapMod.movePlayer Direction TurnDuration}
     {GameStateMod.updatePlayer GameState {PlayerMod.updatePositionInDirection GameState.player Direction}}
   end
 
   fun {TestWildPokemozMeeting GameState}
-     if {MapMod.isRoad GameState.player.position} then
+     if {MapMod.isRoad Map GameState.player.position} then
        {Lib.debug player_on_road} false
      else
        {Lib.debug player_on_grass}
