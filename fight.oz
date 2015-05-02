@@ -5,12 +5,17 @@ import
   PlayerMod  at 'player.ozf'
 export
   Fight
-  SetInterface
+  Init
 define
-  Interface
+  InterfaceMod
+  AutoFight
 
-  proc {SetInterface I}
-    Interface = I
+  CHOOSE_STARTING = "Choose your pokemon to start the fight."
+  DEAD_CHOOSE_NEXT = "You pokemoz is dead. Choose your next pokemon to continue the fight."
+
+  proc {Init Interf AutoF}
+    InterfaceMod = Interf
+    AutoFight = AutoF
   end
 
   fun {IsAttackSuccess AttackerPokemoz DefenderPokemoz}
@@ -44,9 +49,9 @@ define
   fun {Fight AttackingPlayer DefendingPlayer EndAttacker EndDefender}
     proc {UpdateInterface Player}
       if Player.image == characters_player then
-        {Interface.updatePlayer1 Player}
+        {InterfaceMod.updatePlayer1 Player}
       else
-        {Interface.updatePlayer2 Player}
+        {InterfaceMod.updatePlayer2 Player}
       end
     end
 
@@ -66,18 +71,28 @@ define
         if (Round mod 2) == 0 then victory else defeat end
       % Fight continue to next round
       else FinalDefender in
+        {UpdateInterface EndDefendingPlayer}
         if {SelectedPokemonIsDead EndDefendingPlayer} then
-          FinalDefender = {PlayerMod.switchToNextPokemoz EndDefendingPlayer}
+          if AutoFight then
+            FinalDefender = {PlayerMod.switchToNextPokemoz EndDefendingPlayer}
+          else
+            ChoosenIndex = {InterfaceMod.choosePokemonToFight EndDefendingPlayer DEAD_CHOOSE_NEXT} in
+            FinalDefender = {PlayerMod.updatePokemozSelection EndDefendingPlayer ChoosenIndex}
+          end
+          {UpdateInterface EndDefendingPlayer}
           {Lib.debug defender_pokemon_is_dead}
-          {UpdateInterface FinalDefender}
         else
           FinalDefender = EndDefendingPlayer
         end
         {RecFight FinalDefender CurrentAttackingPlayer Round+1} % Switch attack turn
       end
     end
+
+    StartingPokemozIndex = if AutoFight then AttackingPlayer.selected_pokemoz
+                           else {InterfaceMod.choosePokemonToFight AttackingPlayer CHOOSE_STARTING} end
   in
-     {RecFight AttackingPlayer DefendingPlayer 0}
+     {Lib.debug starting_pokemon_choosen(StartingPokemozIndex)}
+     {RecFight {PlayerMod.updatePokemozSelection AttackingPlayer StartingPokemozIndex} DefendingPlayer 0}
   end
 
 end

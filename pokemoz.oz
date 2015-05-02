@@ -206,5 +206,5 @@ define
     [] H|T then if H.health==0 then {AllPokemozAreDead T} else false end
     end
   end
-
+  
 end

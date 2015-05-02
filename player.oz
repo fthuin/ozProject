@@ -7,6 +7,8 @@ export
   UpdateCurrentPokemoz
   UpdatePositionInDirection
   UpdatePosition
+  UpdatePokemozSelection
+  GetSelectedPokemoz
   SwitchToPokemoz
   SwitchToNextPokemoz
   HealPokemoz
@@ -33,8 +35,17 @@ define
     end
   end
 
+  fun {GetSelectedPokemoz Player}
+    {List.nth Player.pokemoz_list Player.selected_pokemoz}
+  end
+
   fun {SwitchToNextPokemoz Player}
-    {SwitchToPokemoz Player Player.selected_pokemoz+1}
+    PokemozCount = {List.length Player.pokemoz_list}
+    NextIndex    = (Player.selected_pokemoz mod PokemozCount) + 1
+    NewPlayer    = {SwitchToPokemoz Player NextIndex}
+  in
+    if {GetSelectedPokemoz NewPlayer}.health == 0 then {SwitchToNextPokemoz Player}
+    else NewPlayer end
   end
 
   fun {UpdatePositionInDirection Player Direction}
@@ -83,6 +94,13 @@ define
 
   fun {GetWildPlayer WildPokemoz}
     player(name:nil image:characters_wild position:nil pokemoz_list:[WildPokemoz] selected_pokemoz:1)
+  end
+
+  fun {UpdatePokemozSelection Player NewIndex}
+    case Player
+    of   player(name:Name image:Img position:Pos pokemoz_list:PokemozList selected_pokemoz:_)
+    then player(name:Name image:Img position:Pos pokemoz_list:PokemozList selected_pokemoz:NewIndex)
+    end
   end
 
 

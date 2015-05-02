@@ -63,9 +63,9 @@ define
 
   % Compute enemy trainers
   Trainers = [
+    {PlayerMod.updatePosition CharactersMod.james JamesPosition}
     {PlayerMod.updatePosition CharactersMod.brock BrockPosition}
     {PlayerMod.updatePosition CharactersMod.misty MistyPosition}
-    {PlayerMod.updatePosition CharactersMod.james JamesPosition}
   ]
 
   % Setup intial game state
@@ -74,7 +74,7 @@ define
    GameState
    InitialGameState
    SendInstruction
-   
+
   proc {BindKeyboardActions Window Port}
      {Window bind(event:"<Up>"    action:proc{$} {Send Port up}     end)}
      {Window bind(event:"<Left>"  action:proc{$} {Send Port left}   end)}
@@ -119,7 +119,7 @@ define
 
     % Init interface
     {Interface.init InterfacePlaceHolder GameState BindKeys UnbindKeys}
-    {FightMod.setInterface Interface}
+    {FightMod.init Interface AutoFight}
 
     {Window set(geometry:geometry(width:1200 height:810))}
     if AutoFight then skip else {BindKeys} end
@@ -216,6 +216,7 @@ define
     EndAttackingPlayer AfterFightState FightResult
     WildPokemoz = WildPlayer.pokemoz_list.1
   in
+
     {Lib.debug fight_engaged_with_wild_pokemoz(WildPokemoz)}
     FightResult      = {FightMod.fight GameState.player WildPlayer EndAttackingPlayer _}
     AfterFightState  = {GameStateMod.updatePlayer GameState EndAttackingPlayer}
@@ -236,7 +237,7 @@ define
   in
     if {CanFight} then WantsToFight in
       WantsToFight = if AutoFight then {ShouldFight GameState WildPokemoz}
-      else {Interface.askQuestion MEET_WILD_POKEMON RUN FIGHT} end
+                     else {Interface.askQuestion MEET_WILD_POKEMON RUN FIGHT} end
 
       if WantsToFight then
         {FightWildPokemoz GameState WildPlayer}
@@ -300,41 +301,36 @@ define
      PlayerX = GameState.player.position.x
      PlayerY = GameState.player.position.y
   in
-     if PlayerY > VictoryPosition.y+2 then
-	{Send InstructionsPort up}
-     elseif PlayerY < VictoryPosition.y+1 then
-	{Send InstructionsPort down}
+     if PlayerY > VictoryPosition.y+2 then {Send InstructionsPort up}
+     elseif PlayerY < VictoryPosition.y+1 then {Send InstructionsPort down}
      else
-	if PlayerX < VictoryPosition.x then
-	   {Send InstructionsPort right}
-	elseif PlayerX > VictoryPosition.x then
-	   {Send InstructionsPort left}
-	else
-	   {Send InstructionsPort up}
-	end
+       if PlayerX < VictoryPosition.x then {Send InstructionsPort right}
+	     elseif PlayerX > VictoryPosition.x then {Send InstructionsPort left}
+       else {Send InstructionsPort up}
+	     end
      end
   end
 
   proc {AutoFightLoop GameState ToFinish IsOutOfHospital}
      if ToFinish then
-	{Lib.debug autofightloop_1}
-	{MoveFromHospitalToFinish GameState}
-	IsOutOfHospital=true
+    	{Lib.debug autofightloop_1}
+    	{MoveFromHospitalToFinish GameState}
+    	IsOutOfHospital=true
      else
-	{Lib.debug autofightloop_4}
-	{Lib.debug numberofpokemoz({Length GameState.player.pokemoz_list})}
-	   if {Length GameState.player.pokemoz_list} < 3 then
-	      %% Player have less than 3 pokemoz
-	      %% We want him to get more -> Tall Grass
-	      {Lib.debug autofightloop_2}
-	      {MoveBeforeHospital GameState}
-	      IsOutOfHospital = false
-	   else
-	      %% Player have 3 pokemoz
-	      %% We want him to go to the end
-	      {Lib.debug autofightloop_2}
-	      {MoveToHospital GameState IsOutOfHospital}
-	   end
+    	 {Lib.debug autofightloop_4}
+    	 {Lib.debug numberofpokemoz({Length GameState.player.pokemoz_list})}
+  	   if {Length GameState.player.pokemoz_list} < 3 then
+  	      %% Player have less than 3 pokemoz
+  	      %% We want him to get more -> Tall Grass
+  	      {Lib.debug autofightloop_2}
+  	      {MoveBeforeHospital GameState}
+  	      IsOutOfHospital = false
+  	   else
+  	      %% Player have 3 pokemoz
+  	      %% We want him to go to the end
+  	      {Lib.debug autofightloop_2}
+  	      {MoveToHospital GameState IsOutOfHospital}
+  	   end
      end
   end
 
@@ -366,25 +362,34 @@ define
       end
 
       if AutoFight then IsOutOfTheHospital in
-	 {Lib.debug auto_before_autofightloop}
-	 {AutoFightLoop AfterFightState GoToFinish IsOutOfTheHospital}
-	 {Lib.debug auto_before_gameloop}
-	 if IsOutOfTheHospital then
-	    {GameLoop T.2.2 {GameStateMod.incrementTurn AfterFightState} IsOutOfTheHospital}
-	    {Lib.debug auto_is_out_hospital}
-	 else
-	    {GameLoop T {GameStateMod.incrementTurn AfterFightState} IsOutOfTheHospital}
-	    {Lib.debug auto_is_not_in_hospital}
-	 end
-      else
-	 {GameLoop T {GameStateMod.incrementTurn AfterFightState} false}
+    	 {Lib.debug auto_before_autofightloop}
+    	 {AutoFightLoop AfterFightState GoToFinish IsOutOfTheHospital}
+    	 {Lib.debug auto_before_gameloop}
+    	 if IsOutOfTheHospital then
+    	    {GameLoop T.2.2 {GameStateMod.incrementTurn AfterFightState} IsOutOfTheHospital}
+    	    {Lib.debug auto_is_out_hospital}
+    	 else
+    	    {GameLoop T {GameStateMod.incrementTurn AfterFightState} IsOutOfTheHospital}
+    	    {Lib.debug auto_is_not_in_hospital}
+    	 end
+          else
+    	 {GameLoop T {GameStateMod.incrementTurn AfterFightState} false}
       end
      end
   end
-  
+
   % Function for automatic play
   proc {GenerateNextInstruction GameState}
     {SendInstruction up}
+
+    % if all_pokemon_dead
+      % go towards hospital
+    % else if pokemon_count < 3
+      % go towards grass
+    % else if (!james_beaten)
+      % go towards james
+    % else
+      % go to finish
   end
 
   fun {ShouldFight GameState WildPokemon}

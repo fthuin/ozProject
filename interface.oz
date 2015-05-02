@@ -11,6 +11,7 @@ export
   HidePlayer2
   AskQuestion
   WriteMessage
+  ChoosePokemonToFight
   SelectPlayer1Panel
 define
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
@@ -109,7 +110,7 @@ define
      PlaceHolderH
      InfoToplevel InfoLabel InfoBtn
      QuestionTopLevel QuestionLabel QuestionBtnYes QuestionBtnNo
-     PokemozChoiceTopLevel PokemozChoiceLabel PokemozChoice1 PokemozChoice2 PokemozChoice3
+     SelectTopLevel SelectLabel Select1 Select2 Select3
 
      Info = td(handle:InfoToplevel bg:white
        label(justify:center handle:InfoLabel background:white height:6 width:30 wraplength:260)
@@ -128,12 +129,12 @@ define
      {CenterAreaPlaceHolderH set(Question)}
      {CenterAreaPlaceHolderH set(empty)}
 
-     PokemozChoice = td(handle:PokemozChoiceTopLevel bg:white
-        label(justify:center handle:PokemozChoiceLabel background:white height:6 width:30 wraplength:260)
+     PokemozChoice = td(handle:SelectTopLevel bg:white
+        label(justify:center handle:SelectLabel background:white height:2 width:30 wraplength:260)
         td(bg:white
-          button(handle:PokemozChoice1 width:20)
-          button(handle:PokemozChoice2 width:20)
-          button(handle:PokemozChoice3 width:20)
+          button(handle:Select1 width:20)
+          button(handle:Select2 width:20)
+          button(handle:Select3 width:20)
         )
      )
      {CenterAreaPlaceHolderH set(PokemozChoice)}
@@ -151,12 +152,12 @@ define
                                       btn_yes:   QuestionBtnYes
                                       btn_no:    QuestionBtnNo
                                   )
-                                  pokemoz_choice(
-                                      top_level: PokemozChoiceTopLevel
-                                      label:     PokemozChoiceLabel
-                                      choice1:   PokemozChoice1
-                                      choice2:   PokemozChoice2
-                                      choice3:   PokemozChoice3
+                                  select_pokemoz:select(
+                                      top_level: SelectTopLevel
+                                      label:     SelectLabel
+                                      btn1:      Select1
+                                      btn2:      Select2
+                                      btn3:      Select3
                                   ))
       skip
    end
@@ -313,5 +314,30 @@ define
     if Answer==1 then {CenterAreaCleanup} else {CenterAreaCleanup} end
   end
 
+  fun {ChoosePokemonToFight Player Text}
+    {UnbindKeys}
+    Answer
+    proc {HitBtn1} Answer=1 end
+    proc {HitBtn2} Answer=2 end
+    proc {HitBtn3} Answer=3 end
+    PokemonList  = Player.pokemoz_list
+    PokemozCount = {Length PokemonList}
+    fun {TextBtn Index}
+      if PokemozCount >= Index then {List.nth PokemonList Index}.name else nil end
+    end
+    fun {StateBtn Index}
+      if PokemozCount >= Index andthen {List.nth PokemonList Index}.health>0 then normal else disabled end
+    end
+  in
+    {Lib.debug yip}
+    {Lib.debug CenterAreaHandles.select_pokemoz}
+    {Lib.debug yop}
+    {CenterAreaHandles.select_pokemoz.label   set(text:Text)}
+    {CenterAreaHandles.select_pokemoz.btn1    set(text:{TextBtn 1} state:{StateBtn 1} action:HitBtn1)}
+    {CenterAreaHandles.select_pokemoz.btn2    set(text:{TextBtn 2} state:{StateBtn 2} action:HitBtn2)}
+    {CenterAreaHandles.select_pokemoz.btn3    set(text:{TextBtn 3} state:{StateBtn 3} action:HitBtn3)}
+    {CenterAreaHandles.place_holder set(CenterAreaHandles.select_pokemoz.top_level)}
+    if Answer==1 then {CenterAreaCleanup} Answer else {CenterAreaCleanup} Answer end
+  end
 
 end
