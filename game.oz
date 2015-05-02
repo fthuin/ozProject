@@ -223,13 +223,16 @@ define
   end
 
   fun {MeetWildPokemoz GameState}
-    WildPlayer = {PlayerMod.getWildPlayer {CharactersMod.summonWildPokemon GameState}}
+    WildPokemoz = {CharactersMod.summonWildPokemon GameState}
+    WildPlayer  = {PlayerMod.getWildPlayer WildPokemoz}
     {Interface.showPlayer2 WildPlayer}
     fun {CanFight} {Bool.'not' {PokemozMod.allPokemozAreDead GameState.player.pokemoz_list}} end
   in
-    if {CanFight} then
-      WantsToFight = if AutoFight then 1 else {Interface.askQuestion MEET_WILD_POKEMON RUN FIGHT} end in
-      if WantsToFight==1 then
+    if {CanFight} then WantsToFight in
+      WantsToFight = if AutoFight then {ShouldFight GameState WildPokemoz}
+      else {Interface.askQuestion MEET_WILD_POKEMON RUN FIGHT} end
+
+      if WantsToFight==1 orelse WantsToFight==true then
         {FightWildPokemoz GameState WildPlayer}
       else
         {Lib.debug player_run_from_fight}
@@ -278,8 +281,11 @@ define
 
   % Function for automatic play
   proc {GenerateNextInstruction GameState}
-    {Lib.debug here}
     {SendInstruction up}
+  end
+
+  fun {ShouldFight GameState WildPokemon}
+    true
   end
 
   % kickoff
