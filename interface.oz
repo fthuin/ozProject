@@ -19,6 +19,8 @@ define
    Player1Handles
    Player2Handles
    CenterAreaHandles
+   BindKeys
+   UnbindKeys
 
    fun {GetImage Name}
       {ImageLibrary get(name:Name image:$)}
@@ -192,12 +194,14 @@ define
      {ClearPanel Handles.panel3handles}
    end
 
-   proc {Init PlaceHolder GameState}
-     Player1   = {CreatePlayerInterface Player1Handles}
-     Player2   = {CreatePlayerInterface Player2Handles}
-     Center    = {CreateCenterArea}
-     Content   = lr(Player1 Center Player2)
+   proc {Init PlaceHolder GameState BindKeyboardActions UnbindKeyboardActions}
+     Player1    = {CreatePlayerInterface Player1Handles}
+     Player2    = {CreatePlayerInterface Player2Handles}
+     Center     = {CreateCenterArea}
+     Content    = lr(Player1 Center Player2)
    in
+     BindKeys   = BindKeyboardActions
+     UnbindKeys = UnbindKeyboardActions
      {PlaceHolder set(Content)}
      {AddImagesToCanvas Player1Handles}
      {AddImagesToCanvas Player2Handles}
@@ -234,6 +238,7 @@ define
   end
 
   fun {AskQuestion QuestionText Btn0Text Btn1Text}
+    {UnbindKeys}
     Answer
     proc {HitBtn0} Answer=0 end
     proc {HitBtn1} Answer=1 end
@@ -242,6 +247,7 @@ define
       {CenterAreaHandles.label   set(text:nil)}
       {CenterAreaHandles.button0 set(state:disabled text:nil)}
       {CenterAreaHandles.button1 set(state:disabled text:nil)}
+      {BindKeys}
     end
   in
     {CenterAreaHandles.label     set(text:QuestionText)}
@@ -252,6 +258,7 @@ define
   end
 
   proc {WriteMessage Message}
+    {UnbindKeys}
     Answer
     proc {HitBtn0} Answer=0 end
     proc {Cleanup}
@@ -259,6 +266,7 @@ define
       {CenterAreaHandles.label   set(text:nil)}
       {CenterAreaHandles.button0 set(state:disabled text:nil)}
       {CenterAreaHandles.place_holder set(CenterAreaHandles.top_level)}
+      {BindKeys}
     end
   in
     {CenterAreaHandles.label   set(text:Message)}

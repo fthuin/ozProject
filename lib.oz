@@ -37,6 +37,7 @@ define
     end
   end
 
+
    proc {GetArgs Map Probability Speed AutoFight DELAY}
       %% Default values
       MAP         = 'Map.txt'

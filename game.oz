@@ -73,12 +73,22 @@ define
      {Window bind(event:"<space>" action:proc{$} {Send Port finish} end)}
   end
 
+  proc {UnbindKeyboardActions Window Port}
+     {Window bind(event:"<Up>"      action:proc{$} skip end)}
+     {Window bind(event:"<Left>"    action:proc{$} skip end)}
+     {Window bind(event:"<Down>"    action:proc{$} skip end)}
+     {Window bind(event:"<Right>"   action:proc{$} skip end)}
+     {Window bind(event:"<space>"   action:proc{$} skip end)}
+  end
+
   fun {InitGame}
     StartingPos      = pos(x:MapWidth-1 y:MapHeight-1)
     Player           = player(name:PlayerName image:characters_player position:StartingPos selected_pokemoz:1
                               pokemoz_list:[CharactersMod.basePokemoz.PokemozName])
     GameState        = game_state(turn:0 player:Player trainers:Trainers)
     InstructionsPort = {NewPort InstructionsStream}
+    BindKeys         = proc {$} {BindKeyboardActions   Window InstructionsPort} end
+    UnbindKeys       = proc {$} {UnbindKeyboardActions Window InstructionsPort} end
     MapPlaceHolder
     InterfacePlaceHolder
     Window = {QTk.build td(td(pady:20 padx:20 % Cannot set padding on top-level, so set 1 useless td.
@@ -97,10 +107,13 @@ define
     {MapMod.drawHospitalAtPosition HospitalPosition}
 
     % Init interface
-    {Interface.init InterfacePlaceHolder GameState}
+
+
+    {Interface.init InterfacePlaceHolder GameState BindKeys UnbindKeys}
     {FightMod.setInterface Interface}
-    {BindKeyboardActions Window InstructionsPort}
+
     {Window set(geometry:geometry(width:1100 height:810))}
+    {BindKeys}
     GameState
   end
 
