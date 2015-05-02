@@ -22,18 +22,8 @@ define
    % Constants
    CANVAS_OFFSET_BUG = 3
    TILE_SIZE = 80
-   GRASS = 0
-   ROAD  = 1
-
-   % Params
-   Map
-   Speed
-   DelayParam
-   InstructionsPort
-
-   % Local variables
-   MapHeight
-   MapWidth
+   GRASS = 1
+   ROAD  = 0
 
    % Handles
    MapCanvasHandle
@@ -41,16 +31,11 @@ define
    BrockHandle
    MistyHandle
    JamesHandle
-   MapWindow
 
    % Private methods
 
    fun {GetImage Name}
       {ImageLibrary get(name:Name image:$)}
-   end
-
-   fun {TurnDuration}
-      (10-Speed)*DelayParam
    end
 
    % Coordinates from position helpers
@@ -92,21 +77,16 @@ define
    end
 
    % Public methods
-   proc {Init M P S D}
-      Map               = M
-      Speed             = S
-      DelayParam        = D
-      InstructionsPort  = P
+   proc {Init Placeholder Map}
       MapHeight         = {Width Map}
       MapWidth          = {Width Map.1}
+      Canvas            = canvas(width:MapWidth*TILE_SIZE height:MapHeight*TILE_SIZE handle:MapCanvasHandle)
+   in
+      {Placeholder set(Canvas)}
+      {DrawMap Map}
    end
 
-   proc {DrawMap}
-      proc {CreateMapCanvas} MapCanvas in
-	       MapCanvas = canvas(width:MapWidth*TILE_SIZE height:MapHeight*TILE_SIZE handle:MapCanvasHandle)
-         MapWindow = {QTk.build lr(MapCanvas)}
-      end
-
+   proc {DrawMap Map}
       fun {AddTileAt Type X Y} ImageName in
         ImageName = if Type==GRASS then textures_grass elseif Type==ROAD then textures_road end
         create(image {XCoord X} {YCoord Y} anchor:nw image:{GetImage ImageName})
@@ -138,11 +118,7 @@ define
         {RecDraw {Record.toList Map} 0}
       end
    in
-      {CreateMapCanvas}
       {Draw}
-      {MapWindow show}
-      {MapWindow set(geometry:geometry(x:0 y:0 width:1038 height:600))}
-      {Lib.bindKeyboardActions MapWindow InstructionsPort}
       {Lib.debug map_drawn}
    end
 
@@ -181,10 +157,10 @@ define
    end
 
 
-   proc {MovePlayer Direction}
+   proc {MovePlayer Direction TurnDuration}
       IMAGE_STEPS    = 4
       STEPS_BY_MOVE  = 8
-      STEP_DURATION  = {TurnDuration} div STEPS_BY_MOVE
+      STEP_DURATION  = TurnDuration div STEPS_BY_MOVE
       STEP_INCREMENT = TILE_SIZE div STEPS_BY_MOVE
 
       proc {MoveImageOneStep}
@@ -214,7 +190,7 @@ define
       {Anim 0}
     end
 
-    fun {IsRoad Position}
+    fun {IsRoad Map Position}
       Map.(Position.y+1).(Position.x+1) == ROAD
     end
 

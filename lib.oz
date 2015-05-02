@@ -10,7 +10,6 @@ export
    ReplaceNthInList
    PositionInDirection
    GetArgs
-   BindKeyboardActions
 define
   proc {Debug Msg}
      {System.show Msg}
@@ -38,18 +37,11 @@ define
     end
   end
 
-  proc {BindKeyboardActions Window Port}
-     {Window bind(event:"<Up>"    action:proc{$} {Send Port up}     end)}
-     {Window bind(event:"<Left>"  action:proc{$} {Send Port left}   end)}
-     {Window bind(event:"<Down>"  action:proc{$} {Send Port down}   end)}
-     {Window bind(event:"<Right>" action:proc{$} {Send Port right}  end)}
-     {Window bind(event:"<space>" action:proc{$} {Send Port finish} end)}
-  end
 
    proc {GetArgs Map Probability Speed AutoFight DELAY}
       %% Default values
       MAP         = 'Map.txt'
-      PROBABILITY = 15
+      PROBABILITY = 40
       SPEED       = 8
       AUTOFIGHT   = false
       Say         = System.showInfo

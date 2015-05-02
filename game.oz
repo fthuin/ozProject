@@ -2,6 +2,7 @@ functor
 import
   Application
   System
+  Module
   Lib           at 'lib.ozf'
   CharactersMod at 'characters.ozf'
   MapMod        at 'map.ozf'
@@ -13,6 +14,7 @@ import
   PokemozMod    at 'pokemoz.ozf'
 define
   {System.show game_started}
+  [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
 
   % Messages
   UNABLE_TO_FIGHT = "You meet a wild pokemoz but cannot fight since all your pokemons are injured. Visit the hospital!"
@@ -29,6 +31,8 @@ define
   MapPath WildPokemozProba Speed AutoFight Delay
   {Lib.getArgs MapPath WildPokemozProba Speed AutoFight Delay}
   {Lib.debug arguments_parsed}
+
+  TurnDuration = (10-Speed)*Delay
 
   Map = {MapMod.loadMapFromFile MapPath}
   {Lib.debug map_loaded}
@@ -68,24 +72,58 @@ define
    InstructionsStream
    InstructionsPort
    GameState
+   InitialGameState
+   SendInstruction
+   
+  proc {BindKeyboardActions Window Port}
+     {Window bind(event:"<Up>"    action:proc{$} {Send Port up}     end)}
+     {Window bind(event:"<Left>"  action:proc{$} {Send Port left}   end)}
+     {Window bind(event:"<Down>"  action:proc{$} {Send Port down}   end)}
+     {Window bind(event:"<Right>" action:proc{$} {Send Port right}  end)}
+     {Window bind(event:"<space>" action:proc{$} {Send Port finish} end)}
+  end
 
-  proc {InitGame}
+  proc {UnbindKeyboardActions Window Port}
+     {Window bind(event:"<Up>"      action:proc{$} skip end)}
+     {Window bind(event:"<Left>"    action:proc{$} skip end)}
+     {Window bind(event:"<Down>"    action:proc{$} skip end)}
+     {Window bind(event:"<Right>"   action:proc{$} skip end)}
+     {Window bind(event:"<space>"   action:proc{$} skip end)}
+  end
+
+  fun {InitGame}
     StartingPos      = pos(x:MapWidth-1 y:MapHeight-1)
     Player           = player(name:PlayerName image:characters_player position:StartingPos selected_pokemoz:1
                               pokemoz_list:[CharactersMod.basePokemoz.PokemozName])
+    GameState        = game_state(turn:0 player:Player trainers:Trainers)
+    BindKeys         = proc {$} {BindKeyboardActions   Window InstructionsPort} end
+    UnbindKeys       = proc {$} {UnbindKeyboardActions Window InstructionsPort} end
+    MapPlaceHolder
+    InterfacePlaceHolder
+    Window = {QTk.build td(td(pady:20 padx:20 % Cannot set padding on top-level, so set 1 extra td for padding.
+                            placeholder(glue:n handle:MapPlaceHolder        width:1100 height:560)
+                            placeholder(glue:n handle:InterfacePlaceHolder  width:1100 height:220)))}
   in
-     InstructionsPort = {NewPort InstructionsStream}
-    GameState = game_state(turn:0 player:Player trainers:Trainers)
-    {MapMod.init Map InstructionsPort Speed Delay}
-    {MapMod.drawMap}
+    InstructionsPort = {NewPort InstructionsStream}
+    SendInstruction  = proc {$ Instruction} {Send InstructionsPort Instruction} end
+    {Window show}
+    {Window set(geometry:geometry(width:1 height:1))}
+    % Init map
+     {MapMod.init MapPlaceHolder Map}
     {MapMod.drawPikachuAtPosition  VictoryPosition}
     {MapMod.drawBrockAtPosition    BrockPosition}
     {MapMod.drawMistyAtPosition    MistyPosition}
     {MapMod.drawJamesAtPosition    JamesPosition}
     {MapMod.drawPlayerAtPosition   StartingPos}
     {MapMod.drawHospitalAtPosition HospitalPosition}
-    {Interface.init GameState InstructionsPort}
+
+    % Init interface
+    {Interface.init InterfacePlaceHolder GameState BindKeys UnbindKeys}
     {FightMod.setInterface Interface}
+
+    {Window set(geometry:geometry(width:1200 height:810))}
+    if AutoFight then skip else {BindKeys} end
+    GameState
   end
 
   fun {PositionIsFree GameState Position}
@@ -121,12 +159,12 @@ define
   end
 
   fun {MovePlayer GameState Direction}
-    {MapMod.movePlayer Direction}
+    {MapMod.movePlayer Direction TurnDuration}
     {GameStateMod.updatePlayer GameState {PlayerMod.updatePositionInDirection GameState.player Direction}}
   end
 
   fun {TestWildPokemozMeeting GameState}
-     if {MapMod.isRoad GameState.player.position} then
+     if {MapMod.isRoad Map GameState.player.position} then
        {Lib.debug player_on_road} false
      else
        {Lib.debug player_on_grass}
@@ -155,8 +193,8 @@ define
     fun {CanCapture}          {PokemozCount GameState.player} < 3   end
   in
     if {CanCapture} then
-      WantsToCapture = {Interface.askQuestion CAPTURE_POKEMOZ NO YES} in
-      if WantsToCapture==1 then
+      WantsToCapture = if AutoFight then true else {Interface.askQuestion CAPTURE_POKEMOZ NO YES} end in
+      if WantsToCapture then
         NewPlayer = {PlayerMod.capturePokemoz GameState.player {PokemozMod.setHealth WildPokemoz 0}} in
         {Interface.hidePlayer2}
         {Lib.debug pokemoz_captured(NewPlayer.pokemoz_list)}
@@ -168,7 +206,7 @@ define
         GameState
       end
     else
-      {Interface.writeMessage WIN_BUT_CANNOT_CAPTURE}
+      if AutoFight then skip else {Interface.writeMessage WIN_BUT_CANNOT_CAPTURE} end
       {Interface.hidePlayer2}
       GameState
     end
@@ -184,20 +222,23 @@ define
     if FightResult==victory then
       {WildPokemozVictory AfterFightState WildPokemoz}
     else
-      {Interface.writeMessage FIGHT_LOST}
+      if AutoFight then skip else {Interface.writeMessage FIGHT_LOST} end
       {Interface.hidePlayer2}
       AfterFightState
     end
   end
 
   fun {MeetWildPokemoz GameState}
-    WildPlayer = {PlayerMod.getWildPlayer {CharactersMod.summonWildPokemon GameState}}
+    WildPokemoz = {CharactersMod.summonWildPokemon GameState}
+    WildPlayer  = {PlayerMod.getWildPlayer WildPokemoz}
     {Interface.showPlayer2 WildPlayer}
     fun {CanFight} {Bool.'not' {PokemozMod.allPokemozAreDead GameState.player.pokemoz_list}} end
   in
-    if {CanFight} then
-      WantsToFight = {Interface.askQuestion MEET_WILD_POKEMON RUN FIGHT} in
-      if WantsToFight==1 then
+    if {CanFight} then WantsToFight in
+      WantsToFight = if AutoFight then {ShouldFight GameState WildPokemoz}
+      else {Interface.askQuestion MEET_WILD_POKEMON RUN FIGHT} end
+
+      if WantsToFight then
         {FightWildPokemoz GameState WildPlayer}
       else
         {Lib.debug player_run_from_fight}
@@ -206,7 +247,7 @@ define
       end
     else
       {Lib.debug player_cannot_fight}
-      {Interface.writeMessage UNABLE_TO_FIGHT}
+      if AutoFight then skip else {Interface.writeMessage UNABLE_TO_FIGHT} end
       {Interface.hidePlayer2}
       GameState
     end
@@ -278,7 +319,7 @@ define
      if ToFinish then
 	{Lib.debug autofightloop_1}
 	{MoveFromHospitalToFinish GameState}
-	IsOutOfHospital=false
+	IsOutOfHospital=true
      else
 	{Lib.debug autofightloop_4}
 	{Lib.debug numberofpokemoz({Length GameState.player.pokemoz_list})}
@@ -338,11 +379,21 @@ define
       else
 	 {GameLoop T {GameStateMod.incrementTurn AfterFightState} false}
       end
-    end
+     end
+  end
+  
+  % Function for automatic play
+  proc {GenerateNextInstruction GameState}
+    {SendInstruction up}
   end
 
-  % Startup
-  {InitGame}
-  if AutoFight then {Lib.debug first_msg_send_auto} {Send InstructionsPort up} end
-  {GameLoop InstructionsStream GameState false}
+  fun {ShouldFight GameState WildPokemon}
+    true
+  end
+
+  % kickoff
+  InitialGameState = {InitGame}
+  if AutoFight then {GenerateNextInstruction InitialGameState} end
+  {GameLoop InstructionsStream InitialGameState false}
+
 end
