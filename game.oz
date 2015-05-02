@@ -93,9 +93,9 @@ define
     UnbindKeys       = proc {$} {UnbindKeyboardActions Window InstructionsPort} end
     MapPlaceHolder
     InterfacePlaceHolder
-    Window = {QTk.build td(td(pady:20 padx:20 % Cannot set padding on top-level, so set 1 useless td.
-                            placeholder(glue:n handle:MapPlaceHolder       width:1100 height:560)
-                            placeholder(glue:n handle:InterfacePlaceHolder width:1100 height:220)))}
+    Window = {QTk.build td(td(pady:20 padx:20 % Cannot set padding on top-level, so set 1 extra td for padding.
+                            placeholder(glue:n handle:MapPlaceHolder        width:1200 height:560)
+                            placeholder(glue:n handle:InterfacePlaceHolder  width:1200 height:217)))}
   in
     SendInstruction  = proc {$ Instruction} {Send InstructionsPort Instruction} end
     {Window show}
@@ -110,12 +110,10 @@ define
     {MapMod.drawHospitalAtPosition HospitalPosition}
 
     % Init interface
-
-
     {Interface.init InterfacePlaceHolder GameState BindKeys UnbindKeys}
     {FightMod.setInterface Interface}
 
-    {Window set(geometry:geometry(width:1100 height:810))}
+    {Window set(geometry:geometry(width:1200 height:810))}
     if AutoFight then skip else {BindKeys} end
     GameState
   end
@@ -187,8 +185,8 @@ define
     fun {CanCapture}          {PokemozCount GameState.player} < 3   end
   in
     if {CanCapture} then
-      WantsToCapture = if AutoFight then 1 else {Interface.askQuestion CAPTURE_POKEMOZ NO YES} end in
-      if WantsToCapture==1 then
+      WantsToCapture = if AutoFight then true else {Interface.askQuestion CAPTURE_POKEMOZ NO YES} end in
+      if WantsToCapture then
         NewPlayer = {PlayerMod.capturePokemoz GameState.player {PokemozMod.setHealth WildPokemoz 0}} in
         {Interface.hidePlayer2}
         {Lib.debug pokemoz_captured(NewPlayer.pokemoz_list)}
@@ -232,7 +230,7 @@ define
       WantsToFight = if AutoFight then {ShouldFight GameState WildPokemoz}
       else {Interface.askQuestion MEET_WILD_POKEMON RUN FIGHT} end
 
-      if WantsToFight==1 orelse WantsToFight==true then
+      if WantsToFight then
         {FightWildPokemoz GameState WildPlayer}
       else
         {Lib.debug player_run_from_fight}

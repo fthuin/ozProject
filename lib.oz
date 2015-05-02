@@ -43,7 +43,7 @@ define
       MAP         = 'Map.txt'
       PROBABILITY = 40
       SPEED       = 8
-      AUTOFIGHT   = true
+      AUTOFIGHT   = false
       Say         = System.showInfo
       Args = {Application.getArgs record(
                  map(single char:&m type:atom default:MAP)

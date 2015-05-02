@@ -47,7 +47,7 @@ define
           TypeCanvas
         )
         label(handle:LevelXpLabelH bg:white)
-        lr(background:white
+        lr(bg:white
           label(handle:HPLabelH bg:white)
           canvas(width:0 height:30 handle:HPGreenCanvasH bg:white borderwidth:0 highlightthickness:0)
           canvas(width:0 height:30 handle:HPRedCanvasH   bg:white borderwidth:0 highlightthickness:0)
@@ -80,11 +80,11 @@ define
         {CreatePokemozInterface Panel3H 3}
      )
      Content = lr(background:white glue:nsew handle:TopLevelH
-             td(glue:wn bg:white
-               PictureCanvas
-               label(handle:NameLabelH bg:white font:{QTk.newFont font(weight:bold size:25)}
-                     wraplength:100 glue:w justify:center anchor:center))
-               Panel)
+                 td(glue:wn bg:white
+                   PictureCanvas
+                   label(handle:NameLabelH bg:white font:{QTk.newFont font(weight:bold size:25)}
+                         wraplength:100 glue:w justify:center anchor:center))
+                 Panel)
    in
      Handles = handles( place_holder:   PlaceHolderH
                         top_level:      TopLevelH
@@ -95,26 +95,70 @@ define
                         panel1handles:  Panel1H
                         panel2handles:  Panel2H
                         panel3handles:  Panel3H)
-     placeholder(glue:nswe handle:PlaceHolderH background:white width:394 padx:20 pady:20 Content)
+     placeholder(glue:ns handle:PlaceHolderH background:white width:394 padx:20 pady:20 Content)
    end
 
-   fun {CreateCenterArea}
-     PlaceHolderH TopLevel LabelH Button0H Button1H
-     Content = td(
-       handle:TopLevel glue:nesw background:white
-       label(justify:center handle:LabelH background:white height:6 width:20 wraplength:160)
-       lr(background:white
-         button(handle:Button0H width:10)
-         button(handle:Button1H width:10)
+   CenterAreaPlaceHolderH
+   fun {CreateCenterAreaPlaceHolder}
+     td(glue:ns padx:0 pady:20
+        canvas(bg:white width:300 height:0) % Hack to constrain the width...
+        placeholder(glue:nsew bg:white handle:CenterAreaPlaceHolderH background:white))
+   end
+
+   proc {CreateCenterAreaDialogs}
+     PlaceHolderH
+     InfoToplevel InfoLabel InfoBtn
+     QuestionTopLevel QuestionLabel QuestionBtnYes QuestionBtnNo
+     PokemozChoiceTopLevel PokemozChoiceLabel PokemozChoice1 PokemozChoice2 PokemozChoice3
+
+     Info = td(handle:InfoToplevel bg:white
+       label(justify:center handle:InfoLabel background:white height:6 width:30 wraplength:260)
+       button(handle:InfoBtn width:10)
+     )
+     {CenterAreaPlaceHolderH set(Info)}
+     {CenterAreaPlaceHolderH set(empty)}
+
+     Question = td(handle:QuestionTopLevel bg:white
+       label(justify:center handle:QuestionLabel background:white height:6 width:30 wraplength:260)
+       lr(bg:white
+         button(handle:QuestionBtnYes width:10)
+         button(handle:QuestionBtnNo  width:10)
        )
      )
+     {CenterAreaPlaceHolderH set(Question)}
+     {CenterAreaPlaceHolderH set(empty)}
+
+     PokemozChoice = td(handle:PokemozChoiceTopLevel bg:white
+        label(justify:center handle:PokemozChoiceLabel background:white height:6 width:30 wraplength:260)
+        td(bg:white
+          button(handle:PokemozChoice1 width:20)
+          button(handle:PokemozChoice2 width:20)
+          button(handle:PokemozChoice3 width:20)
+        )
+     )
+     {CenterAreaPlaceHolderH set(PokemozChoice)}
+     {CenterAreaPlaceHolderH set(empty)}
    in
-     CenterAreaHandles = handles( place_holder:   PlaceHolderH
-                                  top_level:      TopLevel
-                                  label:          LabelH
-                                  button0:        Button0H
-                                  button1:        Button1H)
-     placeholder(glue:nswe handle:PlaceHolderH background:white  width:250  padx:0 pady:20  Content)
+     CenterAreaHandles = handles( place_holder:   CenterAreaPlaceHolderH
+                                  info:info(
+                                      top_level: InfoToplevel
+                                      label:     InfoLabel
+                                      btn:       InfoBtn
+                                  )
+                                  question:question(
+                                      top_level: QuestionTopLevel
+                                      label:     QuestionLabel
+                                      btn_yes:   QuestionBtnYes
+                                      btn_no:    QuestionBtnNo
+                                  )
+                                  pokemoz_choice(
+                                      top_level: PokemozChoiceTopLevel
+                                      label:     PokemozChoiceLabel
+                                      choice1:   PokemozChoice1
+                                      choice2:   PokemozChoice2
+                                      choice3:   PokemozChoice3
+                                  ))
+      skip
    end
 
    % We already create all the image without specifying the image.
@@ -197,12 +241,13 @@ define
    proc {Init PlaceHolder GameState BindKeyboardActions UnbindKeyboardActions}
      Player1    = {CreatePlayerInterface Player1Handles}
      Player2    = {CreatePlayerInterface Player2Handles}
-     Center     = {CreateCenterArea}
+     Center     = {CreateCenterAreaPlaceHolder}
      Content    = lr(Player1 Center Player2)
    in
      BindKeys   = BindKeyboardActions
      UnbindKeys = UnbindKeyboardActions
      {PlaceHolder set(Content)}
+     {CreateCenterAreaDialogs}
      {AddImagesToCanvas Player1Handles}
      {AddImagesToCanvas Player2Handles}
      {HidePlayer2}
@@ -237,41 +282,35 @@ define
     {Player1Handles.panel selectPanel(Player1Handles.{VirtualString.toAtom panel#Index#handles}.top_level)}
   end
 
-  fun {AskQuestion QuestionText Btn0Text Btn1Text}
+  proc {CenterAreaCleanup}
+    {HideCenterArea}
+    {BindKeys}
+  end
+
+  fun {AskQuestion QuestionText BtnTrueText BtnFalseText}
     {UnbindKeys}
     Answer
-    proc {HitBtn0} Answer=0 end
-    proc {HitBtn1} Answer=1 end
-    proc {Cleanup}
-      {HideCenterArea}
-      {CenterAreaHandles.label   set(text:nil)}
-      {CenterAreaHandles.button0 set(state:disabled text:nil)}
-      {CenterAreaHandles.button1 set(state:disabled text:nil)}
-      {BindKeys}
-    end
+    proc {HitBtnTrue}  Answer=false end
+    proc {HitBtnFalse} Answer=true end
   in
-    {CenterAreaHandles.label     set(text:QuestionText)}
-    {CenterAreaHandles.button0   set(state:normal text:Btn0Text action:HitBtn0)}
-    {CenterAreaHandles.button1   set(state:normal text:Btn1Text action:HitBtn1)}
-    {CenterAreaHandles.place_holder set(CenterAreaHandles.top_level)}
-    if Answer==1 then {Cleanup} 1 else {Cleanup} 0 end
+    {CenterAreaHandles.question.label     set(text:QuestionText)}
+    {CenterAreaHandles.question.btn_yes   set(text:BtnTrueText action:HitBtnTrue)}
+    {CenterAreaHandles.question.btn_no    set(text:BtnFalseText action:HitBtnFalse)}
+
+    {CenterAreaHandles.place_holder set(CenterAreaHandles.question.top_level)}
+
+    if Answer==true then {CenterAreaCleanup} Answer else {CenterAreaCleanup} Answer end
   end
 
   proc {WriteMessage Message}
     {UnbindKeys}
     Answer
-    proc {HitBtn0} Answer=0 end
-    proc {Cleanup}
-      {HideCenterArea}
-      {CenterAreaHandles.label   set(text:nil)}
-      {CenterAreaHandles.button0 set(state:disabled text:nil)}
-      {CenterAreaHandles.place_holder set(CenterAreaHandles.top_level)}
-      {BindKeys}
-    end
+    proc {HitBtn} Answer=0 end
   in
-    {CenterAreaHandles.label   set(text:Message)}
-    {CenterAreaHandles.button0 set(state:normal text:"Got it!" action:HitBtn0)}
-    if Answer==1 then {Cleanup} else {Cleanup} end
+    {CenterAreaHandles.info.label   set(text:Message)}
+    {CenterAreaHandles.info.btn     set(text:"Got it!" action:HitBtn)}
+    {CenterAreaHandles.place_holder set(CenterAreaHandles.info.top_level)}
+    if Answer==1 then {CenterAreaCleanup} else {CenterAreaCleanup} end
   end
 
 
