@@ -63,6 +63,8 @@ define
   ]
 
   % Setup intial game state
+  InitialGameState
+  SendInstruction
   InstructionsStream
 
   proc {BindKeyboardActions Window Port}
@@ -95,6 +97,7 @@ define
                             placeholder(glue:n handle:MapPlaceHolder       width:1100 height:560)
                             placeholder(glue:n handle:InterfacePlaceHolder width:1100 height:220)))}
   in
+    SendInstruction  = proc {$ Instruction} {Send InstructionsPort Instruction} end
     {Window show}
     {Window set(geometry:geometry(width:1 height:1))}
     % Init map
@@ -113,7 +116,7 @@ define
     {FightMod.setInterface Interface}
 
     {Window set(geometry:geometry(width:1100 height:810))}
-    {BindKeys}
+    if AutoFight then skip else {BindKeys} end
     GameState
   end
 
@@ -184,7 +187,7 @@ define
     fun {CanCapture}          {PokemozCount GameState.player} < 3   end
   in
     if {CanCapture} then
-      WantsToCapture = {Interface.askQuestion CAPTURE_POKEMOZ NO YES} in
+      WantsToCapture = if AutoFight then 1 else {Interface.askQuestion CAPTURE_POKEMOZ NO YES} end in
       if WantsToCapture==1 then
         NewPlayer = {PlayerMod.capturePokemoz GameState.player {PokemozMod.setHealth WildPokemoz 0}} in
         {Interface.hidePlayer2}
@@ -197,7 +200,7 @@ define
         GameState
       end
     else
-      {Interface.writeMessage WIN_BUT_CANNOT_CAPTURE}
+      if AutoFight then skip else {Interface.writeMessage WIN_BUT_CANNOT_CAPTURE} end
       {Interface.hidePlayer2}
       GameState
     end
@@ -213,7 +216,7 @@ define
     if FightResult==victory then
       {WildPokemozVictory AfterFightState WildPokemoz}
     else
-      {Interface.writeMessage FIGHT_LOST}
+      if AutoFight then skip else {Interface.writeMessage FIGHT_LOST} end
       {Interface.hidePlayer2}
       AfterFightState
     end
@@ -225,7 +228,7 @@ define
     fun {CanFight} {Bool.'not' {PokemozMod.allPokemozAreDead GameState.player.pokemoz_list}} end
   in
     if {CanFight} then
-      WantsToFight = {Interface.askQuestion MEET_WILD_POKEMON RUN FIGHT} in
+      WantsToFight = if AutoFight then 1 else {Interface.askQuestion MEET_WILD_POKEMON RUN FIGHT} end in
       if WantsToFight==1 then
         {FightWildPokemoz GameState WildPlayer}
       else
@@ -235,7 +238,7 @@ define
       end
     else
       {Lib.debug player_cannot_fight}
-      {Interface.writeMessage UNABLE_TO_FIGHT}
+      if AutoFight then skip else {Interface.writeMessage UNABLE_TO_FIGHT} end
       {Interface.hidePlayer2}
       GameState
     end
@@ -268,11 +271,20 @@ define
         {Application.exit 0}
       end
 
+      if AutoFight then {GenerateNextInstruction GameState} end
       {GameLoop T {GameStateMod.incrementTurn AfterFightState}}
     end
   end
 
-  % Startup
+  % Function for automatic play
+  proc {GenerateNextInstruction GameState}
+    {Lib.debug here}
+    {SendInstruction up}
+  end
 
-  {GameLoop InstructionsStream {InitGame}}
+  % kickoff
+  InitialGameState = {InitGame}
+  if AutoFight then {GenerateNextInstruction InitialGameState} end
+  {GameLoop InstructionsStream InitialGameState}
+
 end
