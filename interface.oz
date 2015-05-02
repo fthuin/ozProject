@@ -185,6 +185,16 @@ define
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+   proc {UpdateImage CanvasHandle ImageHandle ImageVs}
+      CurrentImage = {CanvasHandle get(tooltips:$)}
+    in
+      if CurrentImage == ImageVs then skip
+      else
+        {ImageHandle set(image:{GetImage {VirtualString.toAtom ImageVs}})}
+        {CanvasHandle set(tooltips:ImageVs)}
+      end
+   end
+
    proc {UpdatePlayerInterface Player Handles}
      proc {LoopPokemoz PokemozList N}
        case PokemozList
@@ -207,15 +217,15 @@ define
        {Handles.name_label          set(text:Pokemoz.name)}
        {Handles.level_xp_label      set(text:{VirtualString.toString "Level "#Pokemoz.level#" - "#Pokemoz.xp#" XP"})}
        {Handles.hp_label_handle     set(text:{VirtualString.toString Pokemoz.health#" HP"})}
-       {Handles.pokemoz_img         set(image:{GetImage {VirtualString.toAtom pokemoz_#Pokemoz.name}})}
-       {Handles.type_img            set(image:{GetImage {VirtualString.toAtom types_#Pokemoz.type}})}
+       {UpdateImage Handles.image_canvas Handles.pokemoz_img pokemoz_#Pokemoz.name}
+       {UpdateImage Handles.type_canvas  Handles.type_img    types_#Pokemoz.type}
        {Handles.health_green_canvas set(width:GreenWidth bg:BackgroundGreen)}
        {Handles.health_red_canvas   set(width:RedWidth   bg:BackgroundRed)}
      end
 
      SelectedPanel = Handles.{VirtualString.toAtom panel#Player.selected_pokemoz#handles}.top_level
    in
-     {Handles.picture_img    set(image:{GetImage Player.image})}
+     {UpdateImage Handles.picture_canvas  Handles.picture_img Player.image}
      {Handles.name_label     set(text:Player.name)}
      {Handles.panel selectPanel(SelectedPanel)}
      {LoopPokemoz Player.pokemoz_list 1}
