@@ -22,8 +22,8 @@ define
    % Constants
    CANVAS_OFFSET_BUG = 3
    TILE_SIZE = 80
-   GRASS = 0
-   ROAD  = 1
+   GRASS = 1
+   ROAD  = 0
 
    % Handles
    MapCanvasHandle
