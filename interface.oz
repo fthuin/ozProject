@@ -204,7 +204,7 @@ define
          {FloatToInt ({IntToFloat Pokemoz.health}/{IntToFloat {PokemozMod.maxHealth Pokemoz.level}})*100.0}
        end
      in
-       {Handles.name_label          set(text:Pokemoz.name)}
+       {Handles.name_label          set(text:{Lib.atomToCapitalizedString Pokemoz.name})}
        {Handles.level_xp_label      set(text:{VirtualString.toString Pokemoz.health#"hp - Lvl "#Pokemoz.level#" - "#Pokemoz.xp#" XP"})}
        {Handles.health_canvas       set(bg:red)}
        {UpdateImage Handles.image_canvas Handles.pokemoz_img pokemoz_#Pokemoz.name}

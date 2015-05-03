@@ -9,6 +9,7 @@ export
    PositionInDirection
    BindKeyboardArrows
    UnbindKeyboardArrows
+   AtomToCapitalizedString
 define
   proc {Debug Msg}
      {System.show Msg}
@@ -50,5 +51,7 @@ define
      {Window bind(event:"<Right>"   action:proc{$} skip end)}
   end
 
-
+  fun {AtomToCapitalizedString A}
+    case {Atom.toString A} of H|T then {Char.toUpper H}|T end
+  end
 end
