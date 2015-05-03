@@ -33,7 +33,7 @@ define
   MAP             = 'Map.txt'
   WILD_POKE_PROBA = 10
   SPEED           = 9
-  AUTOFIGHT       = true
+  AUTOFIGHT       = false
   Say             = System.showInfo
   Args = {Application.getArgs record(
              map(single char:&m type:atom default:MAP)
@@ -151,7 +151,7 @@ define
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
   fun {PlayerMeetsWildPokemoz? GameState}
-     {Bool.and {MapMod.isGrass GameState.map_info.map_record GameState.player.position} ({Lib.rand 100}>=WildPokemozProba)}
+     {Bool.and {MapMod.isGrass GameState.map_info.map_record GameState.player.position} ({Lib.rand 100}=<WildPokemozProba)}
   end
 
   proc {SendNextAutoPilotInstruction GameState}
