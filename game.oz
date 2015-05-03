@@ -144,9 +144,21 @@ define
       if {PositionIsFree GameState NewPosition} then
         case Direction
         of up    then GameState.player.position.y \= 0
-        [] right then GameState.player.position.x \= MapWidth-1
-        [] down  then GameState.player.position.y \= MapHeight-1
-        [] left  then GameState.player.position.x \= 0
+	[] right then
+	   if GameState.player.position.x \= MapWidth-1
+	      andthen (HospitalPosition.x \= GameState.player.position.x+1
+	      orelse HospitalPosition.y \= GameState.player.position.y)
+	      then true else false end
+	[] down  then
+	   if GameState.player.position.y \= MapHeight-1
+	      andthen (HospitalPosition.y \= GameState.player.position.y+1
+	      orelse HospitalPosition.x \= GameState.player.position.x)
+	      then true else false end
+	[] left  then
+	   if GameState.player.position.x \= 0
+	      andthen (HospitalPosition.x \= GameState.player.position.x-1
+	      orelse HospitalPosition.y \= GameState.player.position.y)
+	      then true else false end
         end
       else % Position was not free.
         false
