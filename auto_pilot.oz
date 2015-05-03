@@ -3,6 +3,7 @@ import
    Lib           at 'lib.ozf'
    PokemozMod    at 'pokemoz.ozf'
    CharactersMod at 'characters.ozf'
+   GameStateMod  at 'game_state.ozf'
 export
    GenerateNextInstruction
    ShouldFight
@@ -83,12 +84,29 @@ define
      end
   end
 
-  fun {GenerateNextInstruction GameState}
+  fun {Move GameState}
      if {InHospital GameState}                                                     then down
      elseif {PokemozMod.allPokemozAreDead GameState.player.pokemoz_list}           then {MoveToHospital GameState}
      elseif {Length GameState.player.pokemoz_list} < 3                             then {MoveToCapture GameState}
      elseif {PokemozMod.allPokemozAreDead CharactersMod.james.pokemoz_list}==false then {MoveToJames GameState}
      else {MoveToFinish GameState}
+     end
+  end
+
+  fun {GenerateNextInstruction GameState}
+     Direction = {Move GameState}
+     if {GameStateMod.canPlayerMoveInDirection? GameState Direction} then
+	Direction
+     else
+	if {GameStateMod.canPlayerMoveInDirection? GameState up}
+	   andthen {GameState.isPositionFree? GameState pos(GameState.player.position.x GameState.player.position.y-1)} then up
+	elseif {GameStateMod.canPlayerMoveInDirection? GameState down}
+	   andthen {GameState.isPositionFree? GameState pos(GameState.player.position.x GameState.player.position.y+1)} then down
+	elseif {GameStateMod.canPlayerMoveInDirection? GameState left}
+	   andthen {GameState.isPositionFree? GameState pos(GameState.player.position.x-1 GameState.player.position.y)} then left
+	elseif {GameStateMod.canPlayerMoveInDirection? GameState right}
+	   andthen {GameState.isPositionFree? GameState pos(GameState.player.position.x+1 GameState.player.position.y)} then right
+	end
      end
   end
 
