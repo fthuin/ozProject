@@ -8,6 +8,7 @@ import
   AutoPilot     at 'auto_pilot.ozf'
 export
   MeetWildPokemoz
+  FightTrainer
   Init
 define
   Interface
@@ -17,12 +18,15 @@ define
   CHOOSE_STARTING = "Choose your pokemon to start the fight."
   DEAD_CHOOSE_NEXT = "You pokemoz is dead. Choose your next pokemon to continue the fight."
   UNABLE_TO_FIGHT = "You meet a wild pokemoz but cannot fight since all your pokemons are injured. Visit the hospital!"
-  WIN_BUT_CANNOT_CAPTURE = "You won this fight but cannot capture this pokemon since your already own 3 pokemons"
-  FIGHT_LOST = "Oops...You lost this fight! You should visit the hospital to heal your pokemons."
+  WIN_BUT_CANNOT_CAPTURE = "You won this fight but cannot capture this pokemoz since your already own 3 pokemons"
+  FIGHT_LOST = "Oops...You lost this fight!\n You should visit the hospital to heal your pokemons."
   MEET_WILD_POKEMON = "You meet a wild pokemoz..."
+  MEET_WILD_TRAINER = "You meet another pokemoz trainer.\nNo fight, no glory. Lets go!"
   FIGHT = "Fight!"
   RUN = "Run!"
   CAPTURE_POKEMOZ = "Capture defeated pokemoz?"
+  TRAINER_LOSS  = "Oops, you lost this fight...\n Visit the hospital to heal your pokemoz.\n When you feel ready, come back to beat this arrogant prick!"
+  TRAINER_WIN = "Congratulations on winning this fight!\nYou are on your way to glory."
   NO = "No"
   YES = "Yes"
 
@@ -61,6 +65,10 @@ define
 
   fun {Fight AttackingPlayer DefendingPlayer EndAttacker EndDefender}
     fun {RecFight CAttPlayer CDefPlayer Round}
+      fun {IsPlayerAttacking}
+        (Round mod 2) == 0
+      end
+
       proc {UpdateInterface PlayerA PlayerB}
         if PlayerA.image == characters_player then
           {Interface.updatePlayer1 PlayerA}
@@ -82,23 +90,26 @@ define
         AfterEvoAttPlayer = {PlayerMod.evolveSelectedPokemoz CAttPlayer DefendingPokemoz}
         {AssignEndingStates Round AfterEvoAttPlayer EndDefendingPlayer EndAttacker EndDefender}
         {UpdateInterface AfterEvoAttPlayer EndDefendingPlayer}
-        if (Round mod 2) == 0 then victory else defeat end
+        if {IsPlayerAttacking} then victory else defeat end
       % Fight continue to next round
-      else FinalDefender in
-        if {SelectedPokemonIsDead EndDefendingPlayer} then
-          {UpdateInterface CAttPlayer EndDefendingPlayer}
-          if AutoFight then
-            FinalDefender = {PlayerMod.switchToNextPokemoz EndDefendingPlayer}
+    else AfterSwitchDefender in
+        if {SelectedPokemonIsDead EndDefendingPlayer} then AfterEvoAttPlayer in
+          AfterEvoAttPlayer = {PlayerMod.evolveSelectedPokemoz CAttPlayer DefendingPokemoz}
+
+          {UpdateInterface AfterEvoAttPlayer EndDefendingPlayer}
+          if AutoFight orelse {IsPlayerAttacking} then
+            AfterSwitchDefender = {PlayerMod.switchToNextPokemoz EndDefendingPlayer}
           else
             ChoosenIndex = {Interface.choosePokemonToFight EndDefendingPlayer DEAD_CHOOSE_NEXT} in
-            FinalDefender = {PlayerMod.updatePokemozSelection EndDefendingPlayer ChoosenIndex}
+            AfterSwitchDefender = {PlayerMod.updatePokemozSelection EndDefendingPlayer ChoosenIndex}
           end
-          {UpdateInterface CAttPlayer EndDefendingPlayer}
+          {UpdateInterface AfterEvoAttPlayer EndDefendingPlayer}
           {Lib.debug defender_pokemon_is_dead}
+          {RecFight AfterSwitchDefender AfterEvoAttPlayer Round+1}
         else
-          FinalDefender = EndDefendingPlayer
+          {RecFight EndDefendingPlayer CAttPlayer Round+1} % Switch attack turn
         end
-        {RecFight FinalDefender CAttPlayer Round+1} % Switch attack turn
+
       end
     end
 
@@ -134,12 +145,12 @@ define
   end
 
   fun {FightWildPokemoz GameState WildPlayer}
-    EndAttackingPlayer AfterFightState FightResult
-    WildPokemoz = WildPlayer.pokemoz_list.1
-  in
+    EndAttackingPlayer
+    WildPokemoz      = WildPlayer.pokemoz_list.1
     {Lib.debug fight_engaged_with_wild_pokemoz(WildPokemoz)}
     FightResult      = {Fight GameState.player WildPlayer EndAttackingPlayer _}
     AfterFightState  = {GameStateMod.updatePlayer GameState EndAttackingPlayer}
+  in
     if FightResult==victory then
       {WildPokemozVictory AfterFightState WildPokemoz}
     else
@@ -147,6 +158,23 @@ define
       {Interface.hidePlayer2}
       AfterFightState
     end
+  end
+
+  fun {FightTrainer GameState EnemyTrainer}
+    EndPlayer EndEnemyTrainer
+    {Lib.debug fight_engaged_with_trainer(EnemyTrainer)}
+    {Interface.showPlayer2 EnemyTrainer}
+    if AutoFight then skip else {Interface.writeMessage MEET_WILD_TRAINER} end
+    FightResult      = {Fight GameState.player EnemyTrainer EndPlayer EndEnemyTrainer}
+    AfterHealTrainer = if FightResult==victory then EndEnemyTrainer else {PlayerMod.healPokemoz EndEnemyTrainer} end
+    AfterFightState  = {GameStateMod.updatePlayerAndEnemyTrainer GameState EndPlayer AfterHealTrainer}
+  in
+    if AutoFight then skip else
+      Message = if FightResult==victory then TRAINER_WIN else TRAINER_LOSS end in
+      {Interface.writeMessage Message}
+    end
+    {Interface.hidePlayer2}
+    AfterFightState
   end
 
   fun {MeetWildPokemoz GameState}

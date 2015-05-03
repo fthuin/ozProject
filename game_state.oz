@@ -5,6 +5,7 @@ export
   UpdatePlayer
   IncrementTurn
   HealPlayerPokemoz
+  UpdatePlayerAndEnemyTrainer
 define
   fun {UpdatePlayer GameState NewPlayer}
     case GameState
@@ -26,5 +27,23 @@ define
     then game_state(turn:Turn player:{PlayerMod.healPokemoz Player} trainers:Trainers)
     end
   end
+
+  fun {UpdatePlayerAndEnemyTrainer GameState NewPlayer NewTrainer}
+    fun {ReplaceTrainer TrainersList}
+      case TrainersList
+      of nil then nil
+      [] H|T then
+        if H.name == NewTrainer.name then NewTrainer|{ReplaceTrainer T}
+        else H|{ReplaceTrainer T}
+        end
+      end
+    end
+  in
+    case GameState
+    of   game_state(turn:Turn player:_         trainers:Trainers)
+    then game_state(turn:Turn player:NewPlayer trainers:{ReplaceTrainer Trainers})
+    end
+  end
+
 
 end

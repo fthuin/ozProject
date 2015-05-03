@@ -339,9 +339,7 @@ define
       if PokemozCount >= Index andthen {List.nth PokemonList Index}.health>0 then normal else disabled end
     end
   in
-    {Lib.debug yip}
     {Lib.debug CenterAreaHandles.select_pokemoz}
-    {Lib.debug yop}
     {CenterAreaHandles.select_pokemoz.label   set(text:Text)}
     {CenterAreaHandles.select_pokemoz.btn1    set(text:{TextBtn 1} state:{StateBtn 1} action:HitBtn1)}
     {CenterAreaHandles.select_pokemoz.btn2    set(text:{TextBtn 2} state:{StateBtn 2} action:HitBtn2)}

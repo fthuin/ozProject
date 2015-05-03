@@ -12,6 +12,7 @@ import
   GameStateMod  at 'game_state.ozf'
   PlayerMod     at 'player.ozf'
   AutoPilot     at 'auto_pilot.ozf'
+  PokemozMod    at 'pokemoz.ozf'
 define
   {System.show game_started}
   [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
@@ -45,10 +46,10 @@ define
 
   % Compute elements starting position
   VictoryPosition  = pos(x:MapWidth-1 y:0)
-  HospitalPosition = pos(x:(MapWidth div 2) y:(MapHeight div 2))
-  BrockPosition    = pos(x:VictoryPosition.x-1 y:VictoryPosition.y+1)
-  MistyPosition    = pos(x:HospitalPosition.x-2 y:HospitalPosition.y-1)
-  JamesPosition    = pos(x:2 y:(MapHeight-2))
+  HospitalPosition = pos(x:3 y:3)
+  BrockPosition    = pos(x:5 y:1)
+  MistyPosition    = pos(x:1 y:1)
+  JamesPosition    = pos(x:0 y:5)
 
   % Compute enemy trainers
    Trainers = [
@@ -182,7 +183,6 @@ define
     NewState
   end
 
-
   fun {InHospital GameState}
     GameState.player.position == HospitalPosition
   end
@@ -198,8 +198,10 @@ define
       case Trainers
       of nil then false
       [] H|T then
-        if {PositionsAreAdjacent GameState.player.position H.position} then
-          Trainer=H true
+        if {PositionsAreAdjacent GameState.player.position H.position}
+        andthen {PokemozMod.allPokemozAreDead H.pokemoz_list}==false then
+          Trainer = H
+          true
         else {TestTrainerMeetingRec T} end
       end
     end
@@ -224,8 +226,7 @@ define
       if {InHospital AfterMoveState} then
         AfterFightState = {HealPokemoz AfterMoveState}
       elseif {TestTrainerMeeting AfterMoveState Trainer} then
-        {Lib.debug meet(Trainer)}
-        AfterFightState = AfterMoveState
+        AfterFightState = {FightMod.fightTrainer AfterMoveState Trainer}
       elseif {TestWildPokemozMeeting AfterMoveState} then
         AfterFightState = {FightMod.meetWildPokemoz AfterMoveState}
       else
