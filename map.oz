@@ -13,7 +13,7 @@ export
    DrawMistyAtPosition
    DrawJamesAtPosition
    MovePlayer
-   IsRoad
+   IsGrass
    LoadMapFromFile
 define
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
@@ -190,8 +190,8 @@ define
       {Anim 0}
     end
 
-    fun {IsRoad Map Position}
-      Map.(Position.y+1).(Position.x+1) == ROAD
+    fun {IsGrass Map Position}
+      Map.(Position.y+1).(Position.x+1) == GRASS
     end
 
     fun {LoadMapFromFile Path}

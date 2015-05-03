@@ -237,12 +237,15 @@ define
        {Handles.level_xp_label      set(text:nil)}
        {Handles.hp_label_handle     set(text:nil)}
        {Handles.pokemoz_img         set(image:nil)}
+       {Handles.image_canvas        set(tooltips:nil)}
        {Handles.type_img            set(image:nil)}
+       {Handles.type_canvas         set(tooltips:nil)}
        {Handles.health_green_canvas set(width:0 bg:white)}
        {Handles.health_red_canvas   set(width:0 bg:white)}
      end
    in
      {Handles.picture_img set(image:nil)}
+     {Handles.picture_canvas set(tooltips:nil)}
      {Handles.name_label  set(text:nil)}
      {ClearPanel Handles.panel1handles}
      {ClearPanel Handles.panel2handles}

@@ -2,12 +2,14 @@ functor
 import
   PlayerMod at 'player.ozf'
   Lib           at 'lib.ozf'
+  PokemozMod    at 'pokemoz.ozf'
 export
   UpdatePlayer
   IncrementTurn
   HealPlayerPokemoz
   UpdatePlayerAndEnemyTrainer
   CanPlayerMoveInDirection?
+  IsPlayerNextToTrainer?
 define
   fun {UpdatePlayer GameState NewPlayer}
     case GameState
@@ -93,5 +95,27 @@ define
         false
       end
     end
+  end
+
+  fun {IsPlayerNextToTrainer? GameState Trainer}
+    fun {PositionsAreAdjacent Pos1 Pos2}
+      XDiff = {Abs (Pos1.x - Pos2.x)}
+      YDiff = {Abs (Pos1.y - Pos2.y)}
+    in
+      if (XDiff+YDiff)==1 then true else false end
+    end
+    fun {TestTrainerMeetingRec Trainers}
+      case Trainers
+      of nil then false
+      [] H|T then
+        if {PositionsAreAdjacent GameState.player.position H.position}
+        andthen {PokemozMod.allPokemozAreDead H.pokemoz_list}==false then
+          Trainer = H
+          true
+        else {TestTrainerMeetingRec T} end
+      end
+    end
+  in
+    {TestTrainerMeetingRec GameState.trainers}
   end
 end

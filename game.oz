@@ -3,6 +3,7 @@ import
   Application
   System
   Module
+  Property
   Lib           at 'lib.ozf'
   CharactersMod at 'characters.ozf'
   MapMod        at 'map.ozf'
@@ -15,48 +16,74 @@ import
   PokemozMod    at 'pokemoz.ozf'
 define
   {System.show game_started}
-  [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
 
-  % Get Parameters
-  MapPath WildPokemozProba Speed AutoFight Delay
-  {Lib.getArgs MapPath WildPokemozProba Speed AutoFight Delay}
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %  ____   _    ____  ____  _____      _    ____   ____ ____
+  % |  _ \ / \  |  _ \/ ___|| ____|    / \  |  _ \ / ___/ ___|
+  % | |_) / _ \ | |_) \___ \|  _|     / _ \ | |_) | |  _\___ \
+  % |  __/ ___ \|  _ < ___) | |___   / ___ \|  _ <| |_| |___) |
+  % |_| /_/   \_\_| \_\____/|_____| /_/   \_\_| \_\\____|____/
+  %
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+  % Default values
+  DEFAULT_NAME    = "Sacha"
+  DEFAULT_POKEMOZ = bulbasoz
+  DELAY           = 200
+  MAP             = 'Map.txt'
+  WILD_POKE_PROBA = 10
+  SPEED           = 9
+  AUTOFIGHT       = true
+  Say             = System.showInfo
+  Args = {Application.getArgs record(
+             map(single char:&m type:atom default:MAP)
+     probability(single char:&p type:int  default:WILD_POKE_PROBA)
+           speed(single char:&s type:int  default:SPEED)
+       autofight(single char:&a type:bool default:AUTOFIGHT)
+            help(single char:[&? &h] default:false))}
+
+  if Args.help then
+    {Say "Usage: "#{Property.get 'application.url'}#" [option]"}
+    {Say "Options:"}
+    {Say "  -m, --map FILE\tFile containing the map (default "#MAP#")"}
+    {Say "  -p, --probability INT\tProbability to find a wild pokemoz in tall grass"}
+    {Say "  -s, --speed INT\tThe speed of your pokemoz trainer in a range from 0 to 10"}
+    {Say "  -a, --autofight BOOL\tChoice weither the game is automatic or not"}
+    {Say "  -h, -?, --help\tThis help"}
+    {Application.exit 0}
+  end
+
+  MapPath          = Args.map
+  WildPokemozProba = Args.probability
+  Speed            = Args.speed
+  AutoFight        = Args.autofight
+  TurnDuration = (10-Speed)*DELAY
   {Lib.debug arguments_parsed}
 
-  TurnDuration = (10-Speed)*Delay
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %  ___ _   _ ___ _____    ____    _    __  __ _____ ____ _____  _  _____ _____
+  % |_ _| \ | |_ _|_   _|  / ___|  / \  |  \/  | ____/ ___|_   _|/ \|_   _| ____|
+  %  | ||  \| || |  | |   | |  _  / _ \ | |\/| |  _| \___ \ | | / _ \ | | |  _|
+  %  | || |\  || |  | |   | |_| |/ ___ \| |  | | |___ ___) || |/ ___ \| | | |___
+  % |___|_| \_|___| |_|    \____/_/   \_\_|  |_|_____|____/ |_/_/   \_\_| |_____|
+  %
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  % Load map
+  Map       = {MapMod.loadMapFromFile MapPath}
+  MapHeight = {Width Map}
+  MapWidth  = {Width Map.1}
 
-  Map = {MapMod.loadMapFromFile MapPath}
-  {Lib.debug map_loaded}
-
-  % Intro - Ask player for name and starting pokemoz
-  PlayerName  = "Greg"
-  PokemozName = bulbasoz
-   /*
-   PlayerName PokemozName
-   if AutoFight then
-      PlayerName = "Sacha"
-      PokemozName = bulbasoz
-   else
-      {GameIntro.getUserChoice PlayerName PokemozName}
-   end
-   */
-
-  % Save some map info
-  MapHeight        = {Width Map}
-  MapWidth         = {Width Map.1}
-
-  % Compute elements starting position
+  % Map elements
   VictoryPosition  = pos(x:MapWidth-1 y:0)
   HospitalPosition = pos(x:3 y:3)
   BrockPosition    = pos(x:5 y:1)
   MistyPosition    = pos(x:1 y:1)
   JamesPosition    = pos(x:0 y:5)
-
-  % Compute enemy trainers
-   Trainers = [
+  Trainers = [
          {PlayerMod.updatePosition CharactersMod.james JamesPosition}
          {PlayerMod.updatePosition CharactersMod.brock BrockPosition}
          {PlayerMod.updatePosition CharactersMod.misty MistyPosition}
-        ]
+  ]
 
   % Setup intial game state
    InstructionsStream
@@ -79,8 +106,16 @@ define
   end
 
   fun {InitGame}
-    StartingPos      = pos(x:MapWidth-1 y:MapHeight-1)
+    PlayerName PokemozName
+    if AutoFight then
+      PlayerName =  DEFAULT_NAME
+      PokemozName = DEFAULT_POKEMOZ
+    else
+      {GameIntro.getUserChoice PlayerName PokemozName}
+    end
+
     MapInfo          = map_info(height:MapHeight width:MapWidth hospital_pos:HospitalPosition victory_pos:VictoryPosition)
+    StartingPos      = pos(x:MapInfo.width-1 y:MapInfo.height-1)
     Player           = player(name:PlayerName image:characters_player position:StartingPos selected_pokemoz:1
                               pokemoz_list:[CharactersMod.basePokemoz.PokemozName])
     GameState        = game_state(turn:0 player:Player trainers:Trainers map_info:MapInfo)
@@ -88,6 +123,7 @@ define
     UnbindKeys       = proc {$} {UnbindKeyboardActions Window InstructionsPort} end
     MapPlaceHolder
     InterfacePlaceHolder
+    [QTk]           = {Module.link ["x-oz://system/wp/QTk.ozf"]}
     Window = {QTk.build td(td(pady:20 padx:20 % Cannot set padding on top-level, so set 1 extra td for padding.
                             placeholder(glue:n handle:MapPlaceHolder        width:1100 height:560)
                             placeholder(glue:n handle:InterfacePlaceHolder  width:1100 height:220)))}
@@ -101,7 +137,7 @@ define
     {MapMod.drawBrockAtPosition    BrockPosition}
     {MapMod.drawMistyAtPosition    MistyPosition}
     {MapMod.drawJamesAtPosition    JamesPosition}
-    {MapMod.drawPlayerAtPosition   StartingPos}
+    {MapMod.drawPlayerAtPosition   GameState.player.position}
     {MapMod.drawHospitalAtPosition GameState.map_info.hospital_pos}
 
     % Init interface
@@ -114,102 +150,59 @@ define
   end
 
 
-
-  fun {PlayerMeetsWildPokemoz GameState}
-     if {MapMod.isRoad Map GameState.player.position} then
-       {Lib.debug player_on_road} false
-     else
-       {Lib.debug player_on_grass}
-       if {Lib.rand 100} >= WildPokemozProba then false
-       else {Lib.debug player_meet_wild_pokemon}  true
-       end
-     end
+  fun {PlayerMeetsWildPokemoz? GameState}
+     {Bool.and {MapMod.isGrass Map GameState.player.position} ({Lib.rand 100}>=WildPokemozProba)}
   end
 
-
-
-  fun {HealPokemoz GameState}
-    NewState = {GameStateMod.healPlayerPokemoz GameState}
-  in
-    {Interface.updatePlayer1 NewState.player}
-    NewState
+  proc {SendNextAutoPilotInstruction GameState}
+    {Send InstructionsPort {AutoPilot.generateNextInstruction GameState}}
   end
 
-    % Helpers
-    proc {SendNextAutoPilotInstruction GameState}
-      {Send InstructionsPort {AutoPilot.generateNextInstruction GameState}}
-    end
-
-    fun {PlayerIsAtHospital GameState}
-      GameState.player.position == HospitalPosition
-    end
-
-    fun {CheckVictoryCondition GameState}
-      GameState.player.position == VictoryPosition
-    end
-
+  proc {GameLoop InstructionsStream GameState}
+    fun {PlayerIsAtHospital GameState} GameState.player.position == HospitalPosition end
+    fun {PlayerWon GameState}          GameState.player.position == VictoryPosition end
     fun {MovePlayer GameState Direction}
       {MapMod.movePlayer Direction TurnDuration}
       {GameStateMod.updatePlayer GameState {PlayerMod.updatePositionInDirection GameState.player Direction}}
     end
-
-  fun {PlayerMeetsTrainer? GameState Trainer}
-    fun {PositionsAreAdjacent Pos1 Pos2}
-      XDiff = {Abs (Pos1.x - Pos2.x)}
-      YDiff = {Abs (Pos1.y - Pos2.y)}
-    in
-      if (XDiff+YDiff)==1 then true else false end
-    end
-    fun {TestTrainerMeetingRec Trainers}
-      case Trainers
-      of nil then false
-      [] H|T then
-        if {PositionsAreAdjacent GameState.player.position H.position}
-        andthen {PokemozMod.allPokemozAreDead H.pokemoz_list}==false then
-          Trainer = H
-          true
-        else {TestTrainerMeetingRec T} end
-      end
-    end
+    AfterMoveState AfterActionState Trainer
   in
-    {TestTrainerMeetingRec GameState.trainers}
+    case InstructionsStream of Direction|T then
+    {Lib.debug instruction_received(Direction)}
+
+    % Test is movement is valid
+    if {GameStateMod.canPlayerMoveInDirection? GameState Direction}==false then
+       {Lib.debug invalid_command(Direction)}
+       {GameLoop T GameState}
+    else
+       {Lib.debug turn_started(GameState.turn)}
+       AfterMoveState = {MovePlayer GameState Direction}
+       {Lib.debug player_moved_to(AfterMoveState.player.position)}
+    end
+
+    % Execute turn action
+    if {PlayerIsAtHospital AfterMoveState} then
+      AfterActionState = {GameStateMod.healPlayerPokemoz AfterMoveState}
+      {Interface.updatePlayer1 AfterActionState.player}
+    elseif {GameStateMod.isPlayerNextToTrainer? AfterMoveState Trainer} then
+      AfterActionState = {FightMod.fightTrainer AfterMoveState Trainer}
+    elseif {PlayerMeetsWildPokemoz? AfterMoveState} then
+      AfterActionState = {FightMod.meetWildPokemoz AfterMoveState}
+    else
+      AfterActionState = AfterMoveState
+    end
+
+    % Test if player won the game
+    if {PlayerWon AfterActionState} then
+      {Lib.debug game_won}
+      {Application.exit 0}
+    end
+
+    % Start next loop
+    if AutoFight then {SendNextAutoPilotInstruction AfterActionState} end
+      {GameLoop T {GameStateMod.incrementTurn AfterActionState}}
+    end
   end
-
-  proc {GameLoop InstructionsStream GameState}
-     case InstructionsStream
-     of Direction|T then AfterMoveState AfterFightState Trainer in
-    	{Lib.debug instruction_received(Direction)}
-
-    	if {Bool.'not' {GameStateMod.canPlayerMoveInDirection? GameState Direction}} then
-    	   {Lib.debug invalid_command(Direction)}
-    	   {GameLoop T GameState}
-      end
-
-      {Lib.debug turn_number(GameState.turn)}
-    	AfterMoveState = {MovePlayer GameState Direction}
-      {Lib.debug player_moved_to(AfterMoveState.player.position)}
-
-      if {PlayerIsAtHospital AfterMoveState} then
-        AfterFightState = {HealPokemoz AfterMoveState}
-      elseif {PlayerMeetsTrainer? AfterMoveState Trainer} then
-        AfterFightState = {FightMod.fightTrainer AfterMoveState Trainer}
-      elseif {PlayerMeetsWildPokemoz AfterMoveState} then
-        AfterFightState = {FightMod.meetWildPokemoz AfterMoveState}
-      else
-        AfterFightState = AfterMoveState
-      end
-
-      if {CheckVictoryCondition AfterFightState} then
-        {Lib.debug game_won}
-        {Application.exit 0}
-      end
-
-      if AutoFight then {SendNextAutoPilotInstruction AfterFightState} end
-      {GameLoop T {GameStateMod.incrementTurn AfterFightState}}
-     end
-  end
-
-
 
   % Kickoff!
   InitialGameState = {InitGame}
