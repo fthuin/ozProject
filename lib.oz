@@ -41,8 +41,8 @@ define
    proc {GetArgs Map Probability Speed AutoFight DELAY}
       %% Default values
       MAP         = 'Map.txt'
-      PROBABILITY = 40
-      SPEED       = 8
+      PROBABILITY = 10
+      SPEED       = 9
       AUTOFIGHT   = true
       Say         = System.showInfo
       Args = {Application.getArgs record(

@@ -11,21 +11,10 @@ import
   GameIntro     at 'gameIntro.ozf'
   GameStateMod  at 'game_state.ozf'
   PlayerMod     at 'player.ozf'
-  PokemozMod    at 'pokemoz.ozf'
+  AutoPilot     at 'auto_pilot.ozf'
 define
   {System.show game_started}
   [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
-
-  % Messages
-  UNABLE_TO_FIGHT = "You meet a wild pokemoz but cannot fight since all your pokemons are injured. Visit the hospital!"
-  WIN_BUT_CANNOT_CAPTURE = "You won this fight but cannot capture this pokemon since your already own 3 pokemons"
-  FIGHT_LOST = "Oops...You lost this fight! You should visit the hospital to heal your pokemons."
-  MEET_WILD_POKEMON = "You meet a wild pokemoz..."
-  FIGHT = "Fight!"
-  RUN = "Run!"
-  CAPTURE_POKEMOZ = "Capture defeated pokemoz?"
-  NO = "No"
-  YES = "Yes"
 
   % Get Parameters
   MapPath WildPokemozProba Speed AutoFight Delay
@@ -118,7 +107,7 @@ define
     {FightMod.init Interface AutoFight}
 
     {Window set(geometry:geometry(width:1200 height:810))}
-    if AutoFight then skip else {BindKeys} end
+    if AutoFight then {AutoPilot.init HospitalPosition VictoryPosition} else {BindKeys} end
     GameState
   end
 
@@ -144,22 +133,22 @@ define
       if {PositionIsFree GameState NewPosition} then
         case Direction
         of up    then GameState.player.position.y \= 0
-	[] right then
-	   if GameState.player.position.x \= MapWidth-1
-	      andthen (HospitalPosition.x \= GameState.player.position.x+1
-	      orelse HospitalPosition.y \= GameState.player.position.y)
-	      then true else false end
-	[] down  then
-	   if GameState.player.position.y \= MapHeight-1
-	      andthen (HospitalPosition.y \= GameState.player.position.y+1
-	      orelse HospitalPosition.x \= GameState.player.position.x)
-	      then true else false end
-	[] left  then
-	   if GameState.player.position.x \= 0
-	      andthen (HospitalPosition.x \= GameState.player.position.x-1
-	      orelse HospitalPosition.y \= GameState.player.position.y)
-	      then true else false end
-        end
+	      [] right then
+          if GameState.player.position.x \= MapWidth-1
+            andthen (HospitalPosition.x \= GameState.player.position.x+1
+            orelse   HospitalPosition.y \= GameState.player.position.y)
+            then true else false end
+	      [] down  then
+	         if GameState.player.position.y \= MapHeight-1
+    	     andthen (HospitalPosition.y \= GameState.player.position.y+1
+    	     orelse   HospitalPosition.x \= GameState.player.position.x)
+    	     then true else false end
+	      [] left then
+	         if GameState.player.position.x \= 0
+	         andthen (HospitalPosition.x \= GameState.player.position.x-1
+	         orelse   HospitalPosition.y \= GameState.player.position.y)
+	         then true else false end
+           end
       else % Position was not free.
         false
       end
@@ -193,145 +182,9 @@ define
     NewState
   end
 
-  fun {WildPokemozVictory GameState WildPokemoz}
-    fun {PokemozCount Player} {Length Player.pokemoz_list}          end
-    fun {CanCapture}          {PokemozCount GameState.player} < 3   end
-  in
-    if {CanCapture} then
-      WantsToCapture = if AutoFight then true else {Interface.askQuestion CAPTURE_POKEMOZ NO YES} end in
-      if WantsToCapture then
-        NewPlayer = {PlayerMod.capturePokemoz GameState.player {PokemozMod.setHealth WildPokemoz 0}} in
-        {Interface.hidePlayer2}
-        {Lib.debug pokemoz_captured(NewPlayer.pokemoz_list)}
-        {Interface.updatePlayer1 NewPlayer}
-        {Interface.selectPlayer1Panel {PokemozCount NewPlayer}}
-        {GameStateMod.updatePlayer GameState NewPlayer}
-      else
-        {Interface.hidePlayer2}
-        GameState
-      end
-    else
-      if AutoFight then skip else {Interface.writeMessage WIN_BUT_CANNOT_CAPTURE} end
-      {Interface.hidePlayer2}
-      GameState
-    end
-  end
-
-  fun {FightWildPokemoz GameState WildPlayer}
-    EndAttackingPlayer AfterFightState FightResult
-    WildPokemoz = WildPlayer.pokemoz_list.1
-  in
-
-    {Lib.debug fight_engaged_with_wild_pokemoz(WildPokemoz)}
-    FightResult      = {FightMod.fight GameState.player WildPlayer EndAttackingPlayer _}
-    AfterFightState  = {GameStateMod.updatePlayer GameState EndAttackingPlayer}
-    if FightResult==victory then
-      {WildPokemozVictory AfterFightState WildPokemoz}
-    else
-      if AutoFight then skip else {Interface.writeMessage FIGHT_LOST} end
-      {Interface.hidePlayer2}
-      AfterFightState
-    end
-  end
-
-  fun {MeetWildPokemoz GameState}
-     WildPokemoz = {CharactersMod.summonWildPokemon GameState}
-     WildPlayer  = {PlayerMod.getWildPlayer WildPokemoz}
-     {Interface.showPlayer2 WildPlayer}
-     fun {CanFight} {Bool.'not' {PokemozMod.allPokemozAreDead GameState.player.pokemoz_list}} end
-  in
-    if {CanFight} then WantsToFight in
-      WantsToFight = if AutoFight then {ShouldFight GameState WildPokemoz}
-                     else {Interface.askQuestion MEET_WILD_POKEMON RUN FIGHT} end
-      if WantsToFight then
-        {FightWildPokemoz GameState WildPlayer}
-      else
-	      {Lib.debug player_run_from_fight}
-	      {Interface.hidePlayer2}
-	       GameState
-      end
-    else
-      {Lib.debug player_cannot_fight}
-      if AutoFight then skip else {Interface.writeMessage UNABLE_TO_FIGHT} end
-      {Interface.hidePlayer2}
-      GameState
-    end
-  end
-
-  fun {InFrontHospital GameState}
-     if GameState.player.position.x == HospitalPosition.x+1 andthen
-	      GameState.player.position.y == HospitalPosition.y+1 then true
-     else false
-     end
-  end
 
   fun {InHospital GameState}
     GameState.player.position == HospitalPosition
-  end
-
-  proc {MoveToCapture GameState}
-     {Lib.debug move_to_capture}
-     PlayerX = GameState.player.position.x
-     PlayerY = GameState.player.position.y
-  in
-     if PlayerX > HospitalPosition.x      andthen PlayerY > HospitalPosition.y    then {Send InstructionsPort left}
-     elseif PlayerX == HospitalPosition.x andthen PlayerY > HospitalPosition.y+1  then {Send InstructionsPort up}
-     elseif PlayerX == HospitalPosition.x andthen PlayerY == HospitalPosition.y+1 then {Send InstructionsPort down}
-     end
-  end
-
-  proc {MoveToHospital GameState}
-     {Lib.debug move_to_hospital}
-     PlayerX = GameState.player.position.x
-     PlayerY = GameState.player.position.y
-  in
-     if PlayerY > HospitalPosition.y+2      then {Send InstructionsPort up}
-     elseif PlayerY < HospitalPosition.y+1  then {Send InstructionsPort down}
-     else
-	      if PlayerX < HospitalPosition.x     then {Send InstructionsPort right}
-	      elseif PlayerX > HospitalPosition.x then {Send InstructionsPort left}
-	      else {Send InstructionsPort up} %% Rentre dans l'hopital
-	      end
-     end
-  end
-
-  proc {MoveToFinish GameState}
-     {Lib.debug move_to_finish}
-     PlayerX = GameState.player.position.x
-     PlayerY = GameState.player.position.y
-  in
-     if PlayerY > VictoryPosition.y+2 then
-	      if {InFrontHospital GameState}     then {Send InstructionsPort right}
-	      else {Send InstructionsPort up}
-        end
-     elseif PlayerY < VictoryPosition.y+1  then {Send InstructionsPort down}
-     else
-	      if PlayerX < VictoryPosition.x     then {Send InstructionsPort right}
-	      elseif PlayerX > VictoryPosition.x then {Send InstructionsPort left}
-	      else {Send InstructionsPort up}
-	      end
-     end
-  end
-
-  proc {MoveToJames GameState}
-     {Lib.debug move_to_james}
-     PlayerX = GameState.player.position.x
-     PlayerY = GameState.player.position.y
-  in
-     if PlayerY < GameState.trainers.1.position.y     then {Send InstructionsPort down}
-     elseif PlayerY > GameState.trainers.1.position.y then {Send InstructionsPort up}
-     elseif PlayerX < GameState.trainers.1.position.x then {Send InstructionsPort right}
-     else  {Send InstructionsPort left}
-     end
-  end
-
-  proc {GenerateNextInstruction GameState}
-     if {InHospital GameState}                                                     then {Send InstructionsPort down}
-     elseif {PokemozMod.allPokemozAreDead GameState.player.pokemoz_list}           then {MoveToHospital GameState}
-     elseif {Length GameState.player.pokemoz_list} < 3                             then {MoveToCapture GameState}
-     elseif {PokemozMod.allPokemozAreDead CharactersMod.james.pokemoz_list}==false then {MoveToJames GameState}
-     else {MoveToFinish GameState}
-     end
   end
 
   proc {GameLoop InstructionsStream GameState}
@@ -351,7 +204,7 @@ define
       if {InHospital AfterMoveState} then
         AfterFightState = {HealPokemoz AfterMoveState}
       elseif {TestWildPokemozMeeting AfterMoveState} then
-        AfterFightState = {MeetWildPokemoz AfterMoveState}
+        AfterFightState = {FightMod.meetWildPokemoz AfterMoveState}
       else
         AfterFightState = AfterMoveState
       end
@@ -361,18 +214,17 @@ define
         {Application.exit 0}
       end
 
-      if AutoFight then {GenerateNextInstruction AfterFightState} end
+      if AutoFight then {AutoPilotInstruction AfterFightState} end
       {GameLoop T {GameStateMod.incrementTurn AfterFightState}}
      end
   end
 
-  fun {ShouldFight GameState WildPokemon}
-    true
+  proc {AutoPilotInstruction GameState}
+    {Send InstructionsPort {AutoPilot.generateNextInstruction GameState}}
   end
-
   % kickoff
   InitialGameState = {InitGame}
-  if AutoFight then {GenerateNextInstruction InitialGameState} end
+  if AutoFight then {AutoPilotInstruction InitialGameState} end
   {GameLoop InstructionsStream InitialGameState}
 
 end

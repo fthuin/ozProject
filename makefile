@@ -21,6 +21,9 @@ gameState:
 map:
 	ozc -c map.oz
 
+autoPilot:
+	ozc -c auto_pilot.oz
+
 interface:
 	ozc -c interface.oz
 

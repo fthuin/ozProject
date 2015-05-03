@@ -1,21 +1,34 @@
 functor
 import
-  Lib        at 'lib.ozf'
-  PokemozMod at 'pokemoz.ozf'
-  PlayerMod  at 'player.ozf'
+  Lib           at 'lib.ozf'
+  PokemozMod    at 'pokemoz.ozf'
+  PlayerMod     at 'player.ozf'
+  GameStateMod  at 'game_state.ozf'
+  CharactersMod at 'characters.ozf'
+  AutoPilot     at 'auto_pilot.ozf'
 export
-  Fight
+  MeetWildPokemoz
   Init
 define
-  InterfaceMod
+  Interface
   AutoFight
 
+  % Messages
   CHOOSE_STARTING = "Choose your pokemon to start the fight."
   DEAD_CHOOSE_NEXT = "You pokemoz is dead. Choose your next pokemon to continue the fight."
+  UNABLE_TO_FIGHT = "You meet a wild pokemoz but cannot fight since all your pokemons are injured. Visit the hospital!"
+  WIN_BUT_CANNOT_CAPTURE = "You won this fight but cannot capture this pokemon since your already own 3 pokemons"
+  FIGHT_LOST = "Oops...You lost this fight! You should visit the hospital to heal your pokemons."
+  MEET_WILD_POKEMON = "You meet a wild pokemoz..."
+  FIGHT = "Fight!"
+  RUN = "Run!"
+  CAPTURE_POKEMOZ = "Capture defeated pokemoz?"
+  NO = "No"
+  YES = "Yes"
 
   proc {Init Interf AutoF}
-    InterfaceMod = Interf
-    AutoFight = AutoF
+    Interface = Interf
+    AutoFight    = AutoF
   end
 
   fun {IsAttackSuccess AttackerPokemoz DefenderPokemoz}
@@ -50,11 +63,11 @@ define
     fun {RecFight CAttPlayer CDefPlayer Round}
       proc {UpdateInterface PlayerA PlayerB}
         if PlayerA.image == characters_player then
-          {InterfaceMod.updatePlayer1 PlayerA}
-          {InterfaceMod.updatePlayer2 PlayerB}
+          {Interface.updatePlayer1 PlayerA}
+          {Interface.updatePlayer2 PlayerB}
         else
-          {InterfaceMod.updatePlayer1 PlayerB}
-          {InterfaceMod.updatePlayer2 PlayerA}
+          {Interface.updatePlayer1 PlayerB}
+          {Interface.updatePlayer2 PlayerA}
         end
       end
       AttackingPokemoz    = {List.nth CAttPlayer.pokemoz_list CAttPlayer.selected_pokemoz}
@@ -77,7 +90,7 @@ define
           if AutoFight then
             FinalDefender = {PlayerMod.switchToNextPokemoz EndDefendingPlayer}
           else
-            ChoosenIndex = {InterfaceMod.choosePokemonToFight EndDefendingPlayer DEAD_CHOOSE_NEXT} in
+            ChoosenIndex = {Interface.choosePokemonToFight EndDefendingPlayer DEAD_CHOOSE_NEXT} in
             FinalDefender = {PlayerMod.updatePokemozSelection EndDefendingPlayer ChoosenIndex}
           end
           {UpdateInterface CAttPlayer EndDefendingPlayer}
@@ -90,10 +103,73 @@ define
     end
 
     StartingPokemozIndex = if AutoFight then AttackingPlayer.selected_pokemoz
-                           else {InterfaceMod.choosePokemonToFight AttackingPlayer CHOOSE_STARTING} end
+                           else {Interface.choosePokemonToFight AttackingPlayer CHOOSE_STARTING} end
   in
      {Lib.debug starting_pokemon_choosen(StartingPokemozIndex)}
      {RecFight {PlayerMod.updatePokemozSelection AttackingPlayer StartingPokemozIndex} DefendingPlayer 0}
   end
 
+  fun {WildPokemozVictory GameState WildPokemoz}
+    fun {PokemozCount Player} {Length Player.pokemoz_list}          end
+    fun {CanCapture}          {PokemozCount GameState.player} < 3   end
+  in
+    if {CanCapture} then
+      WantsToCapture = if AutoFight then true else {Interface.askQuestion CAPTURE_POKEMOZ NO YES} end in
+      if WantsToCapture then
+        NewPlayer = {PlayerMod.capturePokemoz GameState.player {PokemozMod.setHealth WildPokemoz 0}} in
+        {Interface.hidePlayer2}
+        {Lib.debug pokemoz_captured(NewPlayer.pokemoz_list)}
+        {Interface.updatePlayer1 NewPlayer}
+        {Interface.selectPlayer1Panel {PokemozCount NewPlayer}}
+        {GameStateMod.updatePlayer GameState NewPlayer}
+      else
+        {Interface.hidePlayer2}
+        GameState
+      end
+    else
+      if AutoFight then skip else {Interface.writeMessage WIN_BUT_CANNOT_CAPTURE} end
+      {Interface.hidePlayer2}
+      GameState
+    end
+  end
+
+  fun {FightWildPokemoz GameState WildPlayer}
+    EndAttackingPlayer AfterFightState FightResult
+    WildPokemoz = WildPlayer.pokemoz_list.1
+  in
+    {Lib.debug fight_engaged_with_wild_pokemoz(WildPokemoz)}
+    FightResult      = {Fight GameState.player WildPlayer EndAttackingPlayer _}
+    AfterFightState  = {GameStateMod.updatePlayer GameState EndAttackingPlayer}
+    if FightResult==victory then
+      {WildPokemozVictory AfterFightState WildPokemoz}
+    else
+      if AutoFight then skip else {Interface.writeMessage FIGHT_LOST} end
+      {Interface.hidePlayer2}
+      AfterFightState
+    end
+  end
+
+  fun {MeetWildPokemoz GameState}
+     WildPokemoz = {CharactersMod.summonWildPokemon GameState}
+     WildPlayer  = {PlayerMod.getWildPlayer WildPokemoz}
+     {Interface.showPlayer2 WildPlayer}
+     fun {CanFight} {Bool.'not' {PokemozMod.allPokemozAreDead GameState.player.pokemoz_list}} end
+  in
+    if {CanFight} then WantsToFight in
+      WantsToFight = if AutoFight then {AutoPilot.shouldFight GameState WildPokemoz}
+      else {Interface.askQuestion MEET_WILD_POKEMON RUN FIGHT} end
+      if WantsToFight then
+        {FightWildPokemoz GameState WildPlayer}
+      else
+	      {Lib.debug player_run_from_fight}
+	      {Interface.hidePlayer2}
+	       GameState
+      end
+    else
+      {Lib.debug player_cannot_fight}
+      if AutoFight then skip else {Interface.writeMessage UNABLE_TO_FIGHT} end
+      {Interface.hidePlayer2}
+      GameState
+    end
+  end
 end
