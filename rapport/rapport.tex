@@ -7,7 +7,7 @@
 \usepackage{lscape}
 \usepackage{graphicx}
 
-\author{Florian \bsc{Thuin} \and Gregory \bsc{Vander Schueren}}
+\author{Florian \bsc{Thuin} (06561100) \and Gregory \bsc{Vander Schueren}}
 \title{LINGI1131 - Oz Project Report}
 \date{\today}
 
@@ -64,7 +64,10 @@ Those components rely on \og{}helpers\fg{} :
 
 \section{Discussion of data structures}
 
-As it is described above, we have many \og{}modules\fg{}, which are in fact \textbf{functors}. These functors exchange mainly the GameState, which is a record that contains almost everything. It contains : the number of instructions received, a player record and a list trainers record. The player record contains all informations about the state of the player (the pokemoz he has, the position where he is,...). It's the same kind of information that a trainer record stores. That's why exchanging GameState is sufficient for almost all methods that needs to know something about the game. However, using such a complete structure to discuss between modules has a drawback : it may be more complex to understand the \og{}little methods\fg{}, but it simplifies so much the big ones and the calls of procedures that it is worth.
+As it is described above, we have many \og{}modules\fg{}, which are in fact \textbf{functors}. These functors exchange mainly the \textbf{GameState}, which is a record that contains almost everything.
+It contains : the number of instructions received, a player record and a list trainers record. The player record contains all informations about the state of the player (the pokemoz he has, the position where he is,...). 
+It's the same kind of information that a trainer record stores. 
+That's why exchanging GameState is sufficient for almost all methods that needs to know something about the game. However, using such a complete structure to discuss between modules has a drawback : it may be more complex to understand the \og{}little methods\fg{}, but it simplifies so much the big ones and the calls of procedures that it is worth.
 
 
 
