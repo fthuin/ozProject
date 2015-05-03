@@ -5,15 +5,15 @@ import
   Module
   Property
   Lib           at 'lib.ozf'
+  Strings       at 'strings.ozf'
   CharactersMod at 'characters.ozf'
   MapMod        at 'map.ozf'
-  Interface     at 'interface.ozf'
+  InterfaceMod  at 'interface.ozf'
   FightMod      at 'fight.ozf'
   GameIntro     at 'gameIntro.ozf'
   GameStateMod  at 'game_state.ozf'
   PlayerMod     at 'player.ozf'
   AutoPilot     at 'auto_pilot.ozf'
-  PokemozMod    at 'pokemoz.ozf'
 define
   {System.show game_started}
 
@@ -70,7 +70,7 @@ define
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
   InstructionsStream
-  InstructionsPort
+  InstructionsPort = {NewPort InstructionsStream}
 
   fun {InitGame}
     % Ask player name and starting pokemoz
@@ -100,7 +100,8 @@ define
     ]
 
     % Prepare main data structures
-    MapInfo          = map_info(height:MapHeight width:MapWidth hospital_pos:HospitalPosition victory_pos:VictoryPosition)
+    MapInfo          = map_info(map_record:Map height:MapHeight width:MapWidth
+                                hospital_pos:HospitalPosition victory_pos:VictoryPosition)
     StartingPos      = pos(x:MapInfo.width-1 y:MapInfo.height-1)
     Player           = player(name:PlayerName image:characters_player position:StartingPos selected_pokemoz:1
                               pokemoz_list:[CharactersMod.basePokemoz.PokemozName])
@@ -119,8 +120,6 @@ define
                             placeholder(glue:n handle:InterfacePlaceHolder  width:1100 height:220)))}
     {Window show}
     {Window set(geometry:geometry(width:1 height:1))}
-  in
-    InstructionsPort = {NewPort InstructionsStream}
 
     % Initialize map interface
     {MapMod.init MapPlaceHolder Map}
@@ -132,11 +131,13 @@ define
     {MapMod.drawHospitalAtPosition GameState.map_info.hospital_pos}
 
     % Initialize other modules
-    {Interface.init InterfacePlaceHolder GameState BindKeys UnbindKeys}
-    {FightMod.init Interface AutoFight}
+    {InterfaceMod.init InterfacePlaceHolder GameState BindKeys UnbindKeys}
+    {FightMod.init InterfaceMod AutoFight}
     if AutoFight then {AutoPilot.init GameState.map_info.hospital_pos VictoryPosition} else {BindKeys} end
+
     % Show window
     {Window set(geometry:geometry(width:1200 height:810))}
+  in
     GameState
   end
 
@@ -150,7 +151,7 @@ define
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
   fun {PlayerMeetsWildPokemoz? GameState}
-     {Bool.and {MapMod.isGrass Map GameState.player.position} ({Lib.rand 100}>=WildPokemozProba)}
+     {Bool.and {MapMod.isGrass GameState.map_info.map_record GameState.player.position} ({Lib.rand 100}>=WildPokemozProba)}
   end
 
   proc {SendNextAutoPilotInstruction GameState}
@@ -158,8 +159,8 @@ define
   end
 
   proc {GameLoop InstructionsStream GameState}
-    fun {PlayerIsAtHospital GameState} GameState.player.position == HospitalPosition end
-    fun {PlayerWon GameState}          GameState.player.position == VictoryPosition end
+    fun {PlayerIsAtHospital GameState} GameState.player.position == GameState.map_info.hospital_pos end
+    fun {PlayerWon GameState}          GameState.player.position == GameState.map_info.victory_pos end
     fun {MovePlayer GameState Direction}
       {MapMod.movePlayer Direction TurnDuration}
       {GameStateMod.updatePlayer GameState {PlayerMod.updatePositionInDirection GameState.player Direction}}
@@ -182,7 +183,7 @@ define
     % Execute turn action
     if {PlayerIsAtHospital AfterMoveState} then
       AfterActionState = {GameStateMod.healPlayerPokemoz AfterMoveState}
-      {Interface.updatePlayer1 AfterActionState.player}
+      {InterfaceMod.updatePlayer1 AfterActionState.player}
     elseif {GameStateMod.isPlayerNextToTrainer? AfterMoveState Trainer} then
       AfterActionState = {FightMod.fightTrainer AfterMoveState Trainer}
     elseif {PlayerMeetsWildPokemoz? AfterMoveState} then
@@ -194,6 +195,7 @@ define
     % Test if player won the game
     if {PlayerWon AfterActionState} then
       {Lib.debug game_won}
+      {InterfaceMod.writeMessage Strings.gameWon}
       {Application.exit 0}
     end
 
