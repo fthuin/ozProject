@@ -187,9 +187,29 @@ define
     GameState.player.position == HospitalPosition
   end
 
+  fun {TestTrainerMeeting GameState Trainer}
+    fun {PositionsAreAdjacent Pos1 Pos2}
+      XDiff = {Abs (Pos1.x - Pos2.x)}
+      YDiff = {Abs (Pos1.y - Pos2.y)}
+    in
+      if (XDiff+YDiff)==1 then true else false end
+    end
+    fun {TestTrainerMeetingRec Trainers}
+      case Trainers
+      of nil then false
+      [] H|T then
+        if {PositionsAreAdjacent GameState.player.position H.position} then
+          Trainer=H true
+        else {TestTrainerMeetingRec T} end
+      end
+    end
+  in
+    {TestTrainerMeetingRec GameState.trainers}
+  end
+
   proc {GameLoop InstructionsStream GameState}
      case InstructionsStream
-     of Instruction|T then AfterMoveState AfterFightState in
+     of Instruction|T then AfterMoveState AfterFightState Trainer in
     	{Lib.debug instruction_received(Instruction)}
 
     	if {Bool.'not' {PlayerCanMoveInDirection GameState Instruction}} then
@@ -203,6 +223,9 @@ define
 
       if {InHospital AfterMoveState} then
         AfterFightState = {HealPokemoz AfterMoveState}
+      elseif {TestTrainerMeeting AfterMoveState Trainer} then
+        {Lib.debug meet(Trainer)}
+        AfterFightState = AfterMoveState
       elseif {TestWildPokemozMeeting AfterMoveState} then
         AfterFightState = {FightMod.meetWildPokemoz AfterMoveState}
       else
