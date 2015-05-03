@@ -43,14 +43,14 @@ define
 
   James = player(name:"James"  image:characters_james position:nil
             selected_pokemoz:1 pokemoz_list:[
-              {PokemozMod.new bellsprout  PokemozMod.ground 5}
-              {PokemozMod.new koffing     PokemozMod.ground 7}
+              {PokemozMod.new bellsprout  PokemozMod.poison 5}
+              {PokemozMod.new koffing     PokemozMod.poison 7}
             ])
 
   Misty = player(name:"Misty"  image:characters_misty position:nil
              selected_pokemoz:1 pokemoz_list:[
-                {PokemozMod.new horsea      PokemozMod.ground 7}
-                {PokemozMod.new poliwag     PokemozMod.ground 9}
+                {PokemozMod.new horsea      PokemozMod.water 7}
+                {PokemozMod.new poliwag     PokemozMod.water 9}
              ])
 
   fun {SummonWildPokemon GameState}

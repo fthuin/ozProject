@@ -37,32 +37,28 @@ define
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
    fun {CreatePokemozInterface Handles Number}
-     NameLabelH LevelXpLabelH HPLabelH ImageCanvasH TypeCanvasH HPGreenCanvasH HPRedCanvasH
+     NameLabelH LevelXpLabelH ImageCanvasH TypeCanvasH HealthCanvas GreenBarHandle
      ImageCanvasImgH TypeCanvasImgH TopLevelH
 
      ImageCanvas = canvas(handle:ImageCanvasH glue:w width:150 height:150 bg:white borderwidth:0 highlightthickness:0)
      TypeCanvas  = canvas(handle:TypeCanvasH  glue:e width:40  height:40  bg:white borderwidth:0 highlightthickness:0)
      InfosArea   = td(background:white glue:nswe
+
         lr(background:white
           label(handle:NameLabelH font:{QTk.newFont font(weight:bold size:16)} glue:w bg:white)
           TypeCanvas
         )
         label(handle:LevelXpLabelH bg:white)
-        lr(bg:white
-          label(handle:HPLabelH bg:white)
-          canvas(width:0 height:30 handle:HPGreenCanvasH bg:white borderwidth:0 highlightthickness:0)
-          canvas(width:0 height:30 handle:HPRedCanvasH   bg:white borderwidth:0 highlightthickness:0)
-        )
+        canvas(width:100 height:30 handle:HealthCanvas bg:white borderwidth:0 highlightthickness:0)
      )
    in
      Handles = handles( top_level:          TopLevelH
                         name_label:         NameLabelH
                         level_xp_label:     LevelXpLabelH
-                        hp_label_handle:    HPLabelH
                         image_canvas:       ImageCanvasH
                         type_canvas:        TypeCanvasH
-                        health_green_canvas:HPGreenCanvasH
-                        health_red_canvas:  HPRedCanvasH
+                        health_canvas:      HealthCanvas
+                        green_bar_handle:   GreenBarHandle
                         pokemoz_img:        ImageCanvasImgH
                         type_img:           TypeCanvasImgH
                         )
@@ -166,8 +162,9 @@ define
    % We save the handles to each of them so that we can easily change them afterwards.
    proc {AddImagesToCanvas Handles}
      proc {CreateImageForPanel Handles}
-       {Handles.image_canvas create(image 0 0 anchor:nw handle:Handles.pokemoz_img)}
-       {Handles.type_canvas  create(image 0 0 anchor:nw handle:Handles.type_img   )}
+       {Handles.image_canvas  create(image 0 0 anchor:nw handle:Handles.pokemoz_img)}
+       {Handles.type_canvas   create(image 0 0 anchor:nw handle:Handles.type_img   )}
+       {Handles.health_canvas create(rectangle 0 0 0 30 width:0 outline:green fill:green handle:Handles.green_bar_handle)}
      end
    in
      {Handles.picture_canvas create(image 0 0 anchor:nw handle:Handles.picture_img)}
@@ -209,18 +206,13 @@ define
        fun {HealthGreen Pokemoz}
          {FloatToInt ({IntToFloat Pokemoz.health}/{IntToFloat {PokemozMod.maxHealth Pokemoz.level}})*100.0}
        end
-       GreenWidth       = {HealthGreen Pokemoz}
-       RedWidth         = 100 - GreenWidth
-       BackgroundGreen  = if GreenWidth==0 then white else green end
-       BackgroundRed    = if RedWidth==0   then white else red   end   % Hack since 0 pixel still appears...
      in
        {Handles.name_label          set(text:Pokemoz.name)}
-       {Handles.level_xp_label      set(text:{VirtualString.toString "Level "#Pokemoz.level#" - "#Pokemoz.xp#" XP"})}
-       {Handles.hp_label_handle     set(text:{VirtualString.toString Pokemoz.health#" HP"})}
+       {Handles.level_xp_label      set(text:{VirtualString.toString Pokemoz.health#"hp - Lvl "#Pokemoz.level#" - "#Pokemoz.xp#" XP"})}
+       {Handles.health_canvas       set(bg:red)}
        {UpdateImage Handles.image_canvas Handles.pokemoz_img pokemoz_#Pokemoz.name}
        {UpdateImage Handles.type_canvas  Handles.type_img    types_#Pokemoz.type}
-       {Handles.health_green_canvas set(width:GreenWidth bg:BackgroundGreen)}
-       {Handles.health_red_canvas   set(width:RedWidth   bg:BackgroundRed)}
+       {Handles.green_bar_handle  set(width:{HealthGreen Pokemoz}*2 fill:green)}
      end
 
      SelectedPanel = Handles.{VirtualString.toAtom panel#Player.selected_pokemoz#handles}.top_level
@@ -231,20 +223,21 @@ define
      {LoopPokemoz Player.pokemoz_list 1}
    end
 
+
    proc {ClearPlayerInterface Handles}
      proc {ClearPanel Handles}
        {Handles.name_label          set(text:nil)}
        {Handles.level_xp_label      set(text:nil)}
-       {Handles.hp_label_handle     set(text:nil)}
        {Handles.pokemoz_img         set(image:nil)}
        {Handles.image_canvas        set(tooltips:nil)}
        {Handles.type_img            set(image:nil)}
        {Handles.type_canvas         set(tooltips:nil)}
-       {Handles.health_green_canvas set(width:0 bg:white)}
-       {Handles.health_red_canvas   set(width:0 bg:white)}
+       {Handles.green_bar_handle    set(width:0 fill:white)}
+       {Handles.health_canvas       set(bg:white)}
+       {Handles.green_bar_handle    set(width:0)}
      end
    in
-     {Handles.picture_img set(image:nil)}
+     {Handles.picture_img    set(image:nil)}
      {Handles.picture_canvas set(tooltips:nil)}
      {Handles.name_label  set(text:nil)}
      {ClearPanel Handles.panel1handles}
