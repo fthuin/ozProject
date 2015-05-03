@@ -44,7 +44,7 @@ define
      TypeCanvas  = canvas(handle:TypeCanvasH  width:40  height:40  bg:white borderwidth:0 highlightthickness:0)
      InfosArea   = td(background:white glue:nswe
         TypeCanvas
-        label(handle:NameLabelH font:{QTk.newFont font(weight:bold size:16)} glue:w bg:white)
+        label(handle:NameLabelH font:{QTk.newFont font(weight:bold size:16)} bg:white)
         label(handle:LevelXpLabelH bg:white)
         canvas(width:100 height:30 handle:HealthCanvas bg:white borderwidth:0 highlightthickness:0)
      )
