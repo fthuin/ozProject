@@ -7,6 +7,8 @@ export
    Rand
    ReplaceNthInList
    PositionInDirection
+   BindKeyboardArrows
+   UnbindKeyboardArrows
 define
   proc {Debug Msg}
      {System.show Msg}
@@ -33,5 +35,20 @@ define
     [] left  then pos(x:Pos.x-1 y:Pos.y)
     end
   end
+
+  proc {BindKeyboardArrows Window Port}
+     {Window bind(event:"<Up>"    action:proc{$} {Send Port up}     end)}
+     {Window bind(event:"<Left>"  action:proc{$} {Send Port left}   end)}
+     {Window bind(event:"<Down>"  action:proc{$} {Send Port down}   end)}
+     {Window bind(event:"<Right>" action:proc{$} {Send Port right}  end)}
+  end
+
+  proc {UnbindKeyboardArrows Window}
+     {Window bind(event:"<Up>"      action:proc{$} skip end)}
+     {Window bind(event:"<Left>"    action:proc{$} skip end)}
+     {Window bind(event:"<Down>"    action:proc{$} skip end)}
+     {Window bind(event:"<Right>"   action:proc{$} skip end)}
+  end
+
 
 end
