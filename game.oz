@@ -80,9 +80,10 @@ define
 
   fun {InitGame}
     StartingPos      = pos(x:MapWidth-1 y:MapHeight-1)
+    MapInfo          = map_info(height:MapHeight width:MapWidth hospital_pos:HospitalPosition victory_pos:VictoryPosition)
     Player           = player(name:PlayerName image:characters_player position:StartingPos selected_pokemoz:1
                               pokemoz_list:[CharactersMod.basePokemoz.PokemozName])
-    GameState        = game_state(turn:0 player:Player trainers:Trainers)
+    GameState        = game_state(turn:0 player:Player trainers:Trainers map_info:MapInfo)
     BindKeys         = proc {$} {BindKeyboardActions   Window InstructionsPort} end
     UnbindKeys       = proc {$} {UnbindKeyboardActions Window InstructionsPort} end
     MapPlaceHolder
@@ -101,67 +102,20 @@ define
     {MapMod.drawMistyAtPosition    MistyPosition}
     {MapMod.drawJamesAtPosition    JamesPosition}
     {MapMod.drawPlayerAtPosition   StartingPos}
-    {MapMod.drawHospitalAtPosition HospitalPosition}
+    {MapMod.drawHospitalAtPosition GameState.map_info.hospital_pos}
 
     % Init interface
     {Interface.init InterfacePlaceHolder GameState BindKeys UnbindKeys}
     {FightMod.init Interface AutoFight}
 
     {Window set(geometry:geometry(width:1200 height:810))}
-    if AutoFight then {AutoPilot.init HospitalPosition VictoryPosition} else {BindKeys} end
+    if AutoFight then {AutoPilot.init GameState.map_info.hospital_pos VictoryPosition} else {BindKeys} end
     GameState
   end
 
-  fun {PositionIsFree GameState Position}
-    fun {PositionIsFreeRec Trainers}
-      case Trainers
-      of nil then true
-      [] Trainer|T then
-        if Trainer.position == Position then false
-        else {PositionIsFreeRec T} end
-      end
-    end
-  in
-    {PositionIsFreeRec GameState.trainers}
-  end
 
-  fun {PlayerCanMoveInDirection GameState Direction}
-    NewPosition = {Lib.positionInDirection GameState.player.position Direction}
-  in
-    if GameState.player.position == HospitalPosition andthen Direction\=down then
-      false % Can only exit hospital by going down...
-    else
-      if {PositionIsFree GameState NewPosition} then
-        case Direction
-        of up    then GameState.player.position.y \= 0
-	      [] right then
-          if GameState.player.position.x \= MapWidth-1
-            andthen (HospitalPosition.x \= GameState.player.position.x+1
-            orelse   HospitalPosition.y \= GameState.player.position.y)
-            then true else false end
-	      [] down  then
-	         if GameState.player.position.y \= MapHeight-1
-    	     andthen (HospitalPosition.y \= GameState.player.position.y+1
-    	     orelse   HospitalPosition.x \= GameState.player.position.x)
-    	     then true else false end
-	      [] left then
-	         if GameState.player.position.x \= 0
-	         andthen (HospitalPosition.x \= GameState.player.position.x-1
-	         orelse   HospitalPosition.y \= GameState.player.position.y)
-	         then true else false end
-           end
-      else % Position was not free.
-        false
-      end
-    end
-  end
 
-  fun {MovePlayer GameState Direction}
-    {MapMod.movePlayer Direction TurnDuration}
-    {GameStateMod.updatePlayer GameState {PlayerMod.updatePositionInDirection GameState.player Direction}}
-  end
-
-  fun {TestWildPokemozMeeting GameState}
+  fun {PlayerMeetsWildPokemoz GameState}
      if {MapMod.isRoad Map GameState.player.position} then
        {Lib.debug player_on_road} false
      else
@@ -172,9 +126,7 @@ define
      end
   end
 
-  fun {CheckVictoryCondition GameState}
-    GameState.player.position == VictoryPosition
-  end
+
 
   fun {HealPokemoz GameState}
     NewState = {GameStateMod.healPlayerPokemoz GameState}
@@ -183,11 +135,25 @@ define
     NewState
   end
 
-  fun {InHospital GameState}
-    GameState.player.position == HospitalPosition
-  end
+    % Helpers
+    proc {SendNextAutoPilotInstruction GameState}
+      {Send InstructionsPort {AutoPilot.generateNextInstruction GameState}}
+    end
 
-  fun {TestTrainerMeeting GameState Trainer}
+    fun {PlayerIsAtHospital GameState}
+      GameState.player.position == HospitalPosition
+    end
+
+    fun {CheckVictoryCondition GameState}
+      GameState.player.position == VictoryPosition
+    end
+
+    fun {MovePlayer GameState Direction}
+      {MapMod.movePlayer Direction TurnDuration}
+      {GameStateMod.updatePlayer GameState {PlayerMod.updatePositionInDirection GameState.player Direction}}
+    end
+
+  fun {PlayerMeetsTrainer? GameState Trainer}
     fun {PositionsAreAdjacent Pos1 Pos2}
       XDiff = {Abs (Pos1.x - Pos2.x)}
       YDiff = {Abs (Pos1.y - Pos2.y)}
@@ -211,23 +177,23 @@ define
 
   proc {GameLoop InstructionsStream GameState}
      case InstructionsStream
-     of Instruction|T then AfterMoveState AfterFightState Trainer in
-    	{Lib.debug instruction_received(Instruction)}
+     of Direction|T then AfterMoveState AfterFightState Trainer in
+    	{Lib.debug instruction_received(Direction)}
 
-    	if {Bool.'not' {PlayerCanMoveInDirection GameState Instruction}} then
-    	   {Lib.debug invalid_command(Instruction)}
+    	if {Bool.'not' {GameStateMod.canPlayerMoveInDirection? GameState Direction}} then
+    	   {Lib.debug invalid_command(Direction)}
     	   {GameLoop T GameState}
       end
 
       {Lib.debug turn_number(GameState.turn)}
-    	AfterMoveState = {MovePlayer GameState Instruction}
+    	AfterMoveState = {MovePlayer GameState Direction}
       {Lib.debug player_moved_to(AfterMoveState.player.position)}
 
-      if {InHospital AfterMoveState} then
+      if {PlayerIsAtHospital AfterMoveState} then
         AfterFightState = {HealPokemoz AfterMoveState}
-      elseif {TestTrainerMeeting AfterMoveState Trainer} then
+      elseif {PlayerMeetsTrainer? AfterMoveState Trainer} then
         AfterFightState = {FightMod.fightTrainer AfterMoveState Trainer}
-      elseif {TestWildPokemozMeeting AfterMoveState} then
+      elseif {PlayerMeetsWildPokemoz AfterMoveState} then
         AfterFightState = {FightMod.meetWildPokemoz AfterMoveState}
       else
         AfterFightState = AfterMoveState
@@ -238,17 +204,16 @@ define
         {Application.exit 0}
       end
 
-      if AutoFight then {AutoPilotInstruction AfterFightState} end
+      if AutoFight then {SendNextAutoPilotInstruction AfterFightState} end
       {GameLoop T {GameStateMod.incrementTurn AfterFightState}}
      end
   end
 
-  proc {AutoPilotInstruction GameState}
-    {Send InstructionsPort {AutoPilot.generateNextInstruction GameState}}
-  end
-  % kickoff
+
+
+  % Kickoff!
   InitialGameState = {InitGame}
-  if AutoFight then {AutoPilotInstruction InitialGameState} end
+  if AutoFight then {SendNextAutoPilotInstruction InitialGameState} end
   {GameLoop InstructionsStream InitialGameState}
 
 end
