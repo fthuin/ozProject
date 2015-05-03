@@ -31,7 +31,7 @@ define
   DEFAULT_POKEMOZ = bulbasoz
   DELAY           = 200
   MAP             = 'Map.txt'
-  WILD_POKE_PROBA = 10
+  WILD_POKE_PROBA = 15
   SPEED           = 9
   AUTOFIGHT       = false
   Say             = System.showInfo
