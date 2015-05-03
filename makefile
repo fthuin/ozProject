@@ -1,7 +1,10 @@
-all: lib characters gameIntro pokemoz player gameState map interface fight game run
+all: compileImages lib strings characters gameIntro pokemoz player gameState map autoPilot interface fight game run
 
 lib:
 	ozc -c lib.oz
+
+strings:
+	ozc -c strings.oz
 
 characters:
 	ozc -c characters.oz

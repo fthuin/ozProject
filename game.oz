@@ -5,15 +5,15 @@ import
   Module
   Property
   Lib           at 'lib.ozf'
+  Strings       at 'strings.ozf'
   CharactersMod at 'characters.ozf'
   MapMod        at 'map.ozf'
-  Interface     at 'interface.ozf'
+  InterfaceMod  at 'interface.ozf'
   FightMod      at 'fight.ozf'
   GameIntro     at 'gameIntro.ozf'
   GameStateMod  at 'game_state.ozf'
   PlayerMod     at 'player.ozf'
   AutoPilot     at 'auto_pilot.ozf'
-  PokemozMod    at 'pokemoz.ozf'
 define
   {System.show game_started}
 
@@ -68,44 +68,12 @@ define
   % |___|_| \_|___| |_|    \____/_/   \_\_|  |_|_____|____/ |_/_/   \_\_| |_____|
   %
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-  % Load map
-  Map       = {MapMod.loadMapFromFile MapPath}
-  MapHeight = {Width Map}
-  MapWidth  = {Width Map.1}
 
-  % Map elements
-  VictoryPosition  = pos(x:MapWidth-1 y:0)
-  HospitalPosition = pos(x:3 y:3)
-  BrockPosition    = pos(x:5 y:1)
-  MistyPosition    = pos(x:1 y:1)
-  JamesPosition    = pos(x:0 y:5)
-  Trainers = [
-         {PlayerMod.updatePosition CharactersMod.james JamesPosition}
-         {PlayerMod.updatePosition CharactersMod.brock BrockPosition}
-         {PlayerMod.updatePosition CharactersMod.misty MistyPosition}
-  ]
-
-  % Setup intial game state
-   InstructionsStream
-   InstructionsPort
-
-  proc {BindKeyboardActions Window Port}
-     {Window bind(event:"<Up>"    action:proc{$} {Send Port up}     end)}
-     {Window bind(event:"<Left>"  action:proc{$} {Send Port left}   end)}
-     {Window bind(event:"<Down>"  action:proc{$} {Send Port down}   end)}
-     {Window bind(event:"<Right>" action:proc{$} {Send Port right}  end)}
-     {Window bind(event:"<space>" action:proc{$} {Send Port finish} end)}
-  end
-
-  proc {UnbindKeyboardActions Window Port}
-     {Window bind(event:"<Up>"      action:proc{$} skip end)}
-     {Window bind(event:"<Left>"    action:proc{$} skip end)}
-     {Window bind(event:"<Down>"    action:proc{$} skip end)}
-     {Window bind(event:"<Right>"   action:proc{$} skip end)}
-     {Window bind(event:"<space>"   action:proc{$} skip end)}
-  end
+  InstructionsStream
+  InstructionsPort = {NewPort InstructionsStream}
 
   fun {InitGame}
+    % Ask player name and starting pokemoz
     PlayerName PokemozName
     if AutoFight then
       PlayerName =  DEFAULT_NAME
@@ -114,24 +82,46 @@ define
       {GameIntro.getUserChoice PlayerName PokemozName}
     end
 
-    MapInfo          = map_info(height:MapHeight width:MapWidth hospital_pos:HospitalPosition victory_pos:VictoryPosition)
+    % Load map
+    Map       = {MapMod.loadMapFromFile MapPath}
+    MapHeight = {Width Map}
+    MapWidth  = {Width Map.1}
+
+    % Configure map elements
+    VictoryPosition  = pos(x:MapWidth-1 y:0)
+    HospitalPosition = pos(x:3 y:3)
+    BrockPosition    = pos(x:5 y:1)
+    MistyPosition    = pos(x:1 y:1)
+    JamesPosition    = pos(x:0 y:5)
+    Trainers = [
+           {PlayerMod.updatePosition CharactersMod.james JamesPosition}
+           {PlayerMod.updatePosition CharactersMod.brock BrockPosition}
+           {PlayerMod.updatePosition CharactersMod.misty MistyPosition}
+    ]
+
+    % Prepare main data structures
+    MapInfo          = map_info(map_record:Map height:MapHeight width:MapWidth
+                                hospital_pos:HospitalPosition victory_pos:VictoryPosition)
     StartingPos      = pos(x:MapInfo.width-1 y:MapInfo.height-1)
     Player           = player(name:PlayerName image:characters_player position:StartingPos selected_pokemoz:1
                               pokemoz_list:[CharactersMod.basePokemoz.PokemozName])
     GameState        = game_state(turn:0 player:Player trainers:Trainers map_info:MapInfo)
-    BindKeys         = proc {$} {BindKeyboardActions   Window InstructionsPort} end
-    UnbindKeys       = proc {$} {UnbindKeyboardActions Window InstructionsPort} end
+
+
+    BindKeys         = proc {$} {Lib.bindKeyboardArrows   Window InstructionsPort} end
+    UnbindKeys       = proc {$} {Lib.unbindKeyboardArrows Window} end
+
+    % Prepare application main window
     MapPlaceHolder
     InterfacePlaceHolder
-    [QTk]           = {Module.link ["x-oz://system/wp/QTk.ozf"]}
+    [QTk]  = {Module.link ["x-oz://system/wp/QTk.ozf"]}
     Window = {QTk.build td(td(pady:20 padx:20 % Cannot set padding on top-level, so set 1 extra td for padding.
                             placeholder(glue:n handle:MapPlaceHolder        width:1100 height:560)
                             placeholder(glue:n handle:InterfacePlaceHolder  width:1100 height:220)))}
-  in
-    InstructionsPort = {NewPort InstructionsStream}
     {Window show}
     {Window set(geometry:geometry(width:1 height:1))}
-    % Init map
+
+    % Initialize map interface
     {MapMod.init MapPlaceHolder Map}
     {MapMod.drawPikachuAtPosition  VictoryPosition}
     {MapMod.drawBrockAtPosition    BrockPosition}
@@ -140,18 +130,28 @@ define
     {MapMod.drawPlayerAtPosition   GameState.player.position}
     {MapMod.drawHospitalAtPosition GameState.map_info.hospital_pos}
 
-    % Init interface
-    {Interface.init InterfacePlaceHolder GameState BindKeys UnbindKeys}
-    {FightMod.init Interface AutoFight}
-
-    {Window set(geometry:geometry(width:1200 height:810))}
+    % Initialize other modules
+    {InterfaceMod.init InterfacePlaceHolder GameState BindKeys UnbindKeys}
+    {FightMod.init InterfaceMod AutoFight}
     if AutoFight then {AutoPilot.init GameState.map_info.hospital_pos VictoryPosition} else {BindKeys} end
+
+    % Show window
+    {Window set(geometry:geometry(width:1200 height:810))}
+  in
     GameState
   end
 
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  %   ____    _    __  __ _____ _     ___   ___  ____
+  %  / ___|  / \  |  \/  | ____| |   / _ \ / _ \|  _ \
+  % | |  _  / _ \ | |\/| |  _| | |  | | | | | | | |_) |
+  % | |_| |/ ___ \| |  | | |___| |__| |_| | |_| |  __/
+  % \____/_/   \_\_|  |_|_____|_____\___/ \___/|_|
+  %
+  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
   fun {PlayerMeetsWildPokemoz? GameState}
-     {Bool.and {MapMod.isGrass Map GameState.player.position} ({Lib.rand 100}>=WildPokemozProba)}
+     {Bool.and {MapMod.isGrass GameState.map_info.map_record GameState.player.position} ({Lib.rand 100}>=WildPokemozProba)}
   end
 
   proc {SendNextAutoPilotInstruction GameState}
@@ -159,8 +159,8 @@ define
   end
 
   proc {GameLoop InstructionsStream GameState}
-    fun {PlayerIsAtHospital GameState} GameState.player.position == HospitalPosition end
-    fun {PlayerWon GameState}          GameState.player.position == VictoryPosition end
+    fun {PlayerIsAtHospital GameState} GameState.player.position == GameState.map_info.hospital_pos end
+    fun {PlayerWon GameState}          GameState.player.position == GameState.map_info.victory_pos end
     fun {MovePlayer GameState Direction}
       {MapMod.movePlayer Direction TurnDuration}
       {GameStateMod.updatePlayer GameState {PlayerMod.updatePositionInDirection GameState.player Direction}}
@@ -183,7 +183,7 @@ define
     % Execute turn action
     if {PlayerIsAtHospital AfterMoveState} then
       AfterActionState = {GameStateMod.healPlayerPokemoz AfterMoveState}
-      {Interface.updatePlayer1 AfterActionState.player}
+      {InterfaceMod.updatePlayer1 AfterActionState.player}
     elseif {GameStateMod.isPlayerNextToTrainer? AfterMoveState Trainer} then
       AfterActionState = {FightMod.fightTrainer AfterMoveState Trainer}
     elseif {PlayerMeetsWildPokemoz? AfterMoveState} then
@@ -195,6 +195,7 @@ define
     % Test if player won the game
     if {PlayerWon AfterActionState} then
       {Lib.debug game_won}
+      {InterfaceMod.writeMessage Strings.gameWon}
       {Application.exit 0}
     end
 
