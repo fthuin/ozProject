@@ -28,7 +28,7 @@ define
 
   % Default values
   DEFAULT_NAME    = "Sacha"
-  DEFAULT_POKEMOZ = oztirtle
+  DEFAULT_POKEMOZ = bulbasoz
   DELAY           = 200
   MAP             = 'Map.txt'
   WILD_POKE_PROBA = 20
@@ -154,30 +154,26 @@ define
   end
 
   fun {MoveTrainers GameState}
-     fun {MoveTrainersRec GameState Trainers}
-       case Trainers
-       of nil then GameState
-       [] Trainer|Tail then
-          Dir    = {Lib.randomDir}
-          NewPos = {Lib.positionInDirection Trainer.position Dir}
-       in
-          if {Lib.rand 4}==1
-             andthen {GameStateMod.isPositionOnMap? GameState NewPos}
-             andthen {GameStateMod.isPositionFree?  GameState NewPos}
-             andthen (NewPos\=GameState.map_info.hospital_pos)
-             andthen {Bool.'or' (NewPos.x\=GameState.map_info.hospital_pos.x)
-                                (NewPos.y\=GameState.map_info.hospital_pos.y+1)} % Dont block hospital...
-             andthen (NewPos\=GameState.map_info.victory_pos) then
-             NewTrainer = {PlayerMod.updatePositionInDirection Trainer Dir} in
-             thread {MapMod.movePlayer Trainer Dir TurnDuration _} end
-             {MoveTrainersRec {GameStateMod.updateTrainer GameState NewTrainer} Tail}
-          else
-             {MoveTrainersRec GameState Tail}
-          end
+     TrainerToMove = {List.nth {Record.toList GameState.trainers} ((GameState.turn mod 3)+1)}
+     fun {MoveTrainersRec GameState Trainer}
+       Dir    = {Lib.randomDir}
+       NewPos = {Lib.positionInDirection Trainer.position Dir}
+     in
+        if {GameStateMod.isPositionOnMap? GameState NewPos}
+           andthen {GameStateMod.isPositionFree?  GameState NewPos}
+           andthen (NewPos\=GameState.map_info.hospital_pos)
+           andthen {Bool.'or' (NewPos.x\=GameState.map_info.hospital_pos.x)
+                              (NewPos.y\=GameState.map_info.hospital_pos.y+1)} % Dont block hospital...
+           andthen (NewPos\=GameState.map_info.victory_pos) then
+           NewTrainer = {PlayerMod.updatePositionInDirection Trainer Dir} in
+           thread {MapMod.movePlayer Trainer Dir TurnDuration _} end
+           {GameStateMod.updateTrainer GameState NewTrainer}
+        else
+           {MoveTrainersRec GameState Trainer}
         end
      end
   in
-    {MoveTrainersRec GameState {Record.toList GameState.trainers}}
+    {MoveTrainersRec GameState TrainerToMove}
   end
 
   proc {GameLoop InstructionsStream GameState}

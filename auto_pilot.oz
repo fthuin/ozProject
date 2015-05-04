@@ -95,9 +95,9 @@ define
      if {InHospital GameState}                                                          then down
      elseif {PokemozMod.allPokemozAreDead GameState.player.pokemoz_list}                then {MoveToHospital GameState}
      elseif {Length GameState.player.pokemoz_list} < 3                                  then {MoveToCapture GameState}
-     elseif {PokemozMod.allPokemozAreDead GameState.trainers.james.pokemoz_list}==false then {MoveToTrainer GameState james}
      elseif {PokemozMod.allPokemozAreDead GameState.trainers.misty.pokemoz_list}==false then {MoveToTrainer GameState misty}
      elseif {PokemozMod.allPokemozAreDead GameState.trainers.brock.pokemoz_list}==false then {MoveToTrainer GameState brock}
+     elseif {PokemozMod.allPokemozAreDead GameState.trainers.james.pokemoz_list}==false then {MoveToTrainer GameState james}
      else {MoveToFinish GameState}
      end
   end
