@@ -12,6 +12,7 @@ export
    AtomToCapitalizedString
    Downcase
    Capitalize
+   RandomDir
 define
   proc {Debug Msg}
      {System.show Msg}
@@ -70,4 +71,9 @@ define
     [] nil then nil
     end
   end
+
+  fun {RandomDir}
+    {List.nth [up right down left] {Rand 4}}
+  end
+
 end

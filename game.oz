@@ -33,7 +33,7 @@ define
   MAP             = 'Map.txt'
   WILD_POKE_PROBA = 15
   SPEED           = 9
-  AUTOFIGHT       = false
+  AUTOFIGHT       = true
   Say             = System.showInfo
   Args = {Application.getArgs record(
              map(single char:&m type:atom default:MAP)
@@ -95,7 +95,10 @@ define
     MapInfo          = map_info(map_record:Map height:MapHeight width:MapWidth
                                 hospital_pos:HospitalPosition victory_pos:VictoryPosition)
     StartingPos      = pos(x:MapInfo.width-1 y:MapInfo.height-1)
-    Player           = player(name:PlayerName image:characters_player position:StartingPos selected_pokemoz:1
+    Player           = player(name:{String.toAtom PlayerName}
+                              image:characters_player
+                              position:StartingPos
+                              selected_pokemoz:1
                               pokemoz_list:[CharactersMod.basePokemoz.PokemozName])
     GameState        = game_state(turn:0 player:Player trainers:CharactersMod.trainers map_info:MapInfo)
 
@@ -116,9 +119,9 @@ define
     % Initialize map interface
     {MapMod.init MapPlaceHolder Map}
     {MapMod.drawPikachuAtPosition  VictoryPosition}
-    {MapMod.drawBrockAtPosition    GameState.trainers.brock.position}
-    {MapMod.drawMistyAtPosition    GameState.trainers.misty.position}
-    {MapMod.drawJamesAtPosition    GameState.trainers.james.position}
+    {MapMod.drawTrainer            GameState.trainers.brock}
+    {MapMod.drawTrainer            GameState.trainers.misty}
+    {MapMod.drawTrainer            GameState.trainers.james}
     {MapMod.drawPlayerAtPosition   GameState.player.position}
     {MapMod.drawHospitalAtPosition GameState.map_info.hospital_pos}
 
@@ -150,29 +153,44 @@ define
     {Send InstructionsPort {AutoPilot.generateNextInstruction GameState}}
   end
 
-  /*proc {MoveTrainers GameState}
-     proc {MoveTrainersRec Trainers}
-       thread {MapMod.movePlayer Direction TurnDuration} end
-       {GameStateMod.updateTrainer GameState {PlayerMod.updatePositionInDirection GameState.trainers. Direction}}
+  fun {MoveTrainers GameState}
+     fun {MoveTrainersRec GameState Trainers}
+       case Trainers
+       of nil then GameState
+       [] Trainer|Tail then
+          Dir    = {Lib.randomDir}
+          NewPos = {Lib.positionInDirection Trainer.position Dir}
+       in
+          if {Lib.rand 4}==1
+             andthen {GameStateMod.isPositionOnMap? GameState NewPos}
+             andthen {GameStateMod.isPositionFree? GameState NewPos}
+             andthen (NewPos\=GameState.map_info.hospital_pos)
+             andthen {Bool.'or' (NewPos.x\=GameState.map_info.hospital_pos.x)
+                                (NewPos.y\=GameState.map_info.hospital_pos.y+1)} % Dont block hospital...
+             andthen (NewPos\=GameState.map_info.victory_pos) then
+             NewTrainer = {PlayerMod.updatePositionInDirection Trainer Dir} in
+             thread {MapMod.moveTrainer Trainer Dir TurnDuration} end
+             {MoveTrainersRec {GameStateMod.updateTrainer GameState NewTrainer} Tail}
+          else
+             {MoveTrainersRec GameState Tail}
+          end
+        end
      end
   in
-    {MoveTrainersRec GameState}
-  end*/
-
+    {MoveTrainersRec GameState {Record.toList GameState.trainers}}
+  end
 
   proc {GameLoop InstructionsStream GameState}
     fun {PlayerIsAtHospital GameState} GameState.player.position == GameState.map_info.hospital_pos end
     fun {PlayerWon GameState}          GameState.player.position == GameState.map_info.victory_pos end
-    fun {MovePlayer GameState Direction} PlayerDone JamesDir BrockDir MistyDir in
-      /*thread {MoveTrainers JamesDir MistyDir BrockDir} end*/
-      thread PlayerDone = {MapMod.movePlayer Direction TurnDuration} end
 
-      /*{GameStateMod.updateTrainer  GameState {PlayerMod.updatePositionInDirection GameState.trainers.james JamesDir}}
-      {GameStateMod.updateTrainer  GameState {PlayerMod.updatePositionInDirection GameState.trainers.brock BrockDir}}
-      {GameStateMod.updateTrainer  GameState {PlayerMod.updatePositionInDirection GameState.trainers.misty MistyDir}}*/
-      if PlayerDone then
-        {GameStateMod.updatePlayer   GameState {PlayerMod.updatePositionInDirection GameState.player Direction}}
-      end
+    fun {MovePlayer GameState Direction}
+      PlayerDone
+      NewPlayer         = {PlayerMod.updatePositionInDirection GameState.player Direction}
+      AfterPlayerMove   = {GameStateMod.updatePlayer GameState NewPlayer}
+      AfterTrainerMoves = {MoveTrainers AfterPlayerMove} in
+      thread PlayerDone = {MapMod.movePlayer Direction TurnDuration} end
+      if PlayerDone then AfterTrainerMoves end
     end
     AfterMoveState AfterActionState Trainer
   in

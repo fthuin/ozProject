@@ -93,7 +93,7 @@ define
   end
 
   fun {GetWildPlayer WildPokemoz}
-    player(name:nil image:characters_wild position:nil pokemoz_list:[WildPokemoz] selected_pokemoz:1)
+    player(name:wild image:characters_wild position:nil pokemoz_list:[WildPokemoz] selected_pokemoz:1)
   end
 
   fun {UpdatePokemozSelection Player NewIndex}

@@ -2,7 +2,6 @@ functor
 import
    Lib           at 'lib.ozf'
    PokemozMod    at 'pokemoz.ozf'
-   CharactersMod at 'characters.ozf'
    GameStateMod  at 'game_state.ozf'
 export
    GenerateNextInstruction
@@ -85,15 +84,15 @@ define
   end
 
   fun {Move GameState}
-     if {InHospital GameState}                                                     then down
-     elseif {PokemozMod.allPokemozAreDead GameState.player.pokemoz_list}           then {MoveToHospital GameState}
-     elseif {Length GameState.player.pokemoz_list} < 3                             then {MoveToCapture GameState}
-     elseif {PokemozMod.allPokemozAreDead CharactersMod.james.pokemoz_list}==false then {MoveToJames GameState}
+     if {InHospital GameState}                                                          then down
+     elseif {PokemozMod.allPokemozAreDead GameState.player.pokemoz_list}                then {MoveToHospital GameState}
+     elseif {Length GameState.player.pokemoz_list} < 3                                  then {MoveToCapture GameState}
+     elseif {PokemozMod.allPokemozAreDead GameState.trainers.james.pokemoz_list}==false then {MoveToJames GameState}
      else {MoveToFinish GameState}
      end
   end
 
-  fun {GenerateNextInstruction GameState} Direction in
+  fun {GenerateNextInstruction GameState}
      Direction = {Move GameState}
      Free?     = GameStateMod.isPositionFree?
      CanMove?  = GameStateMod.canPlayerMoveInDirection?

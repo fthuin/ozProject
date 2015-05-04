@@ -11,6 +11,8 @@ export
   UpdatePlayerAndEnemyTrainer
   CanPlayerMoveInDirection?
   IsPlayerNextToTrainer?
+  IsPositionFree?
+  IsPositionOnMap?
 define
   fun {UpdatePlayer GameState NewPlayer}
     case GameState
@@ -34,19 +36,19 @@ define
   end
 
   fun {UpdateTrainer GameState NewTrainer}
-    fun {ReplaceTrainer TrainersList}
-      case TrainersList
-      of nil then nil
-      [] H|T then
-        if H.name == NewTrainer.name then NewTrainer|{ReplaceTrainer T}
-        else H|{ReplaceTrainer T}
+      fun {ReplaceTrainer Trainers}
+        case Trainers
+        of trainers(james:James brock:Brock misty:Misty) then
+          if      NewTrainer.name == James.name then trainers(james:NewTrainer brock:Brock      misty:Misty)
+          elseif  NewTrainer.name == Brock.name then trainers(james:James      brock:NewTrainer misty:Misty)
+          elseif  NewTrainer.name == Misty.name then trainers(james:James      brock:Brock      misty:NewTrainer)
+          end
         end
       end
-    end
   in
     case GameState
     of   game_state(turn:Turn player:Player map_info:MI trainers:Trainers)
-    then game_state(turn:Turn player:Player map_info:MI trainers:{ReplaceTrainer {Record.toList Trainers}})
+    then game_state(turn:Turn player:Player map_info:MI trainers:{ReplaceTrainer Trainers})
     end
   end
 
@@ -67,32 +69,41 @@ define
     {PositionIsFreeRec {Record.toList GameState.trainers}}
   end
 
+  fun {IsPositionOnMap? GameState Position}
+    MapWidth    = GameState.map_info.width
+    MapHeight   = GameState.map_info.height
+  in
+    if Position.x >= 0
+    andthen Position.y >= 0
+    andthen Position.x < MapWidth
+    andthen Position.y < MapHeight
+    then true
+    else false
+    end
+  end
+
+
   fun {CanPlayerMoveInDirection? GameState Direction}
     NewPosition = {Lib.positionInDirection GameState.player.position Direction}
     PlayerPos   = GameState.player.position
     HospPos     = GameState.map_info.hospital_pos
-    MapWidth    = GameState.map_info.width
-    MapHeight   = GameState.map_info.height
   in
     if GameState.player.position == HospPos andthen Direction\=down then
       false % Can only exit hospital by going down...
     else
-      if {IsPositionFree? GameState NewPosition} then
+      if      {IsPositionOnMap? GameState NewPosition}
+      andthen {IsPositionFree?  GameState NewPosition} then
         case Direction
-        of up    then PlayerPos.y \= 0
+        of up    then true
         [] right then
-          if PlayerPos.x \= MapWidth-1
-            andthen (HospPos.x \= PlayerPos.x+1
-            orelse   HospPos.y \= PlayerPos.y)
+          if (HospPos.x \= PlayerPos.x+1 orelse   HospPos.y \= PlayerPos.y)
             then true else false end
         [] down  then
-           if PlayerPos.y \= MapHeight-1
-           andthen (HospPos.y \= PlayerPos.y+1
+           if (HospPos.y \= PlayerPos.y+1
            orelse   HospPos.x \= PlayerPos.x)
            then true else false end
         [] left then
-           if PlayerPos.x \= 0
-           andthen (HospPos.x \= PlayerPos.x-1
+           if (HospPos.x \= PlayerPos.x-1
            orelse   HospPos.y \= PlayerPos.y)
            then true else false end
            end

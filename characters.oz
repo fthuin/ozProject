@@ -33,22 +33,22 @@ define
     charmandoz: {PokemozMod.new charmandoz PokemozMod.fire  PokemozMod.minLevel}
   )
 
-  Brock = player(name:"Brock"  image:characters_brock position:pos(x:5 y:1)
+  Brock = player(name:brock  image:characters_brock position:pos(x:5 y:1)
             selected_pokemoz:1 pokemoz_list:[
-              {PokemozMod.new geodude  PokemozMod.ground 8}
-              {PokemozMod.new onix     PokemozMod.ground 10}
+              {PokemozMod.new geodude  PokemozMod.ground 5}
+              {PokemozMod.new onix     PokemozMod.ground 6}
             ])
 
-  James = player(name:"James"  image:characters_james position:pos(x:0 y:5)
+  James = player(name:james  image:characters_james position:pos(x:0 y:5)
             selected_pokemoz:1 pokemoz_list:[
               {PokemozMod.new bellsprout  PokemozMod.poison 5}
-              {PokemozMod.new koffing     PokemozMod.poison 7}
+              {PokemozMod.new koffing     PokemozMod.poison 6}
             ])
 
-  Misty = player(name:"Misty"  image:characters_misty position:pos(x:1 y:1)
+  Misty = player(name:misty  image:characters_misty position:pos(x:1 y:1)
              selected_pokemoz:1 pokemoz_list:[
-                {PokemozMod.new horsea      PokemozMod.water 7}
-                {PokemozMod.new poliwag     PokemozMod.water 9}
+                {PokemozMod.new horsea      PokemozMod.water 5}
+                {PokemozMod.new poliwag     PokemozMod.water 6}
              ])
 
    Trainers = trainers(

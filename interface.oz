@@ -204,9 +204,9 @@ define
          {FloatToInt ({IntToFloat Pokemoz.health}/{IntToFloat {PokemozMod.maxHealth Pokemoz.level}})*100.0}
        end
      in
-       {Handles.name_label          set(text:{Lib.atomToCapitalizedString Pokemoz.name})}
-       {Handles.level_xp_label      set(text:{VirtualString.toString Pokemoz.health#"hp - Lvl "#Pokemoz.level#" - "#Pokemoz.xp#" XP"})}
-       {Handles.health_canvas       set(bg:red)}
+       {Handles.name_label       set(text:{Lib.atomToCapitalizedString Pokemoz.name})}
+       {Handles.level_xp_label   set(text:{VirtualString.toString Pokemoz.health#"hp - Lvl "#Pokemoz.level#" - "#Pokemoz.xp#" XP"})}
+       {Handles.health_canvas    set(bg:red)}
        {UpdateImage Handles.image_canvas Handles.pokemoz_img pokemoz_#Pokemoz.name}
        {UpdateImage Handles.type_canvas  Handles.type_img    types_#Pokemoz.type}
        {Handles.green_bar_handle  set(width:{HealthGreen Pokemoz}*2 fill:green)}
@@ -215,7 +215,7 @@ define
      SelectedPanel = Handles.{VirtualString.toAtom panel#Player.selected_pokemoz#handles}.top_level
    in
      {UpdateImage Handles.picture_canvas  Handles.picture_img Player.image}
-     {Handles.name_label set(text:{Lib.capitalize Player.name})}
+     {Handles.name_label set(text:{Lib.atomToCapitalizedString Player.name})}
      {Handles.panel selectPanel(SelectedPanel)}
      {LoopPokemoz Player.pokemoz_list 1}
    end

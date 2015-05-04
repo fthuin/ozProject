@@ -9,11 +9,9 @@ export
    DrawPlayerAtPosition
    DrawHospitalAtPosition
    DrawPikachuAtPosition
-   DrawBrockAtPosition
-   DrawMistyAtPosition
-   DrawJamesAtPosition
+   DrawTrainer
    MovePlayer
-   MoveJames
+   MoveTrainer
    IsGrass
    LoadMapFromFile
 define
@@ -26,12 +24,18 @@ define
    GRASS = 1
    ROAD  = 0
 
-   % Handles
-   MapCanvasHandle
    PlayerHandle
    BrockHandle
    MistyHandle
    JamesHandle
+   % Handles
+   Handles = handles(
+     player:PlayerHandle
+     brock:BrockHandle
+     misty:MistyHandle
+     james:JamesHandle
+   )
+   MapCanvasHandle
 
    % Private methods
 
@@ -128,23 +132,13 @@ define
    end
 
    proc {DrawPlayerAtPosition Pos}
-      {DrawImageAtPosition sacha_down3 Pos PlayerHandle}
+      {DrawImageAtPosition sacha_down3 Pos Handles.player}
       {Lib.debug player_positioned_at(Pos)}
    end
 
-   proc {DrawBrockAtPosition Pos}
-     {DrawImageAtPosition characters_brock_small Pos BrockHandle}
-     {Lib.debug brock_positioned_at(Pos)}
-   end
-
-   proc {DrawMistyAtPosition Pos}
-     {DrawImageAtPosition characters_misty_small Pos MistyHandle}
-     {Lib.debug misty_positioned_at(Pos)}
-   end
-
-   proc {DrawJamesAtPosition Pos}
-     {DrawImageAtPosition characters_james_small Pos JamesHandle}
-     {Lib.debug james_positioned_at(Pos)}
+   proc {DrawTrainer Trainer}
+     Image = {VirtualString.toAtom "characters_"#{Atom.toString Trainer.name}#"_small"} in
+     {DrawImageAtPosition Image Trainer.position Handles.(Trainer.name)}
    end
 
    proc {DrawHospitalAtPosition Pos}
@@ -163,6 +157,7 @@ define
       STEPS_BY_MOVE  = 8
       STEP_DURATION  = TurnDuration div STEPS_BY_MOVE
       STEP_INCREMENT = TILE_SIZE div STEPS_BY_MOVE
+
 
       proc {MoveImageOneStep}
         case Direction
@@ -193,18 +188,19 @@ define
       true
     end
 
-    proc {MoveJames Direction TurnDuration}
+    proc {MoveTrainer Trainer Direction TurnDuration}
        IMAGE_STEPS    = 4
        STEPS_BY_MOVE  = 8
        STEP_DURATION  = TurnDuration div STEPS_BY_MOVE
        STEP_INCREMENT = TILE_SIZE div STEPS_BY_MOVE
+       Handle = Handles.(Trainer.name)
 
        proc {MoveImageOneStep}
          case Direction
-         of up    then {IncrementYPos JamesHandle ~STEP_INCREMENT}
-         [] right then {IncrementXPos JamesHandle  STEP_INCREMENT}
-         [] down  then {IncrementYPos JamesHandle  STEP_INCREMENT}
-         [] left  then {IncrementXPos JamesHandle ~STEP_INCREMENT}
+         of up    then {IncrementYPos Handle ~STEP_INCREMENT}
+         [] right then {IncrementXPos Handle  STEP_INCREMENT}
+         [] down  then {IncrementYPos Handle  STEP_INCREMENT}
+         [] left  then {IncrementXPos Handle ~STEP_INCREMENT}
          end
        end
 
