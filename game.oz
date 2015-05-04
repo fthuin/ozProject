@@ -128,7 +128,7 @@ define
     % Initialize other modules
     {InterfaceMod.init InterfacePlaceHolder GameState BindKeys UnbindKeys}
     {FightMod.init InterfaceMod AutoFight}
-    if AutoFight then {AutoPilot.init GameState.map_info.hospital_pos VictoryPosition} else {BindKeys} end
+    if AutoFight then {AutoPilot.init GameState.map_info.hospital_pos VictoryPosition InterfaceMod} else {BindKeys} end
 
     % Show window
     {Window set(geometry:geometry(width:1200 height:810))}
@@ -223,7 +223,7 @@ define
     if {PlayerWon AfterActionState} then
       {Lib.debug game_won}
       {InterfaceMod.writeMessage Strings.gameWon}
-      {Application.exit 0}
+      {Exception.'raise' terminate_process_with_exception}
     end
 
     % Start next loop

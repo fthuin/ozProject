@@ -10,10 +10,12 @@ export
 define
   HospitalPosition
   VictoryPosition
+  Interface
 
-  proc {Init HospitalPos VictoryPos}
+  proc {Init HospitalPos VictoryPos Interf}
     HospitalPosition = HospitalPos
     VictoryPosition  = VictoryPos
+    Interface        = Interf
   end
 
   fun {InFrontHospital GameState}

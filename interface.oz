@@ -13,6 +13,7 @@ export
   WriteMessage
   ChoosePokemonToFight
   SelectPlayer1Panel
+  SetCenterLabel
 define
    [QTk] = {Module.link ["x-oz://system/wp/QTk.ozf"]}
    ImageLibrary = {QTk.loadImageLibrary "ImageLibrary.ozf"}
@@ -22,6 +23,7 @@ define
    CenterAreaHandles
    BindKeys
    UnbindKeys
+
 
    fun {GetImage Name}
       {ImageLibrary get(name:Name image:$)}
@@ -37,8 +39,7 @@ define
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
    fun {CreatePokemozInterface Handles Number}
-     NameLabelH LevelXpLabelH ImageCanvasH TypeCanvasH HealthCanvas GreenBarHandle
-     ImageCanvasImgH TypeCanvasImgH TopLevelH
+     NameLabelH LevelXpLabelH ImageCanvasH TypeCanvasH HealthCanvas TopLevelH
 
      ImageCanvas = canvas(handle:ImageCanvasH glue:w width:150 height:150 bg:white borderwidth:0 highlightthickness:0)
      TypeCanvas  = canvas(handle:TypeCanvasH  width:40  height:40  bg:white borderwidth:0 highlightthickness:0)
@@ -55,9 +56,9 @@ define
                         image_canvas:       ImageCanvasH
                         type_canvas:        TypeCanvasH
                         health_canvas:      HealthCanvas
-                        green_bar_handle:   GreenBarHandle
-                        pokemoz_img:        ImageCanvasImgH
-                        type_img:           TypeCanvasImgH
+                        green_bar_handle:   _
+                        pokemoz_img:        _
+                        type_img:           _
                         )
       lr(handle:TopLevelH borderwidth:0 highlightthickness:0 background:white
          title:{VirtualString.toString "Pokemoz "#Number} ImageCanvas InfosArea)
@@ -65,7 +66,7 @@ define
 
 
    fun {CreatePlayerInterface Handles}
-     PlaceHolderH TopLevelH PanelH PictureCanvasH NameLabelH PictureImgH Panel1H Panel2H Panel3H
+     PlaceHolderH TopLevelH PanelH PictureCanvasH NameLabelH Panel1H Panel2H Panel3H
      PictureCanvas = canvas(handle:PictureCanvasH glue:w width:100 height:100
                             bg:white borderwidth:0 highlightthickness:0)
      Panel = panel(borderwidth:0 highlightthickness:0 glue:n handle:PanelH bg:white
@@ -84,7 +85,7 @@ define
                         top_level:      TopLevelH
                         panel:          PanelH
                         picture_canvas: PictureCanvasH
-                        picture_img:    PictureImgH
+                        picture_img:    _
                         name_label:     NameLabelH
                         panel1handles:  Panel1H
                         panel2handles:  Panel2H
@@ -100,7 +101,6 @@ define
    end
 
    proc {CreateCenterAreaDialogs}
-     PlaceHolderH
      InfoToplevel InfoLabel InfoBtn
      QuestionTopLevel QuestionLabel QuestionBtnYes QuestionBtnNo
      SelectTopLevel SelectLabel Select1 Select2 Select3
@@ -322,6 +322,11 @@ define
     {CenterAreaHandles.place_holder set(CenterAreaHandles.info.top_level)}
     {QTk.flush}
     if Answer==1 then {CenterAreaCleanup} else {CenterAreaCleanup} end
+  end
+
+  proc {SetCenterLabel Message}
+    {CenterAreaHandles.info.label   set(text:Message)}
+    {QTk.flush}
   end
 
   fun {ChoosePokemonToFight Player Text}

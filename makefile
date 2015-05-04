@@ -1,4 +1,4 @@
-all: lib strings characters gameIntro pokemoz player gameState map autoPilot interface fight game run
+all: compileImages lib strings characters gameIntro pokemoz player gameState map autoPilot interface fight game run
 
 lib:
 	ozc -c lib.oz
@@ -41,7 +41,7 @@ run:
 
 compileImages:
 	ozc -c compile_images.oz -o compile_images.oza
-	ozengine ./compile_images.oza
+	ozengine ./compile_images.oza 2> /dev/null
 
 clean:
 	rm ./*.ozf

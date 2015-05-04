@@ -24,18 +24,15 @@ define
    GRASS = 1
    ROAD  = 0
 
-   PlayerHandle
-   BrockHandle
-   MistyHandle
-   JamesHandle
    % Handles
    Handles = handles(
-     player:PlayerHandle
-     brock:BrockHandle
-     misty:MistyHandle
-     james:JamesHandle
+     map_canvas:_
+     player:_
+     brock:_
+     misty:_
+     james:_
    )
-   MapCanvasHandle
+
 
    % Private methods
 
@@ -85,7 +82,7 @@ define
    proc {Init Placeholder Map}
       MapHeight         = {Width Map}
       MapWidth          = {Width Map.1}
-      Canvas            = canvas(width:MapWidth*TILE_SIZE height:MapHeight*TILE_SIZE handle:MapCanvasHandle)
+      Canvas            = canvas(width:MapWidth*TILE_SIZE height:MapHeight*TILE_SIZE handle:Handles.map_canvas)
    in
       {Placeholder set(Canvas)}
       {DrawMap Map}
@@ -102,7 +99,7 @@ define
 	          case TilesList
 	          of nil then skip
 	          [] H|T then
-	             {MapCanvasHandle {AddTileAt H X RowNumber}}
+	             {Handles.map_canvas {AddTileAt H X RowNumber}}
 	             {RecDrawRow T X+1}
 	          end
         end
@@ -128,7 +125,7 @@ define
    end
 
    proc {DrawImageAtPosition Image Pos Handle}
-     {MapCanvasHandle create(image {XCoord Pos.x} {YCoord Pos.y} handle:Handle image:{GetImage Image} anchor:nw)}
+     {Handles.map_canvas create(image {XCoord Pos.x} {YCoord Pos.y} handle:Handle image:{GetImage Image} anchor:nw)}
    end
 
    proc {DrawPlayerAtPosition Pos}
@@ -161,16 +158,16 @@ define
 
       proc {MoveImageOneStep}
         case Direction
-        of up    then {IncrementYPos PlayerHandle ~STEP_INCREMENT}
-        [] right then {IncrementXPos PlayerHandle  STEP_INCREMENT}
-        [] down  then {IncrementYPos PlayerHandle  STEP_INCREMENT}
-        [] left  then {IncrementXPos PlayerHandle ~STEP_INCREMENT}
+        of up    then {IncrementYPos Handles.player ~STEP_INCREMENT}
+        [] right then {IncrementXPos Handles.player  STEP_INCREMENT}
+        [] down  then {IncrementYPos Handles.player  STEP_INCREMENT}
+        [] left  then {IncrementXPos Handles.player ~STEP_INCREMENT}
         end
       end
 
       proc {SetImageForStep Step} ImageName in
         ImageName = {VirtualString.toAtom "sacha_"#Direction#(Step mod IMAGE_STEPS)}
-        {PlayerHandle set(image:{GetImage ImageName})}
+        {Handles.player set(image:{GetImage ImageName})}
       end
 
       proc {Anim Step}

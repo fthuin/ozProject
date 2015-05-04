@@ -1,8 +1,6 @@
 functor
 import
-   Application
    Module
-   System
 define
    BASE_PATH = "images/"
    [QTk]     = {Module.link ["x-oz://system/wp/QTk.ozf"]}
@@ -89,9 +87,5 @@ define
    % Save library
    {QTk.saveImageLibrary Library "ImageLibrary.ozf"}
 
-   % Double check execution
-   LoadedLib = {QTk.loadImageLibrary "ImageLibrary.ozf"}
-   {System.show {LoadedLib getNames($)}}
-
-   {Application.exit 0}
+   {Exception.'raise' terminate_process_with_exception}
 end
