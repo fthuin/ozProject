@@ -6,8 +6,8 @@ import
 export
   Init
   UpdatePlayer1
-  ShowPlayer2
   UpdatePlayer2
+  ShowPlayer2
   HidePlayer2
   AskQuestion
   WriteMessage
@@ -258,6 +258,7 @@ define
      {HideCenterArea}
      {UpdatePlayerInterface GameState.player Player1Handles}
      {Lib.debug auxialiary_interface_drawn}
+     {QTk.flush}
    end
 
   proc {HideCenterArea}
@@ -266,24 +267,29 @@ define
 
   proc {UpdatePlayer1 Player}
     {UpdatePlayerInterface Player Player1Handles}
+    {QTk.flush}
   end
 
   proc {ShowPlayer2 Player}
     {UpdatePlayerInterface Player Player2Handles}
     {Player2Handles.place_holder set(Player2Handles.top_level)}
+    {QTk.flush}
   end
 
   proc {UpdatePlayer2 Player}
     {UpdatePlayerInterface Player Player2Handles}
+    {QTk.flush}
   end
 
   proc {HidePlayer2}
     {Player2Handles.place_holder set(empty)}
     {ClearPlayerInterface Player2Handles}
+    {QTk.flush}
   end
 
   proc {SelectPlayer1Panel Index}
     {Player1Handles.panel selectPanel(Player1Handles.{VirtualString.toAtom panel#Index#handles}.top_level)}
+    {QTk.flush}
   end
 
   proc {CenterAreaCleanup}
@@ -302,7 +308,7 @@ define
     {CenterAreaHandles.question.btn_no    set(text:BtnFalseText action:HitBtnFalse)}
 
     {CenterAreaHandles.place_holder set(CenterAreaHandles.question.top_level)}
-
+    {QTk.flush}
     if Answer==true then {CenterAreaCleanup} Answer else {CenterAreaCleanup} Answer end
   end
 
@@ -314,6 +320,7 @@ define
     {CenterAreaHandles.info.label   set(text:Message)}
     {CenterAreaHandles.info.btn     set(text:"Got it!" action:HitBtn)}
     {CenterAreaHandles.place_holder set(CenterAreaHandles.info.top_level)}
+    {QTk.flush}
     if Answer==1 then {CenterAreaCleanup} else {CenterAreaCleanup} end
   end
 
@@ -338,6 +345,7 @@ define
     {CenterAreaHandles.select_pokemoz.btn2    set(text:{TextBtn 2} state:{StateBtn 2} action:HitBtn2)}
     {CenterAreaHandles.select_pokemoz.btn3    set(text:{TextBtn 3} state:{StateBtn 3} action:HitBtn3)}
     {CenterAreaHandles.place_holder set(CenterAreaHandles.select_pokemoz.top_level)}
+    {QTk.flush}
     if Answer==1 then {CenterAreaCleanup} Answer else {CenterAreaCleanup} Answer end
   end
 
