@@ -118,7 +118,7 @@ define
   end
 
   fun {ShouldFight GameState WildPokemon}
-    if {PokemozMod.allPokemozAreDead GameState.trainers.james.pokemoz_list} then false else true end
+    true
   end
 
 

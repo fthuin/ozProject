@@ -1,6 +1,7 @@
 functor
 import
   Lib at 'lib.ozf'
+  CharactersMod at 'characters.ozf'
 export
   MaxHealth
   SetHealth
@@ -196,7 +197,14 @@ define
       NewXp    = Xp+DefeatedPokemoz.level
       NewLevel = {LevelForXp NewXp}
       NewHp    = if NewLevel==Level then Health else {MaxHealth NewLevel} end
-    in pokemoz(name:Name type:Type level:NewLevel health:NewHp xp:NewXp)
+      NewName
+      if {Bool.'or' NewLevel==7 NewLevel==9} andthen {Value.hasFeature CharactersMod.evolutions Name} then
+        NewName = CharactersMod.evolutions.Name
+      else
+        NewName = Name
+      end
+
+    in pokemoz(name:NewName type:Type level:NewLevel health:NewHp xp:NewXp)
     end
   end
 

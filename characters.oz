@@ -6,6 +6,7 @@ export
   BasePokemoz
   SummonWildPokemon
   Trainers
+  Evolutions
 define
   WildPokemozBreedsList = [
     pokemoz(name:bellsprout   type:PokemozMod.grass)
@@ -57,6 +58,14 @@ define
           misty:Misty
    )
 
+  Evolutions = evo(
+    bulbasoz:ivysaur
+    ivysaur:venusaur
+    oztirtle:wartortle
+    wartortle:blastoise
+    charmandoz:charmeleon
+    charmeleon:charizard
+  )
 
   fun {SummonWildPokemon GameState}
     Breed       = {List.nth WildPokemozBreedsList {Lib.rand WildPokemozBreedsCount}}

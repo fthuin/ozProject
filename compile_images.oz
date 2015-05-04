@@ -122,6 +122,13 @@ define
    {AddPhoto pokemoz koffing}
    {AddPhoto pokemoz horsea}
 
+   {AddPhoto pokemoz ivysaur}
+   {AddPhoto pokemoz venusaur}
+   {AddPhoto pokemoz charmeleon}
+   {AddPhoto pokemoz charizard}
+   {AddPhoto pokemoz wartortle}
+   {AddPhoto pokemoz blastoise}
+
    % Add characters
    {AddPhoto characters brock}
    {AddPhoto characters james}

@@ -31,7 +31,7 @@ define
   DEFAULT_POKEMOZ = oztirtle
   DELAY           = 200
   MAP             = 'Map.txt'
-  WILD_POKE_PROBA = 15
+  WILD_POKE_PROBA = 20
   SPEED           = 9
   AUTOFIGHT       = true
   Say             = System.showInfo
