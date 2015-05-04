@@ -13,6 +13,7 @@ export
    DrawMistyAtPosition
    DrawJamesAtPosition
    MovePlayer
+   MoveJames
    IsGrass
    LoadMapFromFile
 define
@@ -157,7 +158,7 @@ define
    end
 
 
-   proc {MovePlayer Direction TurnDuration}
+   fun {MovePlayer Direction TurnDuration}
       IMAGE_STEPS    = 4
       STEPS_BY_MOVE  = 8
       STEP_DURATION  = TurnDuration div STEPS_BY_MOVE
@@ -189,7 +190,37 @@ define
     in
       {Anim 0}
       {QTk.flush}
+      true
     end
+
+    proc {MoveJames Direction TurnDuration}
+       IMAGE_STEPS    = 4
+       STEPS_BY_MOVE  = 8
+       STEP_DURATION  = TurnDuration div STEPS_BY_MOVE
+       STEP_INCREMENT = TILE_SIZE div STEPS_BY_MOVE
+
+       proc {MoveImageOneStep}
+         case Direction
+         of up    then {IncrementYPos JamesHandle ~STEP_INCREMENT}
+         [] right then {IncrementXPos JamesHandle  STEP_INCREMENT}
+         [] down  then {IncrementYPos JamesHandle  STEP_INCREMENT}
+         [] left  then {IncrementXPos JamesHandle ~STEP_INCREMENT}
+         end
+       end
+
+       proc {Anim Step}
+         if Step==STEPS_BY_MOVE then skip
+         else
+           {MoveImageOneStep}
+           {Delay STEP_DURATION}
+           {Anim Step+1}
+         end
+       end
+     in
+       {Anim 0}
+       {QTk.flush}
+     end
+
 
     fun {IsGrass Map Position}
       Map.(Position.y+1).(Position.x+1) == GRASS

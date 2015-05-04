@@ -90,14 +90,6 @@ define
     % Configure map elements
     VictoryPosition  = pos(x:MapWidth-1 y:0)
     HospitalPosition = pos(x:4 y:3)
-    BrockPosition    = pos(x:5 y:1)
-    MistyPosition    = pos(x:1 y:1)
-    JamesPosition    = pos(x:0 y:5)
-    Trainers = [
-           {PlayerMod.updatePosition CharactersMod.james JamesPosition}
-           {PlayerMod.updatePosition CharactersMod.brock BrockPosition}
-           {PlayerMod.updatePosition CharactersMod.misty MistyPosition}
-    ]
 
     % Prepare main data structures
     MapInfo          = map_info(map_record:Map height:MapHeight width:MapWidth
@@ -105,7 +97,7 @@ define
     StartingPos      = pos(x:MapInfo.width-1 y:MapInfo.height-1)
     Player           = player(name:PlayerName image:characters_player position:StartingPos selected_pokemoz:1
                               pokemoz_list:[CharactersMod.basePokemoz.PokemozName])
-    GameState        = game_state(turn:0 player:Player trainers:Trainers map_info:MapInfo)
+    GameState        = game_state(turn:0 player:Player trainers:CharactersMod.trainers map_info:MapInfo)
 
 
     BindKeys         = proc {$} {Lib.bindKeyboardArrows   Window InstructionsPort} end
@@ -124,9 +116,9 @@ define
     % Initialize map interface
     {MapMod.init MapPlaceHolder Map}
     {MapMod.drawPikachuAtPosition  VictoryPosition}
-    {MapMod.drawBrockAtPosition    BrockPosition}
-    {MapMod.drawMistyAtPosition    MistyPosition}
-    {MapMod.drawJamesAtPosition    JamesPosition}
+    {MapMod.drawBrockAtPosition    GameState.trainers.brock.position}
+    {MapMod.drawMistyAtPosition    GameState.trainers.misty.position}
+    {MapMod.drawJamesAtPosition    GameState.trainers.james.position}
     {MapMod.drawPlayerAtPosition   GameState.player.position}
     {MapMod.drawHospitalAtPosition GameState.map_info.hospital_pos}
 
@@ -158,12 +150,29 @@ define
     {Send InstructionsPort {AutoPilot.generateNextInstruction GameState}}
   end
 
+  /*proc {MoveTrainers GameState}
+     proc {MoveTrainersRec Trainers}
+       thread {MapMod.movePlayer Direction TurnDuration} end
+       {GameStateMod.updateTrainer GameState {PlayerMod.updatePositionInDirection GameState.trainers. Direction}}
+     end
+  in
+    {MoveTrainersRec GameState}
+  end*/
+
+
   proc {GameLoop InstructionsStream GameState}
     fun {PlayerIsAtHospital GameState} GameState.player.position == GameState.map_info.hospital_pos end
     fun {PlayerWon GameState}          GameState.player.position == GameState.map_info.victory_pos end
-    fun {MovePlayer GameState Direction}
-      {MapMod.movePlayer Direction TurnDuration}
-      {GameStateMod.updatePlayer GameState {PlayerMod.updatePositionInDirection GameState.player Direction}}
+    fun {MovePlayer GameState Direction} PlayerDone JamesDir BrockDir MistyDir in
+      /*thread {MoveTrainers JamesDir MistyDir BrockDir} end*/
+      thread PlayerDone = {MapMod.movePlayer Direction TurnDuration} end
+
+      /*{GameStateMod.updateTrainer  GameState {PlayerMod.updatePositionInDirection GameState.trainers.james JamesDir}}
+      {GameStateMod.updateTrainer  GameState {PlayerMod.updatePositionInDirection GameState.trainers.brock BrockDir}}
+      {GameStateMod.updateTrainer  GameState {PlayerMod.updatePositionInDirection GameState.trainers.misty MistyDir}}*/
+      if PlayerDone then
+        {GameStateMod.updatePlayer   GameState {PlayerMod.updatePositionInDirection GameState.player Direction}}
+      end
     end
     AfterMoveState AfterActionState Trainer
   in

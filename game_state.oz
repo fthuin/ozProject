@@ -5,6 +5,7 @@ import
   PokemozMod    at 'pokemoz.ozf'
 export
   UpdatePlayer
+  UpdateTrainer
   IncrementTurn
   HealPlayerPokemoz
   UpdatePlayerAndEnemyTrainer
@@ -13,7 +14,7 @@ export
 define
   fun {UpdatePlayer GameState NewPlayer}
     case GameState
-    of   game_state(turn:Turn player:_ trainers:Trainers          map_info:MI)
+    of   game_state(turn:Turn player:_         trainers:Trainers          map_info:MI)
     then game_state(turn:Turn player:NewPlayer trainers:Trainers  map_info:MI)
     end
   end
@@ -27,12 +28,12 @@ define
 
   fun {HealPlayerPokemoz GameState}
     case GameState
-    of   game_state(turn:Turn player:Player trainers:Trainers map_info:MI)
+    of   game_state(turn:Turn player:Player                         trainers:Trainers map_info:MI)
     then game_state(turn:Turn player:{PlayerMod.healPokemoz Player} trainers:Trainers map_info:MI)
     end
   end
 
-  fun {UpdatePlayerAndEnemyTrainer GameState NewPlayer NewTrainer}
+  fun {UpdateTrainer GameState NewTrainer}
     fun {ReplaceTrainer TrainersList}
       case TrainersList
       of nil then nil
@@ -44,9 +45,13 @@ define
     end
   in
     case GameState
-    of   game_state(turn:Turn player:_         trainers:Trainers                  map_info:MI)
-    then game_state(turn:Turn player:NewPlayer trainers:{ReplaceTrainer Trainers} map_info:MI)
+    of   game_state(turn:Turn player:Player map_info:MI trainers:Trainers)
+    then game_state(turn:Turn player:Player map_info:MI trainers:{ReplaceTrainer {Record.toList Trainers}})
     end
+  end
+
+  fun {UpdatePlayerAndEnemyTrainer GameState NewPlayer NewTrainer}
+    {UpdatePlayer {UpdateTrainer GameState NewTrainer} NewPlayer}
   end
 
   fun {IsPositionFree? GameState Position}
@@ -59,7 +64,7 @@ define
       end
     end
   in
-    {PositionIsFreeRec GameState.trainers}
+    {PositionIsFreeRec {Record.toList GameState.trainers}}
   end
 
   fun {CanPlayerMoveInDirection? GameState Direction}
@@ -116,6 +121,6 @@ define
       end
     end
   in
-    {TestTrainerMeetingRec GameState.trainers}
+    {TestTrainerMeetingRec {Record.toList GameState.trainers}}
   end
 end

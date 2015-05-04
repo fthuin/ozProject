@@ -77,9 +77,9 @@ define
      PlayerX = GameState.player.position.x
      PlayerY = GameState.player.position.y
   in
-     if PlayerY < GameState.trainers.1.position.y     then down
-     elseif PlayerY > GameState.trainers.1.position.y then up
-     elseif PlayerX < GameState.trainers.1.position.x then right
+     if PlayerY < GameState.trainers.james.position.y     then down
+     elseif PlayerY > GameState.trainers.james.position.y then up
+     elseif PlayerX < GameState.trainers.james.position.x then right
      else left
      end
   end
@@ -95,21 +95,20 @@ define
 
   fun {GenerateNextInstruction GameState}
      Direction = {Move GameState}
-     if {GameStateMod.canPlayerMoveInDirection? GameState Direction} then
-	Direction
+     Free?     = GameStateMod.isPositionFree?
+     CanMove?  = GameStateMod.canPlayerMoveInDirection?
+     XPos      = GameState.player.position.x
+     YPos      = GameState.player.position.y
+   in
+     if {GameStateMod.canPlayerMoveInDirection? GameState Direction} then Direction
      else
-	if {GameStateMod.canPlayerMoveInDirection? GameState up}
-	   andthen {GameState.isPositionFree? GameState pos(GameState.player.position.x GameState.player.position.y-1)} then up
-	elseif {GameStateMod.canPlayerMoveInDirection? GameState down}
-	   andthen {GameState.isPositionFree? GameState pos(GameState.player.position.x GameState.player.position.y+1)} then down
-	elseif {GameStateMod.canPlayerMoveInDirection? GameState left}
-	   andthen {GameState.isPositionFree? GameState pos(GameState.player.position.x-1 GameState.player.position.y)} then left
-	elseif {GameStateMod.canPlayerMoveInDirection? GameState right}
-	   andthen {GameState.isPositionFree? GameState pos(GameState.player.position.x+1 GameState.player.position.y)} then right
-	end
+	      if {CanMove? GameState up}        andthen {Free? GameState pos(XPos YPos-1)} then up
+        elseif {CanMove? GameState down}  andthen {Free? GameState pos(XPos YPos+1)} then down
+        elseif {CanMove? GameState left}  andthen {Free? GameState pos(XPos-1 YPos)} then left
+        elseif {CanMove? GameState right} andthen {Free? GameState pos(XPos+1 YPos)} then right
+	      end
      end
   end
-
 
   fun {ShouldFight GameState WildPokemon}
     true
