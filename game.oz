@@ -15,7 +15,7 @@ import
   PlayerMod     at 'player.ozf'
   AutoPilot     at 'auto_pilot.ozf'
 define
-  {System.show game_started}
+  {Lib.debug game_started}
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   %  ____   _    ____  ____  _____      _    ____   ____ ____
@@ -169,7 +169,7 @@ define
                                 (NewPos.y\=GameState.map_info.hospital_pos.y+1)} % Dont block hospital...
              andthen (NewPos\=GameState.map_info.victory_pos) then
              NewTrainer = {PlayerMod.updatePositionInDirection Trainer Dir} in
-             thread {MapMod.moveTrainer Trainer Dir TurnDuration} end
+             thread {MapMod.movePlayer Trainer Dir TurnDuration _} end
              {MoveTrainersRec {GameStateMod.updateTrainer GameState NewTrainer} Tail}
           else
              {MoveTrainersRec GameState Tail}
@@ -189,7 +189,7 @@ define
       NewPlayer         = {PlayerMod.updatePositionInDirection GameState.player Direction}
       AfterPlayerMove   = {GameStateMod.updatePlayer GameState NewPlayer}
       AfterTrainerMoves = {MoveTrainers AfterPlayerMove} in
-      thread PlayerDone = {MapMod.movePlayer Direction TurnDuration} end
+      thread PlayerDone = {MapMod.movePlayer GameState.player Direction TurnDuration} end
       if PlayerDone then AfterTrainerMoves end
     end
     AfterMoveState AfterActionState Trainer
