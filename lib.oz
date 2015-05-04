@@ -1,6 +1,10 @@
+% \define DEBUG
+
 functor
 import
+   \ifdef Debug
    System
+   \endif
    OS
 export
    Debug
@@ -14,8 +18,13 @@ export
    Capitalize
    RandomDir
 define
+
   proc {Debug Msg}
-     {System.show Msg}
+    \ifdef Debug
+    {System.show Msg}
+    \else
+    skip
+    \endif
   end
 
   fun {Rand I}

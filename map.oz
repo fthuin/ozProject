@@ -179,7 +179,6 @@ define
     end
 
     proc {MoveTrainer Trainer Direction TurnDuration}
-       IMAGE_STEPS    = 4
        STEPS_BY_MOVE  = 8
        STEP_DURATION  = TurnDuration div STEPS_BY_MOVE
        STEP_INCREMENT = TILE_SIZE div STEPS_BY_MOVE
