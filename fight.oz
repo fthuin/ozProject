@@ -24,6 +24,7 @@ define
   MEET_WILD_TRAINER = "You meet another pokemoz trainer.\nNo fight, no glory. Lets go!"
   FIGHT = "Fight!"
   RUN = "Run!"
+  TRAINER_UNABLE_TO_FIGHT = "You meet a trainer but your pokemoz are not in shape for a fight. Visit the hospital!"
   CAPTURE_POKEMOZ = "Capture defeated pokemoz?"
   TRAINER_LOSS  = "Oops, you lost this fight...\n Visit the hospital to heal your pokemoz.\n When you feel ready, come back to beat this arrogant prick!"
   TRAINER_WIN = "Congratulations on winning this fight!\nYou are on your way to glory."
@@ -160,20 +161,29 @@ define
     end
   end
 
+  fun {CanFight GameState}
+    {Bool.'not' {PokemozMod.allPokemozAreDead GameState.player.pokemoz_list}}
+  end
+
+
   fun {FightTrainer GameState EnemyTrainer}
-    EndPlayer EndEnemyTrainer
-    {Lib.debug fight_engaged_with_trainer(EnemyTrainer)}
     {Interface.showPlayer2 EnemyTrainer}
-    if AutoFight then skip else {Interface.writeMessage MEET_WILD_TRAINER} end
-    FightResult      = {Fight GameState.player EnemyTrainer EndPlayer EndEnemyTrainer}
-    AfterHealTrainer = if FightResult==victory then EndEnemyTrainer else {PlayerMod.healPokemoz EndEnemyTrainer} end
-    AfterFightState  = {GameStateMod.updatePlayerAndEnemyTrainer GameState EndPlayer AfterHealTrainer}
-  in
-    if AutoFight then skip else
-      Message = if FightResult==victory then TRAINER_WIN else TRAINER_LOSS end in
-      {Interface.writeMessage Message}
+    AfterFightState
+    if {CanFight GameState} then EndPlayer EndEnemyTrainer
+      if AutoFight then skip else {Interface.writeMessage MEET_WILD_TRAINER} end
+      FightResult      = {Fight GameState.player EnemyTrainer EndPlayer EndEnemyTrainer}
+      AfterHealTrainer = if FightResult==victory then EndEnemyTrainer else {PlayerMod.healPokemoz EndEnemyTrainer} end in
+      AfterFightState  = {GameStateMod.updatePlayerAndEnemyTrainer GameState EndPlayer AfterHealTrainer}
+      if AutoFight then skip else
+        Message = (if FightResult==victory then TRAINER_WIN else TRAINER_LOSS end) in
+        {Interface.writeMessage Message}
+      end
+    else
+      if AutoFight then skip else {Interface.writeMessage TRAINER_UNABLE_TO_FIGHT} end
+      AfterFightState = GameState
     end
     {Interface.hidePlayer2}
+  in
     AfterFightState
   end
 
@@ -181,9 +191,8 @@ define
      WildPokemoz = {CharactersMod.summonWildPokemon GameState}
      WildPlayer  = {PlayerMod.getWildPlayer WildPokemoz}
      {Interface.showPlayer2 WildPlayer}
-     fun {CanFight} {Bool.'not' {PokemozMod.allPokemozAreDead GameState.player.pokemoz_list}} end
   in
-    if {CanFight} then WantsToFight in
+    if {CanFight GameState} then WantsToFight in
       WantsToFight = if AutoFight then {AutoPilot.shouldFight GameState WildPokemoz}
       else {Interface.askQuestion MEET_WILD_POKEMON RUN FIGHT} end
       if WantsToFight then

@@ -55,7 +55,7 @@ define
   end
 
   fun {WildPokemonLvl Turn}
-     ComputedLevel = 4 + {Lib.rand ((Turn div 10)+1)}
+     ComputedLevel = 4 + {Lib.rand ((Turn div 30)+1)}
   in
      if ComputedLevel > MaxLevel then MaxLevel
      else ComputedLevel

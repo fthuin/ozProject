@@ -6,8 +6,8 @@ import
 export
   Init
   UpdatePlayer1
-  ShowPlayer2
   UpdatePlayer2
+  ShowPlayer2
   HidePlayer2
   AskQuestion
   WriteMessage
@@ -44,7 +44,7 @@ define
      TypeCanvas  = canvas(handle:TypeCanvasH  width:40  height:40  bg:white borderwidth:0 highlightthickness:0)
      InfosArea   = td(background:white glue:nswe
         TypeCanvas
-        label(handle:NameLabelH font:{QTk.newFont font(weight:bold size:16)} glue:w bg:white)
+        label(handle:NameLabelH font:{QTk.newFont font(weight:bold size:16)} bg:white)
         label(handle:LevelXpLabelH bg:white)
         canvas(width:100 height:30 handle:HealthCanvas bg:white borderwidth:0 highlightthickness:0)
      )
@@ -106,14 +106,14 @@ define
      SelectTopLevel SelectLabel Select1 Select2 Select3
 
      Info = td(handle:InfoToplevel bg:white
-       label(justify:center handle:InfoLabel background:white height:6 width:30 wraplength:260)
+       label(justify:center handle:InfoLabel background:white height:6 width:30 wraplength:245)
        button(handle:InfoBtn width:10)
      )
      {CenterAreaPlaceHolderH set(Info)}
      {CenterAreaPlaceHolderH set(empty)}
 
      Question = td(handle:QuestionTopLevel bg:white
-       label(justify:center handle:QuestionLabel background:white height:6 width:30 wraplength:260)
+       label(justify:center handle:QuestionLabel background:white height:6 width:30 wraplength:245)
        lr(bg:white
          button(handle:QuestionBtnYes width:10)
          button(handle:QuestionBtnNo  width:10)
@@ -123,7 +123,7 @@ define
      {CenterAreaPlaceHolderH set(empty)}
 
      PokemozChoice = td(handle:SelectTopLevel bg:white
-        label(justify:center handle:SelectLabel background:white height:2 width:30 wraplength:260)
+        label(justify:center handle:SelectLabel background:white height:2 width:30 wraplength:245)
         td(bg:white
           button(handle:Select1 width:20)
           button(handle:Select2 width:20)
@@ -204,7 +204,7 @@ define
          {FloatToInt ({IntToFloat Pokemoz.health}/{IntToFloat {PokemozMod.maxHealth Pokemoz.level}})*100.0}
        end
      in
-       {Handles.name_label          set(text:Pokemoz.name)}
+       {Handles.name_label          set(text:{Lib.atomToCapitalizedString Pokemoz.name})}
        {Handles.level_xp_label      set(text:{VirtualString.toString Pokemoz.health#"hp - Lvl "#Pokemoz.level#" - "#Pokemoz.xp#" XP"})}
        {Handles.health_canvas       set(bg:red)}
        {UpdateImage Handles.image_canvas Handles.pokemoz_img pokemoz_#Pokemoz.name}
@@ -258,6 +258,7 @@ define
      {HideCenterArea}
      {UpdatePlayerInterface GameState.player Player1Handles}
      {Lib.debug auxialiary_interface_drawn}
+     {QTk.flush}
    end
 
   proc {HideCenterArea}
@@ -266,24 +267,29 @@ define
 
   proc {UpdatePlayer1 Player}
     {UpdatePlayerInterface Player Player1Handles}
+    {QTk.flush}
   end
 
   proc {ShowPlayer2 Player}
     {UpdatePlayerInterface Player Player2Handles}
     {Player2Handles.place_holder set(Player2Handles.top_level)}
+    {QTk.flush}
   end
 
   proc {UpdatePlayer2 Player}
     {UpdatePlayerInterface Player Player2Handles}
+    {QTk.flush}
   end
 
   proc {HidePlayer2}
     {Player2Handles.place_holder set(empty)}
     {ClearPlayerInterface Player2Handles}
+    {QTk.flush}
   end
 
   proc {SelectPlayer1Panel Index}
     {Player1Handles.panel selectPanel(Player1Handles.{VirtualString.toAtom panel#Index#handles}.top_level)}
+    {QTk.flush}
   end
 
   proc {CenterAreaCleanup}
@@ -302,7 +308,7 @@ define
     {CenterAreaHandles.question.btn_no    set(text:BtnFalseText action:HitBtnFalse)}
 
     {CenterAreaHandles.place_holder set(CenterAreaHandles.question.top_level)}
-
+    {QTk.flush}
     if Answer==true then {CenterAreaCleanup} Answer else {CenterAreaCleanup} Answer end
   end
 
@@ -314,6 +320,7 @@ define
     {CenterAreaHandles.info.label   set(text:Message)}
     {CenterAreaHandles.info.btn     set(text:"Got it!" action:HitBtn)}
     {CenterAreaHandles.place_holder set(CenterAreaHandles.info.top_level)}
+    {QTk.flush}
     if Answer==1 then {CenterAreaCleanup} else {CenterAreaCleanup} end
   end
 
@@ -338,6 +345,7 @@ define
     {CenterAreaHandles.select_pokemoz.btn2    set(text:{TextBtn 2} state:{StateBtn 2} action:HitBtn2)}
     {CenterAreaHandles.select_pokemoz.btn3    set(text:{TextBtn 3} state:{StateBtn 3} action:HitBtn3)}
     {CenterAreaHandles.place_holder set(CenterAreaHandles.select_pokemoz.top_level)}
+    {QTk.flush}
     if Answer==1 then {CenterAreaCleanup} Answer else {CenterAreaCleanup} Answer end
   end
 
