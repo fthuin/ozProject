@@ -27,7 +27,9 @@ export
   % Autopilot
   AutoPilotCaptureStep
   AutoPilotFinalStep
-  AutoPilotJamesStep
+  James
+  Misty
+  Brock
 define
   GameWon               = "Congratulations, you rescued Pikachu!"
   % Fights
@@ -55,6 +57,8 @@ define
   Title                 = "Pokemoz"
   % Autopilot
   AutoPilotCaptureStep  = "Objective 1\nCapture 3 pokemoz"
-  AutoPilotJamesStep    = "Objective 2\nDefeat James"
-  AutoPilotFinalStep    = "Objective 3\nRescue Pikachu"
+  James                 = "Objective 2\nDefeat James"
+  Misty                 = "Objective 3\nDefeat Misty"
+  Brock                 = "Objective 4\nDefeat Brock"
+  AutoPilotFinalStep    = "Objective 5\nRescue Pikachu"
 end

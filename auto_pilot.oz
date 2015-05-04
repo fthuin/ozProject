@@ -77,25 +77,27 @@ define
      end
   end
 
-  fun {MoveToJames GameState}
-     {Interface.setCenterLabel Strings.autoPilotJamesStep}
-     {Lib.debug move_to_james}
+  fun {MoveToTrainer GameState TrainerName}
+     {Interface.setCenterLabel Strings.TrainerName}
      PlayerX = GameState.player.position.x
      PlayerY = GameState.player.position.y
   in
      if {InFrontHospital GameState} then left
-     elseif PlayerY < GameState.trainers.james.position.y then down
-     elseif PlayerY > GameState.trainers.james.position.y andthen {InFrontHospital GameState}==false then up
-     elseif PlayerX < GameState.trainers.james.position.x then right
+     elseif PlayerY < GameState.trainers.TrainerName.position.y then down
+     elseif PlayerY > GameState.trainers.TrainerName.position.y andthen {InFrontHospital GameState}==false then up
+     elseif PlayerX < GameState.trainers.TrainerName.position.x then right
      else left
      end
   end
+
 
   fun {Move GameState}
      if {InHospital GameState}                                                          then down
      elseif {PokemozMod.allPokemozAreDead GameState.player.pokemoz_list}                then {MoveToHospital GameState}
      elseif {Length GameState.player.pokemoz_list} < 3                                  then {MoveToCapture GameState}
-     elseif {PokemozMod.allPokemozAreDead GameState.trainers.james.pokemoz_list}==false then {MoveToJames GameState}
+     elseif {PokemozMod.allPokemozAreDead GameState.trainers.james.pokemoz_list}==false then {MoveToTrainer GameState james}
+     elseif {PokemozMod.allPokemozAreDead GameState.trainers.misty.pokemoz_list}==false then {MoveToTrainer GameState misty}
+     elseif {PokemozMod.allPokemozAreDead GameState.trainers.brock.pokemoz_list}==false then {MoveToTrainer GameState brock}
      else {MoveToFinish GameState}
      end
   end
