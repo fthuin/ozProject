@@ -11,7 +11,6 @@ export
    DrawPikachuAtPosition
    DrawTrainer
    MovePlayer
-   MoveTrainer
    IsGrass
    LoadMapFromFile
 define
@@ -122,12 +121,12 @@ define
    end
 
    proc {DrawPlayerAtPosition Pos}
-      {DrawImageAtPosition sacha_down3 Pos Handles.player}
+      {DrawImageAtPosition characters_player_down3 Pos Handles.player}
       {Lib.debug player_positioned_at(Pos)}
    end
 
    proc {DrawTrainer Trainer}
-     Image = {VirtualString.toAtom "characters_"#{Atom.toString Trainer.name}#"_small"} in
+     Image = {VirtualString.toAtom "characters_"#{Atom.toString Trainer.name}#"_down3"} in
      {DrawImageAtPosition Image Trainer.position Handles.(Trainer.name)}
    end
 
@@ -142,25 +141,26 @@ define
    end
 
 
-   fun {MovePlayer Direction TurnDuration}
+   fun {MovePlayer Player Direction TurnDuration}
       IMAGE_STEPS    = 4
       STEPS_BY_MOVE  = 8
       STEP_DURATION  = TurnDuration div STEPS_BY_MOVE
       STEP_INCREMENT = TILE_SIZE div STEPS_BY_MOVE
-
+      Name   = if Player.image==characters_player then player else Player.name end
+      Handle = Handles.(Name)
 
       proc {MoveImageOneStep}
         case Direction
-        of up    then {IncrementYPos Handles.player ~STEP_INCREMENT}
-        [] right then {IncrementXPos Handles.player  STEP_INCREMENT}
-        [] down  then {IncrementYPos Handles.player  STEP_INCREMENT}
-        [] left  then {IncrementXPos Handles.player ~STEP_INCREMENT}
+        of up    then {IncrementYPos Handle ~STEP_INCREMENT}
+        [] right then {IncrementXPos Handle  STEP_INCREMENT}
+        [] down  then {IncrementYPos Handle  STEP_INCREMENT}
+        [] left  then {IncrementXPos Handle ~STEP_INCREMENT}
         end
       end
 
       proc {SetImageForStep Step} ImageName in
-        ImageName = {VirtualString.toAtom "sacha_"#Direction#(Step mod IMAGE_STEPS)}
-        {Handles.player set(image:{GetImage ImageName})}
+        ImageName = {VirtualString.toAtom "characters_"#Name#"_"#Direction#(Step mod IMAGE_STEPS)}
+        {Handle set(image:{GetImage ImageName})}
       end
 
       proc {Anim Step}
@@ -177,35 +177,6 @@ define
       {QTk.flush}
       true
     end
-
-    proc {MoveTrainer Trainer Direction TurnDuration}
-       STEPS_BY_MOVE  = 8
-       STEP_DURATION  = TurnDuration div STEPS_BY_MOVE
-       STEP_INCREMENT = TILE_SIZE div STEPS_BY_MOVE
-       Handle = Handles.(Trainer.name)
-
-       proc {MoveImageOneStep}
-         case Direction
-         of up    then {IncrementYPos Handle ~STEP_INCREMENT}
-         [] right then {IncrementXPos Handle  STEP_INCREMENT}
-         [] down  then {IncrementYPos Handle  STEP_INCREMENT}
-         [] left  then {IncrementXPos Handle ~STEP_INCREMENT}
-         end
-       end
-
-       proc {Anim Step}
-         if Step==STEPS_BY_MOVE then skip
-         else
-           {MoveImageOneStep}
-           {Delay STEP_DURATION}
-           {Anim Step+1}
-         end
-       end
-     in
-       {Anim 0}
-       {QTk.flush}
-     end
-
 
     fun {IsGrass Map Position}
       Map.(Position.y+1).(Position.x+1) == GRASS

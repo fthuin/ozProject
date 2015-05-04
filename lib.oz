@@ -1,8 +1,8 @@
-% \define DEBUG
+\define DEBUG
 
 functor
 import
-   \ifdef Debug
+   \ifdef DEBUG
    System
    \endif
    OS
@@ -20,7 +20,7 @@ export
 define
 
   proc {Debug Msg}
-    \ifdef Debug
+    \ifdef DEBUG
     {System.show Msg}
     \else
     skip
