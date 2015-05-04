@@ -66,7 +66,7 @@ define
       end
     end
   in
-    {PositionIsFreeRec {Record.toList GameState.trainers}}
+    {Bool.and {PositionIsFreeRec {Record.toList GameState.trainers}} Position\=GameState.player.position}
   end
 
   fun {IsPositionOnMap? GameState Position}
