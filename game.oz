@@ -14,6 +14,7 @@ import
   GameStateMod  at 'game_state.ozf'
   PlayerMod     at 'player.ozf'
   AutoPilot     at 'auto_pilot.ozf'
+  PokemozMod    at 'pokemoz.ozf'
 define
   {Lib.debug game_started}
 
@@ -33,7 +34,7 @@ define
   MAP             = 'Map.txt'
   WILD_POKE_PROBA = 20
   SPEED           = 9
-  AUTOFIGHT       = true
+  AUTOFIGHT       = false
   Say             = System.showInfo
   Args = {Application.getArgs record(
              map(single char:&m type:atom default:MAP)
@@ -178,7 +179,14 @@ define
 
   proc {GameLoop InstructionsStream GameState}
     fun {PlayerIsAtHospital GameState} GameState.player.position == GameState.map_info.hospital_pos end
-    fun {PlayerWon GameState}          GameState.player.position == GameState.map_info.victory_pos end
+    fun {PlayerWon GameState}
+      if GameState.player.position == GameState.map_info.victory_pos
+      andthen {Length GameState.player.pokemoz_list} == 3
+      andthen {PokemozMod.allPokemozAreDead GameState.trainers.misty.pokemoz_list}
+      andthen {PokemozMod.allPokemozAreDead GameState.trainers.brock.pokemoz_list}
+      andthen {PokemozMod.allPokemozAreDead GameState.trainers.james.pokemoz_list}
+      then true else false end
+    end
 
     fun {MovePlayer GameState Direction}
       PlayerDone
