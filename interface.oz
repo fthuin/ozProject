@@ -77,7 +77,7 @@ define
      Content = lr(background:white glue:nsew handle:TopLevelH
                  td(glue:wn bg:white
                    PictureCanvas
-                   label(handle:NameLabelH bg:white font:{QTk.newFont font(weight:bold size:25)}
+                   label(handle:NameLabelH bg:white font:{QTk.newFont font(weight:bold size:18)}
                          wraplength:100 justify:center anchor:center))
                  Panel)
    in
