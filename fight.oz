@@ -72,7 +72,11 @@ define
       % Fight is over
       if {PokemozMod.allPokemozAreDead EndDefendingPlayer.pokemoz_list} then AfterEvoAttPlayer in
         {Lib.debug fight_is_over(winner:CAttPlayer looser:EndDefendingPlayer)}
-        AfterEvoAttPlayer = {PlayerMod.evolveSelectedPokemoz CAttPlayer DefendingPokemoz}
+        if {IsPlayerAttacking} then
+          AfterEvoAttPlayer = {PlayerMod.evolveSelectedPokemoz CAttPlayer DefendingPokemoz}
+        else
+          AfterEvoAttPlayer = CAttPlayer
+        end
         {AssignEndingStates Round AfterEvoAttPlayer EndDefendingPlayer EndAttacker EndDefender}
         {UpdateInterface AfterEvoAttPlayer EndDefendingPlayer}
         if {IsPlayerAttacking} then victory else defeat end

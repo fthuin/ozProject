@@ -83,7 +83,7 @@ define
      PlayerX = GameState.player.position.x
      PlayerY = GameState.player.position.y
   in
-     if {InFrontHospital GameState} then right
+     if {InFrontHospital GameState} then left
      elseif PlayerY < GameState.trainers.james.position.y then down
      elseif PlayerY > GameState.trainers.james.position.y andthen {InFrontHospital GameState}==false then up
      elseif PlayerX < GameState.trainers.james.position.x then right
@@ -118,7 +118,7 @@ define
   end
 
   fun {ShouldFight GameState WildPokemon}
-    true
+    if {PokemozMod.allPokemozAreDead GameState.trainers.james.pokemoz_list} then false else true end
   end
 
 
