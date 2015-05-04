@@ -28,7 +28,7 @@ define
 
   % Default values
   DEFAULT_NAME    = "Sacha"
-  DEFAULT_POKEMOZ = charmandoz
+  DEFAULT_POKEMOZ = oztirtle
   DELAY           = 200
   MAP             = 'Map.txt'
   WILD_POKE_PROBA = 15

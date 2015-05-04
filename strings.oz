@@ -24,6 +24,10 @@ export
   ChosenPokemoz
   StartGame
   Title
+  % Autopilot
+  AutoPilotCaptureStep
+  AutoPilotFinalStep
+  AutoPilotJamesStep
 define
   GameWon               = "Congratulations, you rescued Pikachu!"
   % Fights
@@ -49,4 +53,8 @@ define
   ChosenPokemoz         = "Chosen pookemoz :"
   StartGame             = "Start game!"
   Title                 = "Pokemoz"
+  % Autopilot
+  AutoPilotCaptureStep  = "Objective 1\nCapture 3 pokemoz"
+  AutoPilotJamesStep    = "Objective 2\nDefeat James"
+  AutoPilotFinalStep    = "Objective 3\nRescue Pikachu"
 end

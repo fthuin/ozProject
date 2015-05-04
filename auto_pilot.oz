@@ -3,6 +3,7 @@ import
    Lib           at 'lib.ozf'
    PokemozMod    at 'pokemoz.ozf'
    GameStateMod  at 'game_state.ozf'
+   Strings       at 'strings.ozf'
 export
    GenerateNextInstruction
    ShouldFight
@@ -30,6 +31,7 @@ define
   end
 
   fun {MoveToCapture GameState}
+     {Interface.setCenterLabel Strings.autoPilotCaptureStep}
      {Lib.debug move_to_capture}
      PlayerX = GameState.player.position.x
      PlayerY = GameState.player.position.y
@@ -56,11 +58,13 @@ define
   end
 
   fun {MoveToFinish GameState}
+     {Interface.setCenterLabel Strings.autoPilotFinalStep}
      {Lib.debug move_to_finish}
      PlayerX = GameState.player.position.x
      PlayerY = GameState.player.position.y
   in
-     if PlayerY > VictoryPosition.y+2 then
+     if {InFrontHospital GameState} then right
+     elseif PlayerY > VictoryPosition.y+2 then
         if {InFrontHospital GameState}     then right
         else up
         end
@@ -74,11 +78,13 @@ define
   end
 
   fun {MoveToJames GameState}
+     {Interface.setCenterLabel Strings.autoPilotJamesStep}
      {Lib.debug move_to_james}
      PlayerX = GameState.player.position.x
      PlayerY = GameState.player.position.y
   in
-     if PlayerY < GameState.trainers.james.position.y     then down
+     if {InFrontHospital GameState} then right
+     elseif PlayerY < GameState.trainers.james.position.y then down
      elseif PlayerY > GameState.trainers.james.position.y then up
      elseif PlayerX < GameState.trainers.james.position.x then right
      else left

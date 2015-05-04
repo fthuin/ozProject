@@ -25,14 +25,7 @@ define
    ROAD  = 0
 
    % Handles
-   Handles = handles(
-     map_canvas:_
-     player:_
-     brock:_
-     misty:_
-     james:_
-   )
-
+   Handles = handles(map_canvas:_ player:_ brock:_ misty:_ james:_)
 
    % Private methods
 
