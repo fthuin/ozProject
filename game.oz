@@ -33,7 +33,7 @@ define
   MAP             = 'Map.txt'
   WILD_POKE_PROBA = 15
   SPEED           = 9
-  AUTOFIGHT       = true
+  AUTOFIGHT       = false
   Say             = System.showInfo
   Args = {Application.getArgs record(
              map(single char:&m type:atom default:MAP)

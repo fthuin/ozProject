@@ -106,14 +106,14 @@ define
      SelectTopLevel SelectLabel Select1 Select2 Select3
 
      Info = td(handle:InfoToplevel bg:white
-       label(justify:center handle:InfoLabel background:white height:6 width:30 wraplength:260)
+       label(justify:center handle:InfoLabel background:white height:6 width:30 wraplength:245)
        button(handle:InfoBtn width:10)
      )
      {CenterAreaPlaceHolderH set(Info)}
      {CenterAreaPlaceHolderH set(empty)}
 
      Question = td(handle:QuestionTopLevel bg:white
-       label(justify:center handle:QuestionLabel background:white height:6 width:30 wraplength:260)
+       label(justify:center handle:QuestionLabel background:white height:6 width:30 wraplength:245)
        lr(bg:white
          button(handle:QuestionBtnYes width:10)
          button(handle:QuestionBtnNo  width:10)
@@ -123,7 +123,7 @@ define
      {CenterAreaPlaceHolderH set(empty)}
 
      PokemozChoice = td(handle:SelectTopLevel bg:white
-        label(justify:center handle:SelectLabel background:white height:2 width:30 wraplength:260)
+        label(justify:center handle:SelectLabel background:white height:2 width:30 wraplength:245)
         td(bg:white
           button(handle:Select1 width:20)
           button(handle:Select2 width:20)
