@@ -326,7 +326,7 @@ define
 
   proc {SetCenterLabel Message}
     {CenterAreaHandles.info.label   set(text:Message)}
-    {CenterAreaHandles.info.btn     set(text:"Be patient...")}
+    {CenterAreaHandles.info.btn     set(text:"Be patient")}
     {CenterAreaHandles.place_holder set(CenterAreaHandles.info.top_level)}
     {QTk.flush}
   end
