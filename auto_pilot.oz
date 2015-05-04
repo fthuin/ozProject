@@ -93,7 +93,7 @@ define
      end
   end
 
-  fun {GenerateNextInstruction GameState}
+  fun {GenerateNextInstruction GameState} Direction in
      Direction = {Move GameState}
      Free?     = GameStateMod.isPositionFree?
      CanMove?  = GameStateMod.canPlayerMoveInDirection?
