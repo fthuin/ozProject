@@ -77,7 +77,7 @@ define
                  td(glue:wn bg:white
                    PictureCanvas
                    label(handle:NameLabelH bg:white font:{QTk.newFont font(weight:bold size:25)}
-                         wraplength:100 glue:w justify:center anchor:center))
+                         wraplength:100 justify:center anchor:center))
                  Panel)
    in
      Handles = handles( place_holder:   PlaceHolderH
@@ -125,9 +125,9 @@ define
      PokemozChoice = td(handle:SelectTopLevel bg:white
         label(justify:center handle:SelectLabel background:white height:2 width:30 wraplength:245)
         td(bg:white
-          button(handle:Select1 width:20)
-          button(handle:Select2 width:20)
-          button(handle:Select3 width:20)
+          button(handle:Select1 width:25)
+          button(handle:Select2 width:25)
+          button(handle:Select3 width:25)
         )
      )
      {CenterAreaPlaceHolderH set(PokemozChoice)}
@@ -215,7 +215,7 @@ define
      SelectedPanel = Handles.{VirtualString.toAtom panel#Player.selected_pokemoz#handles}.top_level
    in
      {UpdateImage Handles.picture_canvas  Handles.picture_img Player.image}
-     {Handles.name_label     set(text:Player.name)}
+     {Handles.name_label set(text:{Lib.capitalize Player.name})}
      {Handles.panel selectPanel(SelectedPanel)}
      {LoopPokemoz Player.pokemoz_list 1}
    end
@@ -333,7 +333,11 @@ define
     PokemonList  = Player.pokemoz_list
     PokemozCount = {Length PokemonList}
     fun {TextBtn Index}
-      if PokemozCount >= Index then {List.nth PokemonList Index}.name else nil end
+      if PokemozCount >= Index then
+        Name = {List.nth PokemonList Index}.name
+        Type = {List.nth PokemonList Index}.type in
+        {Lib.atomToCapitalizedString Name}#" - "#{Lib.atomToCapitalizedString Type}
+      else nil end
     end
     fun {StateBtn Index}
       if PokemozCount >= Index andthen {List.nth PokemonList Index}.health>0 then normal else disabled end

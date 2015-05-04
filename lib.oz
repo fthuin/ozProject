@@ -10,6 +10,8 @@ export
    BindKeyboardArrows
    UnbindKeyboardArrows
    AtomToCapitalizedString
+   Downcase
+   Capitalize
 define
   proc {Debug Msg}
      {System.show Msg}
@@ -52,6 +54,20 @@ define
   end
 
   fun {AtomToCapitalizedString A}
-    case {Atom.toString A} of H|T then {Char.toUpper H}|T end
+    {Capitalize {Atom.toString A}}
+  end
+
+  fun {Capitalize S}
+    case S
+    of H|T then {Char.toUpper H}|T
+    [] nil then nil
+    end
+  end
+
+  fun {Downcase S}
+    case S
+    of H|T then {Char.toLower H}|T
+    [] nil then nil
+    end
   end
 end

@@ -89,7 +89,7 @@ define
 
     % Configure map elements
     VictoryPosition  = pos(x:MapWidth-1 y:0)
-    HospitalPosition = pos(x:3 y:3)
+    HospitalPosition = pos(x:4 y:3)
     BrockPosition    = pos(x:5 y:1)
     MistyPosition    = pos(x:1 y:1)
     JamesPosition    = pos(x:0 y:5)
@@ -115,7 +115,7 @@ define
     MapPlaceHolder
     InterfacePlaceHolder
     [QTk]  = {Module.link ["x-oz://system/wp/QTk.ozf"]}
-    Window = {QTk.build td(td(pady:20 padx:20 % Cannot set padding on top-level, so set 1 extra td for padding.
+    Window = {QTk.build td(title:Strings.title td(pady:20 padx:20 % Cannot set padding on top-level.
                             placeholder(glue:n handle:MapPlaceHolder        width:1100 height:560)
                             placeholder(glue:n handle:InterfacePlaceHolder  width:1100 height:220)))}
     {Window show}

@@ -188,6 +188,7 @@ define
       end
     in
       {Anim 0}
+      {QTk.flush}
     end
 
     fun {IsGrass Map Position}

@@ -1,6 +1,8 @@
 functor
 import
    Module
+   Lib           at 'lib.ozf'
+   Strings       at 'strings.ozf'
 export
    GetUserChoice
 define
@@ -34,22 +36,22 @@ define
    StartGameBtnHandle
    NameTextHandle
 
-   NewGameMsg       = {Title "New game"}
-   ChooseNameMsg    = {Subtitle "Choose your name"}
-   ChoosePokemozMsg = {Subtitle "Choose your starting Pokemoz"}
+   NewGameMsg       = {Title Strings.newGame}
+   ChooseNameMsg    = {Subtitle Strings.chooseName}
+   ChoosePokemozMsg = {Subtitle Strings.choosePokemoz}
    NameText         = text(init:DefaultChosenName glue:n width:15 height:2 return:PlayerName
                            borderwidth:0 highlightthickness:0 action:CheckInputs handle:NameTextHandle)
 
-   ChoiceLabel   = lr(label(init:"ChosenPokemoz :" bg:white)
+   ChoiceLabel   = lr(label(init:Strings.chosenPokemoz bg:white)
                       label(init:DefaultChosenPokemozLabel handle:ChoiceLabelHandle bg:white return:ChosenPokemoz text:DefaultChosenPokemozLabel))
 
-   StartGameBtn  = button(text:"Start game !" padx:150 pady:20 glue:new bg:white
+   StartGameBtn  = button(text:Strings.startGame padx:150 pady:20 glue:new bg:white
                           action:toplevel#close state:disabled handle:StartGameBtnHandle)
 
    SachaCanvas   = canvas(handle:SachaCanvasHandle width:400 height:350 bg:white borderwidth:0 highlightthickness:0)
    PokemozCanvas = canvas(handle:PokemozCanvasHandle width:300 height:600 bg:white borderwidth:0 highlightthickness:0)
 
-   MainLayout = td(title:"Pokemoz" bg:white
+   MainLayout = td(title:Strings.title bg:white
 		   NewGameMsg
 		   lr(
 		      bg:white
@@ -80,9 +82,9 @@ define
    end
 
    proc {SetChoosenPokemonText X Y} Name in
-     if Y < 180     then Name = bulbasoz
-     elseif Y < 360 then Name = charmandoz
-     else                Name = oztirtle
+     if Y < 180     then Name = "Bulbasoz"
+     elseif Y < 360 then Name = "Charmandoz"
+     else                Name = "Oztirtle"
      end
      {ChoiceLabelHandle set(Name)}
      {CheckInputs}
@@ -107,9 +109,10 @@ define
       {PokemozCanvasHandle bind(event:"<1>" action:SetChoosenPokemonText args:[int(x) int(y)])}
       {DisplaySachaImage}
       {DisplayPokemoz}
+      {QTk.flush}
       {NameTextHandle set(DefaultChosenName)}
       {Window show(wait:true modal:true)}
       Name        = PlayerName
-      PokemozName = {String.toAtom ChosenPokemoz}
+      PokemozName = {String.toAtom {Lib.downcase ChosenPokemoz}}
    end
 end
