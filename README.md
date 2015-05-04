@@ -6,7 +6,6 @@ Pokemoz Project.
 We give you a makefile to make the compilation way simplier, open a
 console from here and type the following command lines :
 
-$ make compileImages
 $ make
 
 If the project is already built, you can just type this command line in
