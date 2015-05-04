@@ -20,7 +20,7 @@ define
   end
 
   fun {InFrontHospital GameState}
-     if GameState.player.position.x == HospitalPosition.x+1 andthen
+     if GameState.player.position.x == HospitalPosition.x andthen
         GameState.player.position.y == HospitalPosition.y+1 then true
      else false
      end
@@ -85,7 +85,7 @@ define
   in
      if {InFrontHospital GameState} then right
      elseif PlayerY < GameState.trainers.james.position.y then down
-     elseif PlayerY > GameState.trainers.james.position.y then up
+     elseif PlayerY > GameState.trainers.james.position.y andthen {InFrontHospital GameState}==false then up
      elseif PlayerX < GameState.trainers.james.position.x then right
      else left
      end
@@ -109,11 +109,11 @@ define
    in
      if {GameStateMod.canPlayerMoveInDirection? GameState Direction} then Direction
      else
-	      if {CanMove? GameState up}        andthen {Free? GameState pos(XPos YPos-1)} then up
+	if {CanMove? GameState right} andthen {Free? GameState pos(XPos+1 YPos)} then right
+	elseif {CanMove? GameState up}        andthen {Free? GameState pos(XPos YPos-1)} then up
         elseif {CanMove? GameState down}  andthen {Free? GameState pos(XPos YPos+1)} then down
         elseif {CanMove? GameState left}  andthen {Free? GameState pos(XPos-1 YPos)} then left
-        elseif {CanMove? GameState right} andthen {Free? GameState pos(XPos+1 YPos)} then right
-	      end
+	end
      end
   end
 
