@@ -163,7 +163,7 @@ define
        in
           if {Lib.rand 4}==1
              andthen {GameStateMod.isPositionOnMap? GameState NewPos}
-             andthen {GameStateMod.isPositionFree? GameState NewPos}
+             andthen {GameStateMod.isPositionFree?  GameState NewPos}
              andthen (NewPos\=GameState.map_info.hospital_pos)
              andthen {Bool.'or' (NewPos.x\=GameState.map_info.hospital_pos.x)
                                 (NewPos.y\=GameState.map_info.hospital_pos.y+1)} % Dont block hospital...
