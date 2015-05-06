@@ -28,8 +28,6 @@ define
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
   % Default values
-  DEFAULT_NAME    = "Sacha"
-  DEFAULT_POKEMOZ = bulbasoz
   DELAY           = 200
   MAP             = 'Map.txt'
   WILD_POKE_PROBA = 20
@@ -76,12 +74,7 @@ define
   fun {InitGame}
     % Ask player name and starting pokemoz
     PlayerName PokemozName
-    if AutoFight then
-      PlayerName =  DEFAULT_NAME
-      PokemozName = DEFAULT_POKEMOZ
-    else
-      {GameIntro.getUserChoice PlayerName PokemozName}
-    end
+    {GameIntro.getUserChoice PlayerName PokemozName}
 
     % Load map
     Map       = {MapMod.loadMapFromFile MapPath}

@@ -28,7 +28,6 @@ We use the following 4 main data structures (implemented with records) across th
   \item [MapInfo:] Holds the map record and various information like: victory\_position, hospital\_position and width/height for convenience.
   \item [Player:] Describes any player: the actual player, the enemy trainers and the \og{}wild pokemoz\fg{} trainer. It hold the following info: name, image, position, selected\_pokemoz and pokemoz\_list.
   \item [Pokemoz:] Describes any pokemoz: name, type, level, health and xp.
-
 \end{description}
 
 \section{Components}
@@ -62,6 +61,10 @@ We divided our code into 5 layers and 12 \og{}components\fg{} (functors). This s
   \item[Lib module] Exposes general purpose functions.
 \end{description}
 
+\bigskip
+\bigskip
+\bigskip
+\bigskip
 
 %\begin{landscape}
 
@@ -73,7 +76,7 @@ We divided our code into 5 layers and 12 \og{}components\fg{} (functors). This s
 
 %\end{landscape}
 
-\bigskip
+\clearpage
 
 \section{State diagrams}
 
@@ -81,6 +84,19 @@ We divided our code into 5 layers and 12 \og{}components\fg{} (functors). This s
  \includegraphics[width=\linewidth]{State_diagram_oz.png}
  \caption{State diagram of our project}
 \end{figure}
+
+\section{Additions}
+
+In this section we list a few features that we added to the base instructions to improve the game:
+\begin{description}
+  \item [Multiple pokemoz] The player can capture wild pokemoz and hold up to 3 pokemoz.
+  \item [Switch in battle] The player can choose his starting pokemOz and select the next to continue the fight if the starting pokemOz is defeated.
+  \item [Hospital] The player can heal his pokemoz at the hospital.
+  \item [Additionnal pokemoz] In addition to the 3 base pokemOz we added a few new pokemOz and types.
+  \item [Evolutions] PokemOz transform at level 7 and level 9.
+\end{description}
+
+
 
 
 \end{document}

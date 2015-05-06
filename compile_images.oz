@@ -129,6 +129,25 @@ define
    {AddPhoto pokemoz wartortle}
    {AddPhoto pokemoz blastoise}
 
+   {AddPhoto pokemoz vileplume}
+   {AddPhoto pokemoz nidorino}
+   {AddPhoto pokemoz golem}
+   {AddPhoto pokemoz seadra}
+   {AddPhoto pokemoz graveler}
+   {AddPhoto pokemoz butterfree}
+   {AddPhoto pokemoz poliwhirl}
+   {AddPhoto pokemoz victreebel}
+   {AddPhoto pokemoz poliwrath}
+   {AddPhoto pokemoz gyarados}
+   {AddPhoto pokemoz weezing}
+   {AddPhoto pokemoz metapod}
+   {AddPhoto pokemoz gloom}
+   {AddPhoto pokemoz rapidash}
+   {AddPhoto pokemoz nidoran}
+   {AddPhoto pokemoz ninetales}
+   {AddPhoto pokemoz nidoking}
+   {AddPhoto pokemoz weepinbell}
+
    % Add characters
    {AddPhoto characters brock}
    {AddPhoto characters james}

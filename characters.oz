@@ -12,12 +12,10 @@ define
     pokemoz(name:bellsprout   type:PokemozMod.grass)
     pokemoz(name:caterpie     type:PokemozMod.grass)
     pokemoz(name:lapras       type:PokemozMod.water)
-    pokemoz(name:magby        type:PokemozMod.fire)
     pokemoz(name:magikarp     type:PokemozMod.water)
     pokemoz(name:moltres      type:PokemozMod.fire)
     pokemoz(name:nidoran      type:PokemozMod.grass)
     pokemoz(name:oddish       type:PokemozMod.grass)
-    pokemoz(name:omanyte      type:PokemozMod.water)
     pokemoz(name:poliwag      type:PokemozMod.water)
     pokemoz(name:ponyta       type:PokemozMod.fire)
     pokemoz(name:vulpix       type:PokemozMod.fire)
@@ -65,6 +63,23 @@ define
     wartortle:blastoise
     charmandoz:charmeleon
     charmeleon:charizard
+    oddish:gloom
+    gloom:vileplume
+    nidoran:nidorino
+    nidorino:nidoking
+    geodude:graveler
+    graveler:golem
+    bellsprout:weepinbell
+    weepinbell:victreebel
+    horsea:seadra
+    caterpie:metapod
+    metapod:butterfree
+    poliwag:poliwhirl
+    poliwhirl:poliwrath
+    magikarp:gyarados
+    koffing:weezing
+    ponyta:rapidash
+    vulpix:ninetales
   )
 
   fun {SummonWildPokemon GameState}

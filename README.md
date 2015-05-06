@@ -20,8 +20,8 @@ ozengine ./game.oza [options] [params]
 
 The following options are accepted :
 
--m, --map FILEPATH (a file containing a map)
--p, --probability INT (probability to find a wild pokemoz in tall grass)
--s, --speed INT (speed of your pokemoz trainer)
--a, --autofight BOOL (choice of an automatic game or not)
+-m, --map FILEPATH (a file containing a map - defaults to map.txt)
+-p, --probability INT (probability to find a wild pokemoz in tall grass - defaults to 20)
+-s, --speed INT (speed of your pokemoz trainer - defaults to 9)
+-a, --autofight BOOL (choice of an automatic game or not - defaults to YES)
 -h, -?, --help (a help about the arguments)
