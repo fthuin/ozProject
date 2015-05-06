@@ -4,3 +4,5 @@
 *.oza
 *.aux
 *.log
+*.backup
+*.PID
